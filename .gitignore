@@ -1,6 +1,11 @@
 # Folders
 Temp/
 Library/
+ExternalFiles/
+Assets/HoloToolkit/
+Assets/HoloToolkit-Examples/
+Assets/HoloToolkit-Examples.meta
+Assets/HoloToolkit.meta
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
