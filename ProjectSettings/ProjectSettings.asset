@@ -565,11 +565,11 @@ PlayerSettings:
   m_MobileRenderingPath: 1
   metroPackageName: PrestageHL
   metroPackageVersion: 
-  metroCertificatePath: 
+  metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: 
-  metroCertificateIssuer: 
-  metroCertificateNotAfter: 0000000000000000
+  metroCertificateSubject: DefaultCompany
+  metroCertificateIssuer: DefaultCompany
+  metroCertificateNotAfter: 008cbb2a2f9bd501
   metroApplicationDescription: PrestageHL
   wsaImages: {}
   metroTileShortName: 

@@ -39,6 +39,8 @@ public class BlockPrim : MonoBehaviour
     /// </summary>
     public Mesh BlockMesh;
 
+    public float SnapDistance;
+
     #region Vertices and Edges
     // Make them private later.
     public Vector3[] FACE_VERTS_POS_Z
@@ -420,8 +422,10 @@ public class BlockPrim : MonoBehaviour
             return SetTarggetPosition();
         }
     }
-
-    public GameObject obj;
+    /// <summary>
+    /// GameObject that holds the menu of the block.
+    /// </summary>
+    public GameObject BlockMenu;
 
     #region Unity
     // Use this for initialization
@@ -437,6 +441,7 @@ public class BlockPrim : MonoBehaviour
         SetUpIndividualFaces();
         UpdateBlockCollider();
         UpdateProximityCollider();
+        SnapDistance = 0.04f;
         //--------------------------------------------
         foreach (Vector3 vertex in Vertices)
         {
@@ -446,29 +451,9 @@ public class BlockPrim : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update ()
-    {
-        if (Input.GetKey(KeyCode.T))
-        {
-            Vector3 moveDir = BlockMesh.normals[0];
-
-            for (int i = 0; i < 3; i++)
-            {
-                //vertices[i] += moveDir * 0.05f;
-                Vertices[VertexIndexCon[0][i]] += moveDir * 0.05f;
-                Vertices[VertexIndexCon[1][i]] += moveDir * 0.05f;
-                Vertices[VertexIndexCon[2][i]] += moveDir * 0.05f;
-                Vertices[VertexIndexCon[3][i]] += moveDir * 0.05f;
-            }
-            // Update block vertices with freshly moved ones.
-            BlockMesh.vertices = Vertices;
-        }
-        if (Input.GetKey(KeyCode.O))
-        {
-            this.transform.Translate(new Vector3(0.1f, 0, 0), Space.World);
-        }
-
-        //obj.transform.position = SetTarggetPosition();
-    }
+	{
+	    UpdateBlockMenu();
+	}
 
     private void LateUpdate()
     {
@@ -508,8 +493,6 @@ public class BlockPrim : MonoBehaviour
         // Reset the collider name to empty.
         ColliderName = "";
         VerticesSaved = BlockMesh.vertices;
-        // Reset the selection
-        Selected = false;
         UpdateBlockCollider();
         UpdateProximityCollider();
 
@@ -570,6 +553,18 @@ public class BlockPrim : MonoBehaviour
 
     }
 
+    public void UpdateBlockMenu()
+    {
+        if (Selected)
+        {
+            BlockMenu.SetActive(true);
+        }
+        else
+        {
+            BlockMenu.SetActive(false);
+        }
+    }
+
     ////---------------------------------------------------------------------------------------------------
     ///// <summary>
     ///// Method that returns the intersection point between object's middle plane and a ray from mouse position.
@@ -624,7 +619,7 @@ public class BlockPrim : MonoBehaviour
             
             for(int i = 0; i < ((List<GameObject>)MoveSnapBuildup()[0]).Count; i++)
             {
-                MoveBlockToSnap(0.2f, 0.2f, i);
+                MoveBlockToSnap(SnapDistance, SnapDistance, i);
             }
         }
     }
@@ -844,7 +839,7 @@ public class BlockPrim : MonoBehaviour
 
         GUI.color = new Color(0.2f, 0.1f, 0.9f, 1f);
         //GUI.Label(new Rect(20, 35, 400, 100), ("BlockID: " + blockID));
-        Drawing.DrawLabel(FACE_POS_Y.FACE_CENTER_WORLD + new Vector3(0, 0.3f , 0), "BlockID: " + BlockId);
+        //Drawing.DrawLabel(FACE_POS_Y.FACE_CENTER_WORLD + new Vector3(0, 0.3f , 0), "BlockID: " + BlockId);
         //Vector2 scre = Camera.main.WorldToScreenPoint(FACE_POS_Y.FACE_CENTER_WORLD);
         //Vector2 scre2 = Camera.main.WorldToScreenPoint(FACE_POS_Y.FACE_CENTER_WORLD + new Vector3(0, 0.3f, 0));
         //Drawing.DrawLine(new Vector2(scre.x, Screen.height - scre.y), new Vector2(scre2.x, Screen.height - scre2.y), Color.red, 2);

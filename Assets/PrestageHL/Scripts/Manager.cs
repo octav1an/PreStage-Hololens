@@ -28,6 +28,11 @@ public class Manager : MonoBehaviour, IInputHandler
 
     public BlockPrim SelectedBlock;
     /// <summary>
+    /// Highlight Material when the block is selected.
+    /// </summary>
+    public Material SelectedMaterial;
+    public Material UnselectedMaterial;
+    /// <summary>
     /// List with all the objects that are drawn on the canvas.
     /// </summary>
     public static List<GameObject> CollBlocksObjects = new List<GameObject>();
@@ -157,11 +162,9 @@ public class Manager : MonoBehaviour, IInputHandler
     public void OnInputUp(InputEventData eventData)
     {
         InputDown = false;
-        if (SelectedBlock != null)
-        {
-            SelectedBlock.OnInputUpLocal();
-            SelectedBlock = null;
-        }
+        //DeselectBlock(SelectedBlock);
+        // Update the Block info on Tap Up.
+        if(SelectedBlock) SelectedBlock.OnInputUpLocal();
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
@@ -186,15 +189,42 @@ public class Manager : MonoBehaviour, IInputHandler
         if (hit.collider.tag == "BlockFace")
         {
             BlockPrim block = hit.collider.gameObject.GetComponent<BlockFace>().BLOCK_COMP;
-            //print(block.name);
-            block.Selected = true;
-            SelectedBlock = block;
+            // If there is a selected block and user selects another one, deselect the already selected one.
+            if (SelectedBlock && block.BlockId != SelectedBlock.BlockId)
+            {
+                DeselectBlock(SelectedBlock);
+                block.Selected = true;
+                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
+                SelectedBlock = block;
+            }
+            else
+            {
+                block.Selected = true;
+                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
+                SelectedBlock = block;
+            }
+            return block;
+        }else if (hit.collider.tag == "BlockMenu")
+        {
+            BlockPrim block = hit.collider.gameObject.GetComponent<BlockFace>().BLOCK_COMP;
             return block;
         }
         else
         {
             Debug.Log("I don't know what are u hitting.");
+            DeselectBlock(SelectedBlock);
             return null;
+        }
+    }
+
+    private void DeselectBlock(BlockPrim selected)
+    {
+        if (selected != null)
+        {
+            selected.GetComponent<MeshRenderer>().material = UnselectedMaterial;
+            selected.Selected = false;
+            selected.OnInputUpLocal();
+            selected = null;
         }
     }
 

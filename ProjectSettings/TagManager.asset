@@ -8,6 +8,7 @@ TagManager:
   - BlockPrim
   - BlockFace
   - ProximityCollider
+  - BlockMenu
   layers:
   - Default
   - TransparentFX

@@ -21,6 +21,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
         }
     }
     public bool FaceActive = false;
+    private float _snapDistance;
     public Vector3[] FaceVerts;
     /// <summary>
     /// Face center location for the local center. To get the global position call transform.position
@@ -122,6 +123,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
         }
     }
 
+    #region Snap Variables
     private bool _snapZoneOn;
     // Exact Status
     private bool _exactCornerSnap;
@@ -132,13 +134,15 @@ public class BlockFace : MonoBehaviour, IInputHandler
     // Drag fields. Vector is used to store DYNAMIC_DIFF when snapping.
     private Vector3 _diffMove;
     private bool _dragThrough;
+    #endregion //Snap Variables
 
-    //---------------------------------------------------------------------------------------------------
+    #region Unity
     // Use this for initialization
     void Start()
     {
         _savedFaceCenter = FACE_CENTER;
         _savedProjectedTarget = PROJECTED_TARGET;
+        _snapDistance = 0.02f;
     }
 
     // Update is called once per frame
@@ -149,7 +153,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
         {
             if (this.name != "face_pos_y" && this.name != "face_neg_y")
             {
-                _snapZoneOn = ActivateSnapZone(0.1f, 0.1f);
+                _snapZoneOn = ActivateSnapZone(_snapDistance, _snapDistance);
             }
         }
     }
@@ -161,67 +165,13 @@ public class BlockFace : MonoBehaviour, IInputHandler
         {
             if (this.name != "face_pos_y" && this.name != "face_neg_y")
             {
-                if (!_snapZoneOn)
-                {
-                    _diffMove = DYNAMIC_DIFF;
-                    MoveFace(BLOCK_COMP.ColliderName);
-                    _dragThrough = false;
-                    //print("01");
-                }
-                else if (_snapZoneOn && !_dragThrough)
-                {
-                    if (!_exactCornerSnap && _cornerSnapZone && !_exactFaceSnap)
-                    {
-                        MoveSnapFace(0.1f, 0.1f);
-                        //print("02");
-                    }
-                    else if (!_exactFaceSnap && _faceSnapZone)
-                    {
-                        MoveSnapFace(0.1f, 0.1f);
-                        //print("03");
-                    }
-                    else if (_exactFaceSnap && _cornerSnapZone)
-                    {
-                        MoveSnapFace(0.1f, 0.1f);
-                        //print("04");
-                    }
-                }
-                else if (_snapZoneOn && _dragThrough)
-                {
-                    if (_exactCornerSnap)
-                    {
-                        _diffMove = DYNAMIC_DIFF;
-                        MoveFace(BLOCK_COMP.ColliderName);
-                    }
-                    // If I am in cornerSnapZone, snap to corner and deactivate the drag bool.
-                    else if (_cornerSnapZone && _exactFaceSnap)
-                    {
-                        MoveSnapFace(0.1f, 0.1f);
-                        _dragThrough = false;
-                        //print("05");
-                    }
-                    else
-                    {
-                        _diffMove = DYNAMIC_DIFF;
-                        MoveFace(BLOCK_COMP.ColliderName);
-                        //print("06");
-                    }
-                }
-                // If the mouse is moved after snap, turn on drag bool.
-                if (Mathf.Abs(DYNAMIC_DIFF.magnitude - _diffMove.magnitude) > 0.1f)
-                {
-                    _dragThrough = true;
-                }
-                //if (BLOCK_COMP.name == "Block" && this.name == "face_pos_z") print("snap: " + MoveSnapFace(0.1f, 0.1f, 0));
-                if (this.name == "face_pos_z")
-                {
-                    //print("snapMag: " + snapDiffMag);
-                }
+                MoveFaceOrder();
             }
         }
     }
+    #endregion //Unity
 
-    //---------------------------------------------------------------------------------------------------
+    #region Event Methods
     /// <summary>
     /// Method that is called in BlockPrim when MouseDown event was triggered.
     /// </summary>
@@ -229,14 +179,16 @@ public class BlockFace : MonoBehaviour, IInputHandler
     {
         _savedFaceCenter = FACE_CENTER;
         _savedProjectedTarget = PROJECTED_TARGET;
-        if(BLOCK_COMP.ColliderName == this.name) FaceActive = true;
+        if (BLOCK_COMP.ColliderName == this.name) FaceActive = true;
     }
 
     public void UpdateOnMouseUp()
     {
         _diffMove = new Vector3();
-         FaceActive = false;
+        FaceActive = false;
     }
+    #endregion //Event Methods
+
 
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
     public void OnInputDown(InputEventData eventData)
@@ -251,6 +203,65 @@ public class BlockFace : MonoBehaviour, IInputHandler
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
     //---------------------------------------------------------------------------------------------------
+
+    #region Move Face Methods
+
+
+    public void MoveFaceOrder()
+    {
+        if (!_snapZoneOn)
+        {
+            _diffMove = DYNAMIC_DIFF;
+            MoveFace(BLOCK_COMP.ColliderName);
+            _dragThrough = false;
+            //print("01");
+        }
+        else if (_snapZoneOn && !_dragThrough)
+        {
+            if (!_exactCornerSnap && _cornerSnapZone && !_exactFaceSnap)
+            {
+                MoveSnapFace(_snapDistance, _snapDistance);
+                //print("02");
+            }
+            else if (!_exactFaceSnap && _faceSnapZone)
+            {
+                MoveSnapFace(_snapDistance, _snapDistance);
+                //print("03");
+            }
+            else if (_exactFaceSnap && _cornerSnapZone)
+            {
+                MoveSnapFace(_snapDistance, _snapDistance);
+                //print("04");
+            }
+        }
+        else if (_snapZoneOn && _dragThrough)
+        {
+            if (_exactCornerSnap)
+            {
+                _diffMove = DYNAMIC_DIFF;
+                MoveFace(BLOCK_COMP.ColliderName);
+            }
+            // If I am in cornerSnapZone, snap to corner and deactivate the drag bool.
+            else if (_cornerSnapZone && _exactFaceSnap)
+            {
+                MoveSnapFace(_snapDistance, _snapDistance);
+                _dragThrough = false;
+                //print("05");
+            }
+            else
+            {
+                _diffMove = DYNAMIC_DIFF;
+                MoveFace(BLOCK_COMP.ColliderName);
+                //print("06");
+            }
+        }
+        // If the mouse is moved after snap, turn on drag bool.
+        if (Mathf.Abs(DYNAMIC_DIFF.magnitude - _diffMove.magnitude) > _snapDistance)
+        {
+            _dragThrough = true;
+        }
+    }
+
     /// <summary>
     /// Method to move the face. Works only of the vertical faces.
     /// </summary>
@@ -451,14 +462,14 @@ public class BlockFace : MonoBehaviour, IInputHandler
             }
             else
             {
-                print("No snap -2- !");
+                //print("No snap -2- !");
                 MoveFace(BLOCK_COMP.ColliderName);
                 return;
             }
         }
 
         MoveFace(BLOCK_COMP.ColliderName);
-        print("No snap!");
+        //print("No snap!");
     }
 
     //---------------------------------------------------------------------------------------------------
@@ -559,6 +570,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
             return false;
         }
     }
+    #endregion //Move Face Methods
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
