@@ -9,6 +9,10 @@ TagManager:
   - BlockFace
   - ProximityCollider
   - BlockMenu
+  - PropertiesPanel
+  - PRVertex
+  - PREdge
+  - PRFace
   layers:
   - Default
   - TransparentFX

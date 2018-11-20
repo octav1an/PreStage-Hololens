@@ -67,7 +67,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
     /// </summary>
     public int[] EdgeMidCollIndex;
     /// <summary>
-    /// Edge mid points of this face, referenced from parent BlockPrim.
+    /// PREdge mid points of this face, referenced from parent BlockPrim.
     /// </summary>
     public Vector3[] FACE_EDGE_MID_COLL
     {

@@ -452,7 +452,7 @@ public class BlockPrim : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-	    UpdateBlockMenu();
+        UpdateBlockMenu();
 	}
 
     private void LateUpdate()
@@ -728,7 +728,7 @@ public class BlockPrim : MonoBehaviour
                     closestVec = EDGE_MID_COLL[i];
                     closestIndex = i;
                 }
-                //print("Edge PT " + i + " : " + (coll_closest[i] - EDGE_MID_COLL[i]).magnitude);
+                //print("PREdge PT " + i + " : " + (coll_closest[i] - EDGE_MID_COLL[i]).magnitude);
             }
 
             // The vector between EdgePt and projection on ProxiObj of this EdgePt.
@@ -825,6 +825,7 @@ public class BlockPrim : MonoBehaviour
     }
     #endregion // FaceSetUp
 
+    #region Draw Elements
     void OnGUI()
     {
         GUI.color = new Color(1f, 0.1f, 0f, 1f);
@@ -896,5 +897,9 @@ public class BlockPrim : MonoBehaviour
         */
 
     }
+
+
+    #endregion //Draw Elements
+
 
 }

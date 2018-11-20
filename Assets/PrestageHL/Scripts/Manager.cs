@@ -206,8 +206,7 @@ public class Manager : MonoBehaviour, IInputHandler
             return block;
         }else if (hit.collider.tag == "BlockMenu")
         {
-            BlockPrim block = hit.collider.gameObject.GetComponent<BlockFace>().BLOCK_COMP;
-            return block;
+            return SelectedBlock;
         }
         else
         {
