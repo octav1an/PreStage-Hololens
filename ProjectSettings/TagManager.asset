@@ -13,6 +13,7 @@ TagManager:
   - PRVertex
   - PREdge
   - PRFace
+  - PRCube
   layers:
   - Default
   - TransparentFX

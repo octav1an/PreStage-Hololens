@@ -26,7 +26,7 @@ public class Manager : MonoBehaviour, IInputHandler
         }
     }
 
-    public BlockPrim SelectedBlock;
+    public PRCube SelectedBlock;
     /// <summary>
     /// Highlight Material when the block is selected.
     /// </summary>
@@ -139,7 +139,7 @@ public class Manager : MonoBehaviour, IInputHandler
             _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(_ray, out _hit))
             {
-                SelectBlock(_hit);
+                UpdateSelection(_hit);
             }
 
         }
@@ -153,7 +153,7 @@ public class Manager : MonoBehaviour, IInputHandler
         _ray = GazeManager.Instance.Rays[0];
         if (Physics.Raycast(_ray, out _hit))
         {
-            BlockPrim block = SelectBlock(_hit);
+            PRCube block = UpdateSelection(_hit);
             if(SelectedBlock)SelectedBlock.OnInputDownLocal();
         }
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
@@ -184,26 +184,22 @@ public class Manager : MonoBehaviour, IInputHandler
     /// Select the block I am hitting.
     /// </summary>
     /// <param name="hit">Raycast hit.</param>
-    private BlockPrim SelectBlock(RaycastHit hit)
+    private PRCube UpdateSelection(RaycastHit hit)
     {
-        if (hit.collider.tag == "BlockFace")
+        if (hit.collider.tag == "PRCube")
         {
-            BlockPrim block = hit.collider.gameObject.GetComponent<BlockFace>().BLOCK_COMP;
+            PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
             // If there is a selected block and user selects another one, deselect the already selected one.
-            if (SelectedBlock && block.BlockId != SelectedBlock.BlockId)
+            if (SelectedBlock && geo.CubeId != SelectedBlock.CubeId)
             {
-                DeselectBlock(SelectedBlock);
-                block.Selected = true;
-                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
-                SelectedBlock = block;
+                SelectedBlock.DeselectCube(UnselectedMaterial);
+                geo.SelectCube(SelectedMaterial);
             }
             else
             {
-                block.Selected = true;
-                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
-                SelectedBlock = block;
+                geo.SelectCube(SelectedMaterial);
             }
-            return block;
+            return geo;
         }else if (hit.collider.tag == "BlockMenu")
         {
             return SelectedBlock;
@@ -211,16 +207,21 @@ public class Manager : MonoBehaviour, IInputHandler
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            DeselectBlock(SelectedBlock);
+            SelectedBlock.DeselectCube(UnselectedMaterial);
             return null;
         }
     }
 
-    private void DeselectBlock(BlockPrim selected)
+    private void DeselectBlock(PRCube selected)
     {
         if (selected != null)
         {
-            selected.GetComponent<MeshRenderer>().material = UnselectedMaterial;
+            Material[] unselectedMats = new Material[selected.GetComponent<MeshRenderer>().materials.Length];
+            for (int i = 0; i < selected.GetComponent<MeshRenderer>().materials.Length; i++)
+            {
+                unselectedMats[i] = UnselectedMaterial;
+            }
+            selected.GetComponent<MeshRenderer>().materials = unselectedMats;
             selected.Selected = false;
             selected.OnInputUpLocal();
             selected = null;

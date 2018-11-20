@@ -19,6 +19,10 @@ public class PRCube : MonoBehaviour {
     {
         get { return GameObject.FindGameObjectWithTag("Manager").GetComponent<Manager>(); }
     }
+    public GameObject MENU_CANVAS
+    {
+        get { return transform.Find("MenuCanvas").gameObject; }
+    }
     //Vertex Array, use only geting the vertices. This property cannot rewrite them.
     public Vector3[] VERTS_COLL
     {
@@ -89,15 +93,16 @@ public class PRCube : MonoBehaviour {
     void Awake()
     {
         GetComponent<MeshFilter>().mesh = GenerateMesh();
-    }
-
-    void Start () {
-		CubeMesh = GetComponent<MeshFilter>().mesh;
-
-        Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
+        CubeMesh = GetComponent<MeshFilter>().mesh;
+        // Generate Cue elements.
         GenerateVertexHandles();
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         GenerateFacePrefabs();
+    }
+
+    void Start () {
+        // Deactivate Cube menu
+        MENU_CANVAS.SetActive(false);
 
         for (int i = 0; i < (int)CubeMesh.GetIndexCount(1); i++)
         {
@@ -113,6 +118,14 @@ public class PRCube : MonoBehaviour {
 	    DrawCubeAxis(true);
 	    objCenter.transform.position = transform.position;
 	}
+
+    void LateUpdate()
+    {
+        if (Selected)
+        {
+
+        }
+    }
     #endregion //Unity
 
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
@@ -127,6 +140,36 @@ public class PRCube : MonoBehaviour {
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
+    public PRCube SelectCube(Material selMat)
+    {
+
+        Selected = true;
+        Material[] selectedMats = new Material[GetComponent<MeshRenderer>().materials.Length];
+        for (int i = 0; i < GetComponent<MeshRenderer>().materials.Length; i++)
+        {
+            selectedMats[i] = selMat;
+        }
+
+        GetComponent<MeshRenderer>().materials = selectedMats;
+        MENU_CANVAS.SetActive(true);
+        MANAGER.SelectedBlock = this;
+        return this;
+    }
+
+    public PRCube DeselectCube(Material unselMat)
+    {
+        Selected = false;
+        Material[] unselectedMats = new Material[GetComponent<MeshRenderer>().materials.Length];
+        for (int i = 0; i < GetComponent<MeshRenderer>().materials.Length; i++)
+        {
+            unselectedMats[i] = unselMat;
+        }
+        GetComponent<MeshRenderer>().materials = unselectedMats;
+        OnInputUpLocal();
+        MENU_CANVAS.SetActive(false);
+        MANAGER.SelectedBlock = null;
+        return this;
+    }
 
     #region Collider Work
     /// <summary>
