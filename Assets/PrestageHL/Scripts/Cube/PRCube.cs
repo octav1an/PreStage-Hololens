@@ -46,7 +46,6 @@ public class PRCube : MonoBehaviour {
         get { return transform.Find("Vertex").gameObject; }
     }
     private GameObject[] VertexCollGO;
-
     public GameObject PR_EDGE_GO
     {
         get { return transform.Find("Edge").gameObject; }
@@ -55,9 +54,14 @@ public class PRCube : MonoBehaviour {
     {
         get { return transform.Find("Face").gameObject; }
     }
+    public bool VertexModeActive;
+    public bool EdgeModeActive;
+    public bool FaceModeActive;
+    public bool CubeModeActive;
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
+    public string ColliderName;
 
     public Vector3 CENTER_GEOMETRICAL
     {
@@ -171,6 +175,20 @@ public class PRCube : MonoBehaviour {
         return this;
     }
 
+    //private void MoveBlock()
+    //{
+    //    if (ColliderName == "face_pos_y")
+    //    {
+    //        //if(Input.GetMouseButton(0)) SetTarggetPosition();
+    //        transform.position = _savedBlockLoc + (SetTarggetPosition() - _savedMoveTarget);
+
+    //        for (int i = 0; i < ((List<GameObject>)MoveSnapBuildup()[0]).Count; i++)
+    //        {
+    //            MoveBlockToSnap(SnapDistance, SnapDistance, i);
+    //        }
+    //    }
+    //}
+
     #region Collider Work
     /// <summary>
     /// Update the block collider that is a BoxCollider. Used for calculation of closest points for snap.
@@ -183,6 +201,54 @@ public class PRCube : MonoBehaviour {
         blockCollider.size = new Vector3(LENGTH_X, 1, LENGTH_Z);
     }
     #endregion //Collider Work
+
+    #region Menu Methods call
+    public void TurnOnVertex()
+    {
+        // Instanciate the field first;
+        VertexModeActive = true;
+        //VertexModeActive = !VertexModeActive;
+        // Turn off other things
+        EdgeModeActive = false;
+        FaceModeActive = false;
+        CubeModeActive = false;
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_FACE_GO.SetActive(FaceModeActive);
+    }
+    public void TurnOnEdge()
+    {
+        EdgeModeActive = true;
+        // Turn off other things
+        VertexModeActive = false;
+        FaceModeActive = false;
+        CubeModeActive = false;
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+        PR_FACE_GO.SetActive(FaceModeActive);
+    }
+    public void TurnOnFace()
+    {
+        FaceModeActive = true;
+        // Turn off other things
+        VertexModeActive = false;
+        EdgeModeActive = false;
+        CubeModeActive = false;
+        PR_FACE_GO.SetActive(FaceModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+    }
+    public void TurnOnCube()
+    {
+        CubeModeActive = true;
+        VertexModeActive = false;
+        EdgeModeActive = false;
+        FaceModeActive = false;
+        PR_FACE_GO.SetActive(FaceModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+    }
+    #endregion //Menu Methods call
 
     #region Generate
     private Mesh GenerateMesh()
@@ -284,6 +350,7 @@ public class PRCube : MonoBehaviour {
             GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]), 
                 Quaternion.identity, PR_VERTEX_GO.transform);
             obj.name = "Vertex" + i;
+            obj.SetActive(true);
             VertexCollGO[i] = obj;
         }
 
@@ -340,6 +407,7 @@ public class PRCube : MonoBehaviour {
             GameObject obj = GameObject.Instantiate(EdgePref, transform.TransformPoint(cleaEdgeColl[i].MidPos),
                 cleaEdgeColl[i].MidRot, PR_EDGE_GO.transform);
             obj.name = "Edge" + i;
+            obj.SetActive(true);
         }
 
         return cleaEdgeColl;
@@ -357,6 +425,7 @@ public class PRCube : MonoBehaviour {
                 face.FaceRot, PR_FACE_GO.transform);
             // Rename the objects.
             obj.name = "Face" + i;
+            obj.SetActive(true);
             FacePref.GetComponent<PRFace>().face = face;
         }
     }
