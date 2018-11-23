@@ -574,9 +574,9 @@ public class BlockFace : MonoBehaviour, IInputHandler
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
-    /// When the cube is selected constanly update the this.transform to match the FACE_CENTER.
+    /// When the cube is active constanly update the this.transform to match the FACE_CENTER.
     /// </summary>
-    /// <param name="selected">Boolean from BlockPrim class, is true if the block is selected.</param>
+    /// <param name="selected">Boolean from BlockPrim class, is true if the block is active.</param>
     public void UpdateFaceLoc(bool selected)
     {
         if (selected)

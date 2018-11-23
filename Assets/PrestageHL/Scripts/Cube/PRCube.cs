@@ -12,7 +12,7 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     public int CubeId = -1;
     /// <summary>
-    /// Bool that is activated when the cube is selected. Now works when the cube is moved.
+    /// Bool that is activated when the cube is active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
     public Manager MANAGER
@@ -107,14 +107,10 @@ public class PRCube : MonoBehaviour {
     void Start () {
         // Deactivate Cube menu
         MENU_CANVAS.SetActive(false);
-
-        for (int i = 0; i < (int)CubeMesh.GetIndexCount(1); i++)
+        foreach (PREdgeHolder eH in PrEdgeHolders)
         {
-            //print("mesh: " + CubeMesh.triangles[i]);
-            //print(CubeMesh.GetTriangles(0)[i]);
-            //print(CubeMesh.GetIndices(1)[i]);
+            //print(eH.MidPos);
         }
-       //print(CubeMesh.GetIndices(1));
     }
 	
 	void Update ()
@@ -359,7 +355,7 @@ public class PRCube : MonoBehaviour {
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
     /// <returns>Array with overlaping EdgeHolders.</returns>
-    private PREdgeHolder[] GenerateEdgeHolders()
+    public PREdgeHolder[] GenerateEdgeHolders()
     {
         PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
         for (int i = 0; i < CubeMesh.subMeshCount; i++)
@@ -374,14 +370,18 @@ public class PRCube : MonoBehaviour {
                 {
                     Vector3 v0 = CubeMesh.vertices[j];
                     Vector3 v1 = CubeMesh.vertices[j + 1];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.transform);
+                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                    edge.V0Index = (int)j;
+                    edge.V1Index = (int)j + 1;
                     edgeColl[j] = edge;
                 }
                 else
                 {
                     Vector3 v0 = CubeMesh.vertices[j];
                     Vector3 v1 = CubeMesh.vertices[j - 3];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.transform);
+                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                    edge.V0Index = (int)j;
+                    edge.V1Index = (int)j - 3;
                     edgeColl[j] = edge;
                 }
             }
@@ -394,7 +394,7 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     /// <param name="edgeColl">Dirty array with edges</param>
     /// <returns>Clean array of edges</returns>
-    private PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
+    public PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
     {
         // Group the edges according to the MidPos vector. For the cube I will have groups of 2 edges that overlap.
         var result = edgeColl.GroupBy(edge => edge.MidPos);
@@ -408,9 +408,21 @@ public class PRCube : MonoBehaviour {
                 cleaEdgeColl[i].MidRot, PR_EDGE_GO.transform);
             obj.name = "Edge" + i;
             obj.SetActive(true);
+            // Setup the PREdge file
+            PREdge edgeCO = obj.GetComponent<PREdge>();
+            edgeCO.edgeHolder = cleaEdgeColl[i];
         }
 
         return cleaEdgeColl;
+    }
+
+    public void CleanUpEdgePrefabs()
+    {
+        for (int i = 0; i < PR_EDGE_GO.transform.childCount; i++)
+        {
+            GameObject go = PR_EDGE_GO.transform.GetChild(i).gameObject;
+            DestroyObject(go);
+        }
     }
 
     private void GenerateFacePrefabs()

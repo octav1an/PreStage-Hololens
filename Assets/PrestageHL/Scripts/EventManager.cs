@@ -1,32 +1,50 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using HoloToolkit.Unity.InputModule;
 
-public class EventManager : MonoBehaviour {
+public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler
+{
+    public delegate void OnAirTapDown();
+    public static event OnAirTapDown AirTapDown;
 
-    public delegate void OnMouseDownGlobal();
-    public static event OnMouseDownGlobal MouseDownGlobal;
+    public delegate void OnAirTapUp();
+    public static event OnAirTapUp AirTapUp;
 
-    public delegate void OnMouseUpGlobal();
-    public static event OnMouseUpGlobal MouseUpGlobal;
+    public delegate void OnAirTapClick();
+    public static event OnAirTapClick AirTapClick;
 
     private void Start()
     {
-        
+        InputManager.Instance.AddGlobalListener(gameObject);
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            //MouseDownGlobal();
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            //MouseUpGlobal();
-        }
     }
 
 
+    public void OnInputDown(InputEventData eventData)
+    {
+        if (AirTapDown != null)
+        {
+            AirTapDown();
+        }
+    }
+
+    public void OnInputUp(InputEventData eventData)
+    {
+        if (AirTapUp != null)
+        {
+            AirTapUp();
+        }
+    }
+
+    public void OnInputClicked(InputClickedEventData eventData)
+    {
+        if (AirTapClick != null)
+        {
+            AirTapClick();
+        }
+    }
 }

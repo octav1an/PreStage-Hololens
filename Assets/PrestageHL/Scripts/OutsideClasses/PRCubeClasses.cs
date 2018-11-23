@@ -10,24 +10,83 @@ namespace PRCubeClasses
         public Quaternion MidRot;
         public Vector3 V0;
         public Vector3 V1;
-        public Transform ParentTrs;
+        public int V0Index;
+        public int V1Index;
+        public GameObject Parent;
+        public PREdgeHolder savedEH;
+        private PRCube PR_CO
+        {
+            get { return Parent.GetComponent<PRCube>(); }
+        }
+        public List<int> SameV0Index;
+        public List<int> SameV1Index;
+
+        private float threshold = 0.01f; 
 
         // Constructor
-        public PREdgeHolder(Vector3 firstVertex, Vector3 secondVertex)
+        public PREdgeHolder(Vector3 firstVertex, Vector3 secondVertex, GameObject parent)
         {
             V0 = firstVertex;
             V1 = secondVertex;
+            Parent = parent;
             MidPos = ComputeMidPos(firstVertex, secondVertex);
+            MidRot = ComputeMidRot(firstVertex, secondVertex, parent.transform);
+            SetupSameVertices();
         }
-        public PREdgeHolder(Vector3 firstVertex, Vector3 secondVertex, Transform parentTrs)
+        public PREdgeHolder(PREdgeHolder eh)
         {
-            V0 = firstVertex;
-            V1 = secondVertex;
-            ParentTrs = parentTrs;
-            MidPos = ComputeMidPos(firstVertex, secondVertex);
-            MidRot = ComputeMidRot(firstVertex, secondVertex, parentTrs);
+            V0 = eh.V0;
+            V1 = eh.V1;
+            Parent = eh.Parent;
+            V0Index = eh.V0Index;
+            V1Index = eh.V1Index;
+            MidPos = ComputeMidPos(V0, V1);
+            MidRot = ComputeMidRot(V0, V1, Parent.transform);
+            SetupSameVertices();
         }
         //-----------------------------------------------------------------------------------------
+
+        public void UpdateEdge(Vector3 move)
+        {
+            MoveEdge(move);
+            MidPos = ComputeMidPos(V0, V1);
+            MidRot = ComputeMidRot(V0, V1, Parent.transform);
+        }
+
+        public void MoveEdge(Vector3 move)
+        {
+            if (savedEH != null)
+            {
+                V0 = savedEH.V0 + move;
+                V1 = savedEH.V1 + move;
+            }
+        }
+
+        #region Setup
+        /// <summary>
+        /// Setup the same vertex indexes that share the same location for V0 and V1.
+        /// </summary>
+        public void SetupSameVertices()
+        {
+            SameV0Index = new List<int>();
+            SameV1Index = new List<int>();
+            for (int i = 0; i < PR_CO.CubeMesh.vertexCount; i++)
+            {
+                Vector3 v = PR_CO.CubeMesh.vertices[i];
+                if (Mathf.Abs(v.x - V0.x) < threshold &&
+                    Mathf.Abs(v.y - V0.y) < threshold &&
+                    Mathf.Abs(v.z - V0.z) < threshold)
+                {
+                    SameV0Index.Add(i);
+                }
+                else if (Mathf.Abs(v.x - V1.x) < threshold &&
+                         Mathf.Abs(v.y - V1.y) < threshold &&
+                         Mathf.Abs(v.z - V1.z) < threshold)
+                {
+                    SameV1Index.Add(i);
+                }
+            }
+        }
 
         private Vector3 ComputeMidPos(Vector3 v0, Vector3 v1)
         {
@@ -38,6 +97,7 @@ namespace PRCubeClasses
         {
             return Quaternion.FromToRotation(objTrs.forward, v0 - v1);
         }
+        #endregion //Setup
     }
 
     public class PRFaceHolder
@@ -78,6 +138,7 @@ namespace PRCubeClasses
             Center = ComputeCenter(mesh, vertexIndices);
         }
 
+        #region SetUp
         private void SetupVertices(Mesh mesh, int[] vertexIndices)
         {
             _v0 = mesh.vertices[vertexIndices[0]];
@@ -90,6 +151,7 @@ namespace PRCubeClasses
             // I get the normal only from the first vector. Can have problems.
             return mesh.normals[vertexIndices[0]];
         }
+        #endregion //SetUp
 
         private Quaternion ComputeFaceRot(Transform objTrs)
         {

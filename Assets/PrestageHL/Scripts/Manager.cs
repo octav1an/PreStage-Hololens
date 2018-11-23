@@ -28,7 +28,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     public PRCube SelectedBlock;
     /// <summary>
-    /// Highlight Material when the block is selected.
+    /// Highlight Material when the block is active.
     /// </summary>
     public Material SelectedMaterial;
     public Material UnselectedMaterial;
@@ -70,7 +70,7 @@ public class Manager : MonoBehaviour, IInputHandler
     public GameObject BlockPrefab;
     //--------------------------------------------
     private static Ray _ray;
-    private static RaycastHit _hit;
+    public static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
 
@@ -116,7 +116,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE UP-------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is released and the block is selected.
+    /// Method that is activated once when the mouse right click is released and the block is active.
     /// </summary>
     private void OnMouseUpGlobal()
     {
@@ -128,7 +128,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE DOWN------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is pressed and the block is selected.
+    /// Method that is activated once when the mouse right click is pressed and the block is active.
     /// </summary>
     private void OnMouseDownGlobal()
     {
@@ -189,7 +189,7 @@ public class Manager : MonoBehaviour, IInputHandler
         if (hit.collider.tag == "PRCube")
         {
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
-            // If there is a selected block and user selects another one, deselect the already selected one.
+            // If there is a active block and user selects another one, deselect the already active one.
             if (SelectedBlock && geo.CubeId != SelectedBlock.CubeId)
             {
                 SelectedBlock.DeselectCube(UnselectedMaterial);
@@ -200,8 +200,10 @@ public class Manager : MonoBehaviour, IInputHandler
                 geo.SelectCube(SelectedMaterial);
             }
             return geo;
-        }else if (hit.collider.tag == "BlockMenu")
+        }else if (hit.collider.tag == "BlockMenu" || hit.collider.tag == "PREdge" ||
+                  hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex")
         {
+            print(hit.collider.name);
             return SelectedBlock;
         }
         else
