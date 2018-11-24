@@ -209,7 +209,8 @@ public class Manager : MonoBehaviour, IInputHandler
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            SelectedBlock.DeselectCube(UnselectedMaterial);
+            if(SelectedBlock)
+                SelectedBlock.DeselectCube(UnselectedMaterial);
             return null;
         }
     }

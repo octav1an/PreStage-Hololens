@@ -7121,6 +7121,7 @@ MonoBehaviour:
   InputDown: 0
   InputUp: 1
   maxUndoStored: 100
+  targetRootsOrdered: []
 --- !u!1001 &2127935118
 Prefab:
   m_ObjectHideFlags: 0

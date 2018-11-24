@@ -46,6 +46,19 @@ namespace PRCubeClasses
         }
         //-----------------------------------------------------------------------------------------
 
+        /// <summary>
+        /// Method used for all inactive edges during Down and Up events to update the vertex position
+        /// in every edge after manipulation on the active edge.
+        /// </summary>
+        /// <param name="mesh">Mesh</param>
+        public void UpdateInactiveEdgeInfo(Mesh mesh)
+        {
+            V0 = mesh.vertices[V0Index];
+            V1 = mesh.vertices[V1Index];
+            MidPos = ComputeMidPos(V0, V1);
+            MidRot = ComputeMidRot(V0, V1, PR_CO.transform);
+        }
+
         public void UpdateEdge(Vector3 move)
         {
             MoveEdge(move);
