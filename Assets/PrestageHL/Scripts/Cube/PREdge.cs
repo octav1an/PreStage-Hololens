@@ -4,10 +4,10 @@ using PRCubeClasses;
 using RuntimeGizmos;
 using UnityEngine;
 using UnityEngine.UI;
-using RuntimeGizmos;
+using HoloToolkit.Unity.InputModule;
 
 
-public class PREdge : MonoBehaviour
+public class PREdge : MonoBehaviour, IFocusable
 {
     private PRCube PARENT_CUBE
     {
@@ -17,74 +17,123 @@ public class PREdge : MonoBehaviour
     {
         get { return PARENT_CUBE.CubeMesh; }
     }
-    public PREdgeHolder edgeHolder;
-    private Vector3 savePos;
+    public PREdgeHolder EdgeHolder;
+    private Vector3 _savePos;
     private Vector3[] _meshVertices;
+    private Material _savedThisMat;
 
-    public bool active;
+    public bool Active;
+    public bool FocusActive = false;
 
-    public TransformGizmo gizmo;
+    /// <summary>
+    /// Gizmo used for getting the selected object.
+    /// </summary>
+    public TransformGizmo Gizmo;
 
     #region Unity
 
     void Start ()
 	{
-	    gizmo = GameObject.FindWithTag("MainCamera").gameObject.GetComponent<TransformGizmo>();
+	    Gizmo = GameObject.FindWithTag("MainCamera").gameObject.GetComponent<TransformGizmo>();
 	}
 	
 	void Update ()
 	{
 	    MoveEdge();
+	    if (Active)
+	    {
+	        GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+        }
+	    else if(!Active && _savedThisMat && !FocusActive)
+	    {
+	        GetComponent<MeshRenderer>().material = _savedThisMat;
+        }
 	}
 
     void OnEnable()
     {
         EventManager.AirTapDown += OnAirtapDown;
         EventManager.AirTapUp += OnAirtapUp;
+        EventManager.FocusEnter += HighlightEdge;
+        EventManager.FocusExit += UnhighlightEdge;
     }
 
     void OnDisable()
     {
         EventManager.AirTapDown -= OnAirtapDown;
         EventManager.AirTapUp -= OnAirtapUp;
+        EventManager.FocusEnter -= HighlightEdge;
+        EventManager.FocusExit -= UnhighlightEdge;
     }
 
     #endregion //Unity
 
     #region Events
 
+    public void OnFocusEnter()
+    {
+        if (!Active)
+        {
+            FocusActive = true;
+            HighlightEdge();
+        }
+    }
+
+    public void OnFocusExit()
+    {
+        if (!Active)
+        {
+            FocusActive = false;
+            UnhighlightEdge();
+        }
+    }
+
     private void OnAirtapDown()
     {
         UpdateActiveStatus();
-        if (active)
+        if (Active)
         {
-            savePos = transform.localPosition;
+            _savePos = transform.localPosition;
+            //_savedThisMat = GetComponent<MeshRenderer>().material;
             // Save the edge holder.
-            edgeHolder.savedEH = new PREdgeHolder(edgeHolder);
+            EdgeHolder.savedEH = new PREdgeHolder(EdgeHolder);
             _meshVertices = CUBE_MESH.vertices;
         }
         else
         {
-            edgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
         }
     }
 
     private void OnAirtapUp()
     {
-        if (active)
+        if (Active)
         {
-            savePos = Vector3.zero;
-            edgeHolder.savedEH = null;
+            _savePos = Vector3.zero;
+            EdgeHolder.savedEH = null;
             _meshVertices = null;
-            //PARENT_CUBE.CleanUpEdgePrefabs();
-            //PARENT_CUBE.CreateUniqEdgePrefabs(PARENT_CUBE.GenerateEdgeHolders());
+            FocusActive = false;
         }
         else
         {
-            edgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
         }
         UpdateActiveStatus();
         UpdateCollider();
+    }
+
+    private void HighlightEdge()
+    {
+        // Store this object material.
+        _savedThisMat = GetComponent<MeshRenderer>().material;
+
+        Material highlight = new Material(Manager.Instance.HighlightColliderMat);
+        GetComponent<MeshRenderer>().material = highlight;
+    }
+
+    private void UnhighlightEdge()
+    {
+        GetComponent<MeshRenderer>().material = _savedThisMat;
     }
 
     #endregion //Events
@@ -93,18 +142,18 @@ public class PREdge : MonoBehaviour
 
     private void MoveEdge()
     {
-        if (active && _meshVertices != null)
+        if (Active && _meshVertices != null)
         {
             // Move the edge holder verts
-            edgeHolder.UpdateEdge(transform.localPosition - savePos);
+            EdgeHolder.UpdateEdge(transform.localPosition - _savePos);
             // Move the overlaping verts as this edge.
-            for (int i = 0; i < edgeHolder.SameV0Index.Count; i++)
+            for (int i = 0; i < EdgeHolder.SameV0Index.Count; i++)
             {
-                _meshVertices[edgeHolder.SameV0Index[i]] = edgeHolder.V0;
+                _meshVertices[EdgeHolder.SameV0Index[i]] = EdgeHolder.V0;
             }
-            for (int i = 0; i < edgeHolder.SameV1Index.Count; i++)
+            for (int i = 0; i < EdgeHolder.SameV1Index.Count; i++)
             {
-                _meshVertices[edgeHolder.SameV1Index[i]] = edgeHolder.V1;
+                _meshVertices[EdgeHolder.SameV1Index[i]] = EdgeHolder.V1;
             }
             CUBE_MESH.vertices = _meshVertices;
             CUBE_MESH.RecalculateBounds();
@@ -121,10 +170,10 @@ public class PREdge : MonoBehaviour
     private void UpdateCollider()
     {
         // Place it at the center.
-        transform.localPosition = edgeHolder.MidPos;
-        transform.localRotation = edgeHolder.MidRot;
+        transform.localPosition = EdgeHolder.MidPos;
+        transform.localRotation = EdgeHolder.MidRot;
         // Scale the mesh and collider
-        Vector3 scaleVec = edgeHolder.V0 - edgeHolder.V1;
+        Vector3 scaleVec = EdgeHolder.V0 - EdgeHolder.V1;
         float mag = scaleVec.magnitude;
         Vector3 actualScale = transform.localScale;
         transform.localScale = new Vector3(actualScale.x, actualScale.y, mag);
@@ -135,23 +184,24 @@ public class PREdge : MonoBehaviour
     /// </summary>
     private void UpdateActiveStatus()
     {
-        if (gizmo.targetRootsOrdered.Count > 0)
+        if (Gizmo.targetRootsOrdered.Count > 0)
         {
-            if (gizmo.targetRootsOrdered[0].name == this.name)
+            if (Gizmo.targetRootsOrdered[0].name == this.name)
             {
-                active = true;
+                Active = true;
             }
             else
             {
-                active = false;
+                Active = false;
             }
         }
         else
         {
-            active = false;
+            Active = false;
         }
     }
 
     #endregion //UpdateElements
+
 
 }

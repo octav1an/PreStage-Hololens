@@ -26,12 +26,14 @@ public class Manager : MonoBehaviour, IInputHandler
         }
     }
 
-    public PRCube SelectedBlock;
+    public PRCube SelectedGeo;
     /// <summary>
-    /// Highlight Material when the block is active.
+    /// Highlight Material when the block is Active.
     /// </summary>
     public Material SelectedMaterial;
     public Material UnselectedMaterial;
+    public Material HighlightColliderMat;
+    public Material ActiveColliderMat;
     /// <summary>
     /// List with all the objects that are drawn on the canvas.
     /// </summary>
@@ -116,7 +118,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE UP-------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is released and the block is active.
+    /// Method that is activated once when the mouse right click is released and the block is Active.
     /// </summary>
     private void OnMouseUpGlobal()
     {
@@ -128,7 +130,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE DOWN------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is pressed and the block is active.
+    /// Method that is activated once when the mouse right click is pressed and the block is Active.
     /// </summary>
     private void OnMouseDownGlobal()
     {
@@ -144,6 +146,12 @@ public class Manager : MonoBehaviour, IInputHandler
 
         }
     }
+
+    #region Events
+
+
+
+   
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
     public void OnInputDown(InputEventData eventData)
     {
@@ -154,7 +162,7 @@ public class Manager : MonoBehaviour, IInputHandler
         if (Physics.Raycast(_ray, out _hit))
         {
             PRCube block = UpdateSelection(_hit);
-            if(SelectedBlock)SelectedBlock.OnInputDownLocal();
+            if(SelectedGeo)SelectedGeo.OnInputDownLocal();
         }
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
@@ -162,13 +170,14 @@ public class Manager : MonoBehaviour, IInputHandler
     public void OnInputUp(InputEventData eventData)
     {
         InputDown = false;
-        //DeselectBlock(SelectedBlock);
+        //DeselectBlock(SelectedGeo);
         // Update the Block info on Tap Up.
-        if(SelectedBlock) SelectedBlock.OnInputUpLocal();
+        if(SelectedGeo) SelectedGeo.OnInputUpLocal();
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
+    #endregion //Events
     //---------------------------------------------------------------------------------------------------
     /// <summary>
     /// Crate a block. Used in button.
@@ -189,10 +198,10 @@ public class Manager : MonoBehaviour, IInputHandler
         if (hit.collider.tag == "PRCube")
         {
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
-            // If there is a active block and user selects another one, deselect the already active one.
-            if (SelectedBlock && geo.CubeId != SelectedBlock.CubeId)
+            // If there is a Active block and user selects another one, deselect the already Active one.
+            if (SelectedGeo && geo.CubeId != SelectedGeo.CubeId)
             {
-                SelectedBlock.DeselectCube(UnselectedMaterial);
+                SelectedGeo.DeselectCube(UnselectedMaterial);
                 geo.SelectCube(SelectedMaterial);
             }
             else
@@ -204,13 +213,13 @@ public class Manager : MonoBehaviour, IInputHandler
                   hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex")
         {
             print(hit.collider.name);
-            return SelectedBlock;
+            return SelectedGeo;
         }
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            if(SelectedBlock)
-                SelectedBlock.DeselectCube(UnselectedMaterial);
+            if(SelectedGeo)
+                SelectedGeo.DeselectCube(UnselectedMaterial);
             return null;
         }
     }
@@ -231,14 +240,6 @@ public class Manager : MonoBehaviour, IInputHandler
         }
     }
 
-    private void SaveMouseLocation()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            SavedMouseLoc = Input.mousePosition;
-        }
-    }
-
     //---------------------------------------------------------------------------------------------------
     /// <summary>
     /// Searches and store the blocks that are already drawn in COLL_BLOCKS_OBJECTS list.
@@ -253,5 +254,11 @@ public class Manager : MonoBehaviour, IInputHandler
         }
 
     }
+
+    #region Draw
+
+    #endregion //Draw
+
+
 
 }

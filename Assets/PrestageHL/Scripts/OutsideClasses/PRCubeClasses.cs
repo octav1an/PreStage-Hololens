@@ -48,7 +48,7 @@ namespace PRCubeClasses
 
         /// <summary>
         /// Method used for all inactive edges during Down and Up events to update the vertex position
-        /// in every edge after manipulation on the active edge.
+        /// in every edge after manipulation on the Active edge.
         /// </summary>
         /// <param name="mesh">Mesh</param>
         public void UpdateInactiveEdgeInfo(Mesh mesh)

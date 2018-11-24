@@ -12,7 +12,7 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     public int CubeId = -1;
     /// <summary>
-    /// Bool that is activated when the cube is active. Now works when the cube is moved.
+    /// Bool that is activated when the cube is Active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
     public Manager MANAGER
@@ -116,7 +116,7 @@ public class PRCube : MonoBehaviour {
 	void Update ()
 	{
 	    DrawCubeAxis(true);
-	    objCenter.transform.position = transform.position;
+	    //objCenter.transform.position = transform.position;
 	}
 
     void LateUpdate()
@@ -152,7 +152,7 @@ public class PRCube : MonoBehaviour {
 
         GetComponent<MeshRenderer>().materials = selectedMats;
         MENU_CANVAS.SetActive(true);
-        MANAGER.SelectedBlock = this;
+        MANAGER.SelectedGeo = this;
         return this;
     }
 
@@ -167,7 +167,7 @@ public class PRCube : MonoBehaviour {
         GetComponent<MeshRenderer>().materials = unselectedMats;
         OnInputUpLocal();
         MENU_CANVAS.SetActive(false);
-        MANAGER.SelectedBlock = null;
+        MANAGER.SelectedGeo = null;
         return this;
     }
 
@@ -410,7 +410,7 @@ public class PRCube : MonoBehaviour {
             obj.SetActive(true);
             // Setup the PREdge file
             PREdge edgeCO = obj.GetComponent<PREdge>();
-            edgeCO.edgeHolder = cleaEdgeColl[i];
+            edgeCO.EdgeHolder = cleaEdgeColl[i];
         }
 
         return cleaEdgeColl;

@@ -16,7 +16,7 @@ public class BlockPrim : MonoBehaviour
     /// </summary>
     public int BlockId = -1;
     /// <summary>
-    /// Bool that is activated when the block is active. Now works when the block is moved.
+    /// Bool that is activated when the block is Active. Now works when the block is moved.
     /// </summary>
     public bool Selected = false;
     /// <summary>
@@ -459,7 +459,7 @@ public class BlockPrim : MonoBehaviour
     {
         // By having these function inside LateUpdate - I make sure that first the select boolean is triggered by 
         // Manager and then run these function.
-        // Here run methods when the block is active only.
+        // Here run methods when the block is Active only.
         if (Selected)
         {
             UpdateFaceVerts();
@@ -747,7 +747,7 @@ public class BlockPrim : MonoBehaviour
     #region FaceSetUp
     //---------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Method that runs when the block is active. It updates the faces vertices and their normals.
+    /// Method that runs when the block is Active. It updates the faces vertices and their normals.
     /// </summary>
     private void UpdateFaceVerts()
     {

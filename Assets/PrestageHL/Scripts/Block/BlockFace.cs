@@ -293,7 +293,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
 
                     // Before adding the "diff" vector convert it to local space, otherwise it won't work when the block is rotated.
                     BLOCK_COMP.Vertices[index] = BLOCK_COMP.VerticesSaved[index] + BLOCK_COMP.transform.InverseTransformVector(DYNAMIC_DIFF);
-                    // If snap face is active move it accordingly
+                    // If snap face is Active move it accordingly
                 }
             }
             // Update block vertices with freshly moved ones.
@@ -336,7 +336,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
                     
                     // Before adding the "diff" vector convert it to local sapace, otherwise it won't work when the block is rotated.
                     BLOCK_COMP.Vertices[index] = BLOCK_COMP.VerticesSaved[index] + BLOCK_COMP.transform.InverseTransformVector(diff);
-                    // If snap face is active move it accordingly
+                    // If snap face is Active move it accordingly
                 }
             }
             // Update block vertices with freshly moved ones.
@@ -474,7 +474,7 @@ public class BlockFace : MonoBehaviour, IInputHandler
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Method that updates the Snap status on each face when it is active. It updates the exactSnap staus for both
+    /// Method that updates the Snap status on each face when it is Active. It updates the exactSnap staus for both
     /// corner and face, and also the snapZone status for corner and face.
     /// </summary>
     /// <param name="snapDist">Snap distance used for face snap.</param>
@@ -574,9 +574,9 @@ public class BlockFace : MonoBehaviour, IInputHandler
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
-    /// When the cube is active constanly update the this.transform to match the FACE_CENTER.
+    /// When the cube is Active constanly update the this.transform to match the FACE_CENTER.
     /// </summary>
-    /// <param name="selected">Boolean from BlockPrim class, is true if the block is active.</param>
+    /// <param name="selected">Boolean from BlockPrim class, is true if the block is Active.</param>
     public void UpdateFaceLoc(bool selected)
     {
         if (selected)

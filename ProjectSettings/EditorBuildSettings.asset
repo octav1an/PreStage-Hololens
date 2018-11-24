@@ -6,5 +6,5 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/PrestageHL/Scenes/PrestageHLSandbox.unity
-    guid: 959487075c26a48458a6e5f0091c86bb
+    path: Assets/PrestageHL/Scenes/PrestageCubeHL.unity
+    guid: be7a27d5f0eaaf5439b8e32fad8a9c44

@@ -29,7 +29,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4381351295849152
 Transform:
   m_ObjectHideFlags: 1
@@ -57,7 +57,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 92dd2c1fa7bc2844ca19eb457202e858, type: 2}
+  - {fileID: 2100000, guid: 34b324e44890ee84595112c7e0d840c7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -107,3 +107,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdd7fc0862ebbf742bc1072d5f6996e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Active: 0
+  Gizmo: {fileID: 0}

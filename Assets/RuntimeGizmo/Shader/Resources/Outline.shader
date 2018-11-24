@@ -2,8 +2,8 @@
 
 Shader "Custom/Outline" {
 	Properties {
-		_OutlineColor ("Outline Color", Color) = (1,.5,0,1)
-		_Outline ("Outline width", Range (0, 1)) = .1
+		_OutlineColor ("Outline Color", Color) = (1,1,1)
+		_Outline ("Outline width", Range (0, 1)) = .08
 	}
  
 CGINCLUDE

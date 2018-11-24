@@ -26,8 +26,8 @@ namespace RuntimeGizmos
 
 		public AddTargetCommand(TransformGizmo transformGizmo, Transform target, List<Transform> targetRoots) : base(transformGizmo, target)
 		{
-			//Since we might have had a child active and then active the parent, the child would have been removed from the active,
-			//so we store all the targetRoots before we add so that if we undo we can properly have the children active again.
+			//Since we might have had a child Active and then Active the parent, the child would have been removed from the Active,
+			//so we store all the targetRoots before we add so that if we undo we can properly have the children Active again.
 			this.targetRoots.AddRange(targetRoots);
 		}
 

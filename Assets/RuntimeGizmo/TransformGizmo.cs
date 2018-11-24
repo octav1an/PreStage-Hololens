@@ -55,8 +55,8 @@ namespace RuntimeGizmos
 
 		public bool useFirstSelectedAsMain = true;
 
-		//Mainly for if you want the pivot point to update correctly if active objects are moving outside the transformgizmo.
-		//Might be poor on performance if lots of objects are active...
+		//Mainly for if you want the pivot point to update correctly if Active objects are moving outside the transformgizmo.
+		//Might be poor on performance if lots of objects are Active...
 		public bool forceUpdatePivotPointOnChange = true;
         public bool InputDown = false;
         public bool InputUp = true;
@@ -99,6 +99,7 @@ namespace RuntimeGizmos
 
 		static Material lineMaterial;
 		static Material outlineMaterial;
+        
 
         #region Unity
         void Awake()
@@ -546,7 +547,7 @@ namespace RuntimeGizmos
 				if(addCommand) UndoRedoManager.Insert(new AddTargetCommand(this, target, targetRootsOrdered));
 
 				AddTargetRoot(target);
-				AddTargetHighlightedRenderers(target);
+			    //AddTargetHighlightedRenderers(target);
 
 				SetPivotPoint();
 			}
@@ -585,36 +586,36 @@ namespace RuntimeGizmos
 			AddTarget(target, false);
 		}
 
-		void AddTargetHighlightedRenderers(Transform target)
-		{
-			if(target != null)
-			{
-				GetTargetRenderers(target, renderersBuffer);
+        void AddTargetHighlightedRenderers(Transform target)
+        {
+            if (target != null)
+            {
+                GetTargetRenderers(target, renderersBuffer);
 
-				for(int i = 0; i < renderersBuffer.Count; i++)
-				{
-					Renderer render = renderersBuffer[i];
+                for (int i = 0; i < renderersBuffer.Count; i++)
+                {
+                    Renderer render = renderersBuffer[i];
 
-					if(!highlightedRenderers.Contains(render))
-					{
-						materialsBuffer.Clear();
-						materialsBuffer.AddRange(render.sharedMaterials);
+                    if (!highlightedRenderers.Contains(render))
+                    {
+                        materialsBuffer.Clear();
+                        materialsBuffer.AddRange(render.sharedMaterials);
 
-						if(!materialsBuffer.Contains(outlineMaterial))
-						{
-							materialsBuffer.Add(outlineMaterial);
-							render.materials = materialsBuffer.ToArray();
-						}
+                        if (!materialsBuffer.Contains(outlineMaterial))
+                        {
+                            materialsBuffer.Add(outlineMaterial);
+                            render.materials = materialsBuffer.ToArray();
+                        }
 
-						highlightedRenderers.Add(render);
-					}
-				}
+                        highlightedRenderers.Add(render);
+                    }
+                }
 
-				materialsBuffer.Clear();
-			}
-		}
+                materialsBuffer.Clear();
+            }
+        }
 
-		void GetTargetRenderers(Transform target, List<Renderer> renderers)
+        void GetTargetRenderers(Transform target, List<Renderer> renderers)
 		{
 			renderers.Clear();
 			if(target != null)
@@ -640,10 +641,33 @@ namespace RuntimeGizmos
 		{
 			GetTargetRenderers(target, renderersBuffer);
 
-			RemoveHighlightedRenderers(renderersBuffer);
+		    RemoveHighlightedRenderersHL(renderersBuffer);
 		}
 
-		void RemoveHighlightedRenderers(List<Renderer> renderers)
+        void RemoveHighlightedRenderersHL(List<Renderer> renderers)
+        {
+            for (int i = 0; i < renderersBuffer.Count; i++)
+            {
+                Renderer render = renderersBuffer[i];
+                if (render != null)
+                {
+                    materialsBuffer.Clear();
+                    materialsBuffer.AddRange(render.sharedMaterials);
+
+                    if (materialsBuffer.Contains(outlineMaterial))
+                    {
+                        materialsBuffer.Remove(outlineMaterial);
+                        render.materials = materialsBuffer.ToArray();
+                    }
+                }
+
+                highlightedRenderers.Remove(render);
+            }
+
+            renderersBuffer.Clear();
+        }
+
+        void RemoveHighlightedRenderers(List<Renderer> renderers)
 		{
 			for(int i = 0; i < renderersBuffer.Count; i++)
 			{
@@ -693,7 +717,7 @@ namespace RuntimeGizmos
 			{
 				Transform child = childrenBuffer[i];
 				children.Add(child);
-				RemoveTargetRoot(child); //We do this in case we active child first and then the parent.
+				RemoveTargetRoot(child); //We do this in case we Active child first and then the parent.
 			}
 
 			childrenBuffer.Clear();
@@ -1133,7 +1157,7 @@ namespace RuntimeGizmos
 			if(lineMaterial == null)
 			{
 				lineMaterial = new Material(Shader.Find("Custom/Lines"));
-				outlineMaterial = new Material(Shader.Find("Custom/Outline"));
+				//outlineMaterial = new Material(Shader.Find("Custom/Outline"));
 			}
 		}
 
