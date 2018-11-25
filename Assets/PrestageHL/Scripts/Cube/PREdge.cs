@@ -17,6 +17,13 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return PARENT_CUBE.CubeMesh; }
     }
+    /// <summary>
+    /// GIZMO used for getting the selected object.
+    /// </summary>
+    public TransformGizmo GIZMO
+    {
+        get { return PARENT_CUBE.GIZMO; }
+    }
     public PREdgeHolder EdgeHolder;
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
@@ -25,16 +32,13 @@ public class PREdge : MonoBehaviour, IFocusable
     public bool Active;
     public bool FocusActive = false;
 
-    /// <summary>
-    /// Gizmo used for getting the selected object.
-    /// </summary>
-    public TransformGizmo Gizmo;
+
 
     #region Unity
 
     void Start ()
 	{
-	    Gizmo = GameObject.FindWithTag("MainCamera").gameObject.GetComponent<TransformGizmo>();
+        
 	}
 	
 	void Update ()
@@ -167,7 +171,7 @@ public class PREdge : MonoBehaviour, IFocusable
     /// <summary>
     /// Update the collider of the edge at AirtapUp to match the modified edge.
     /// </summary>
-    private void UpdateCollider()
+    public void UpdateCollider()
     {
         // Place it at the center.
         transform.localPosition = EdgeHolder.MidPos;
@@ -184,9 +188,9 @@ public class PREdge : MonoBehaviour, IFocusable
     /// </summary>
     private void UpdateActiveStatus()
     {
-        if (Gizmo.targetRootsOrdered.Count > 0)
+        if (GIZMO.targetRootsOrdered.Count > 0)
         {
-            if (Gizmo.targetRootsOrdered[0].name == this.name)
+            if (GIZMO.targetRootsOrdered[0].name == this.name)
             {
                 Active = true;
             }

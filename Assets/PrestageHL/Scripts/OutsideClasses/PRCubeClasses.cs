@@ -117,59 +117,171 @@ namespace PRCubeClasses
     {
         public Mesh Mesh;
         public int[] VertexIndices; 
+        // Not updated
         public Vector3 Normal;
-        public Vector3 Center;
+        public Vector3[] NORMALS
+        {
+            get
+            {
+                Vector3[] normColl = new Vector3[F_VERTICES.Length];
+                for (int i = 0; i < normColl.Length; i++)
+                {
+                    normColl[i] = Mesh.normals[VertexIndices[i]];
+                }
+
+                return normColl;
+            }
+        }
+        public Vector3 CENTER
+        {
+            get { return ComputeCenter(Mesh, VertexIndices); }
+        }
         public Quaternion FaceRot;
-        public Transform ParentTrs;
-        private Vector3 _v0;
-        private Vector3 _v1;
-        private Vector3 _v2;
-        private Vector3 _v3;
+        public Quaternion FACE_ROT
+        {
+            get { return ComputeFaceRot(Parent.transform); }
+        }
+        public GameObject Parent;
+        private PRCube PR_CO
+        {
+            get { return Parent.GetComponent<PRCube>(); }
+        }
+        public Vector3 V0;
+        public Vector3 V1;
+        public Vector3 V2;
+        public Vector3 V3;
+        public PRFaceHolder savedFH;
+        public List<int> SameV0Index;
+        public List<int> SameV1Index;
+        public List<int> SameV2Index;
+        public List<int> SameV3Index;
 
         public Vector3[] F_VERTICES
         {
             get
             {
                 Vector3[] coll = new Vector3[4];
-                coll[0] = _v0;
-                coll[1] = _v1;
-                coll[2] = _v2;
-                coll[3] = _v3;
+                coll[0] = V0;
+                coll[1] = V1;
+                coll[2] = V2;
+                coll[3] = V3;
                 return coll;
             }
         }
+        private float threshold = 0.01f;
 
         // Constructor
-        public PRFaceHolder(Mesh mesh, int[] vertexIndices, Transform parentTrs)
+        public PRFaceHolder(Mesh mesh, int[] vertexIndices, GameObject parent)
         {
             Mesh = mesh;
             VertexIndices = vertexIndices;
-            ParentTrs = parentTrs;
+            Parent = parent;
             SetupVertices(mesh, vertexIndices);
-            Normal = SetupNormal(mesh, vertexIndices);
-            FaceRot = ComputeFaceRot(parentTrs);
-            Center = ComputeCenter(mesh, vertexIndices);
+            Normal = SetupNormal(Mesh, vertexIndices);
+            FaceRot = ComputeFaceRot(parent.transform);
+            SetupSameVertices();
+        }
+
+        public PRFaceHolder(PRFaceHolder fH)
+        {
+            Mesh = fH.Mesh;
+            VertexIndices = fH.VertexIndices;
+            Parent = fH.Parent;
+            SetupVertices(Mesh, VertexIndices);
+            FaceRot = ComputeFaceRot(Parent.transform);
+            SetupSameVertices();
+        }
+
+        //-------------------------------------------------
+        public void UpdateInactiveFaceInfo(Mesh mesh)
+        {
+            V0 = mesh.vertices[VertexIndices[0]];
+            V1 = mesh.vertices[VertexIndices[1]];
+            V2 = mesh.vertices[VertexIndices[2]];
+            V3 = mesh.vertices[VertexIndices[3]];
+            FaceRot = ComputeFaceRot(Parent.transform);
+        }
+
+        public void UpdateFace(Vector3 move)
+        {
+            MoveFace(move);
+            Normal = SetupNormal(Mesh, VertexIndices);
+            FaceRot = ComputeFaceRot(Parent.transform);
+        }
+
+        /// <summary>
+        /// Moves each vertex of this face with a vector.
+        /// </summary>
+        /// <param name="move">Input vector.</param>
+        private void MoveFace(Vector3 move)
+        {
+            if (savedFH != null)
+            {
+                V0 = savedFH.F_VERTICES[0] + move;
+                V1 = savedFH.F_VERTICES[1] + move;
+                V2 = savedFH.F_VERTICES[2] + move;
+                V3 = savedFH.F_VERTICES[3] + move;
+            }
         }
 
         #region SetUp
+                /// <summary>
+        /// Setup the same vertex indexes that share the same location for V0 and V1.
+        /// </summary>
+        public void SetupSameVertices()
+        {
+            SameV0Index = new List<int>();
+            SameV1Index = new List<int>();
+            SameV2Index = new List<int>();
+            SameV3Index = new List<int>();
+
+            for (int i = 0; i < Mesh.vertexCount; i++)
+            {
+                Vector3 v = Mesh.vertices[i];
+                if (Mathf.Abs(v.x - V0.x) < threshold &&
+                    Mathf.Abs(v.y - V0.y) < threshold &&
+                    Mathf.Abs(v.z - V0.z) < threshold)
+                {
+                    SameV0Index.Add(i);
+                }
+                else if (Mathf.Abs(v.x - V1.x) < threshold &&
+                         Mathf.Abs(v.y - V1.y) < threshold &&
+                         Mathf.Abs(v.z - V1.z) < threshold)
+                {
+                    SameV1Index.Add(i);
+                }
+                else if (Mathf.Abs(v.x - V2.x) < threshold &&
+                         Mathf.Abs(v.y - V2.y) < threshold &&
+                         Mathf.Abs(v.z - V2.z) < threshold)
+                {
+                    SameV2Index.Add(i);
+                }
+                else if (Mathf.Abs(v.x - V3.x) < threshold &&
+                         Mathf.Abs(v.y - V3.y) < threshold &&
+                         Mathf.Abs(v.z - V3.z) < threshold)
+                {
+                    SameV3Index.Add(i);
+                }
+            }
+        }
+
         private void SetupVertices(Mesh mesh, int[] vertexIndices)
         {
-            _v0 = mesh.vertices[vertexIndices[0]];
-            _v1 = mesh.vertices[vertexIndices[1]];
-            _v2 = mesh.vertices[vertexIndices[2]];
-            _v3 = mesh.vertices[vertexIndices[3]];
+            V0 = mesh.vertices[vertexIndices[0]];
+            V1 = mesh.vertices[vertexIndices[1]];
+            V2 = mesh.vertices[vertexIndices[2]];
+            V3 = mesh.vertices[vertexIndices[3]];
         }
         private Vector3 SetupNormal(Mesh mesh, int[] vertexIndices)
         {
             // I get the normal only from the first vector. Can have problems.
             return mesh.normals[vertexIndices[0]];
         }
-        #endregion //SetUp
-
+        
         private Quaternion ComputeFaceRot(Transform objTrs)
         {
             // Use objTrs.right to match normal of FacePrefab
-            return Quaternion.FromToRotation(objTrs.right, Normal);
+            return Quaternion.FromToRotation(objTrs.right, SetupNormal(Mesh, VertexIndices));
         }
         private Vector3 ComputeCenter(Mesh mesh, int[] vertexIndices)
         {
@@ -182,6 +294,7 @@ namespace PRCubeClasses
 
             return sum / vertexIndices.Length;
         }
+        #endregion //SetUp
     }
 }
 

@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using UnityEngine;
+using RuntimeGizmos;
 
 public class Manager : MonoBehaviour, IInputHandler
 {
 
     public static Manager Instance;
+    public TransformGizmo GIZMO
+    {
+        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
+    }
     /// <summary>
     /// Get the name for the collider hit by the ray.
     /// </summary>
@@ -162,7 +167,6 @@ public class Manager : MonoBehaviour, IInputHandler
         if (Physics.Raycast(_ray, out _hit))
         {
             PRCube block = UpdateSelection(_hit);
-            if(SelectedGeo)SelectedGeo.OnInputDownLocal();
         }
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
@@ -170,9 +174,6 @@ public class Manager : MonoBehaviour, IInputHandler
     public void OnInputUp(InputEventData eventData)
     {
         InputDown = false;
-        //DeselectBlock(SelectedGeo);
-        // Update the Block info on Tap Up.
-        if(SelectedGeo) SelectedGeo.OnInputUpLocal();
         //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
@@ -199,7 +200,7 @@ public class Manager : MonoBehaviour, IInputHandler
         {
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
             // If there is a Active block and user selects another one, deselect the already Active one.
-            if (SelectedGeo && geo.CubeId != SelectedGeo.CubeId)
+            if (SelectedGeo && geo.GetInstanceID() != SelectedGeo.GetInstanceID())
             {
                 SelectedGeo.DeselectCube(UnselectedMaterial);
                 geo.SelectCube(SelectedMaterial);
@@ -210,9 +211,8 @@ public class Manager : MonoBehaviour, IInputHandler
             }
             return geo;
         }else if (hit.collider.tag == "BlockMenu" || hit.collider.tag == "PREdge" ||
-                  hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex")
+                  hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
-            print(hit.collider.name);
             return SelectedGeo;
         }
         else
@@ -235,7 +235,6 @@ public class Manager : MonoBehaviour, IInputHandler
             }
             selected.GetComponent<MeshRenderer>().materials = unselectedMats;
             selected.Selected = false;
-            selected.OnInputUpLocal();
             selected = null;
         }
     }

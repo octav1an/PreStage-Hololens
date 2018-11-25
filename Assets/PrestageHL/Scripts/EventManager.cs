@@ -23,6 +23,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
     private void Start()
     {
         InputManager.Instance.AddGlobalListener(gameObject);
+        //InputManager.Instance.PushFallbackInputHandler(gameObject);
     }
 
     private void Update()

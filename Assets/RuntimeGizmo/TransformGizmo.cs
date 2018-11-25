@@ -73,6 +73,10 @@ namespace RuntimeGizmos
 		float totalScaleAmount;
 		Quaternion totalRotationAmount;
 		Axis nearAxis = Axis.None;
+        public Axis NEAR_AXIS
+        {
+            get { return nearAxis;}
+        }
 		AxisInfo axisInfo;
 
 		Vector3 pivotPoint;
@@ -197,7 +201,7 @@ namespace RuntimeGizmos
         {
             InputDown = true;
             InputUp = false;
-            GetTarget("PREdge");
+            GetTarget("PREdge", "PRFace");
             targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
            
             for (int i = 0; i < targetRootsOrdered.Count; i++)
@@ -209,6 +213,8 @@ namespace RuntimeGizmos
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
+
+            //eventData.Use();
         }
 
         public void OnInputUp(InputEventData eventData)
@@ -457,10 +463,10 @@ namespace RuntimeGizmos
 		}
         
         /// <summary>
-        /// Modified vertion of GetTarget to work with specific tag or object.
+        /// Modified vertion of GetTarget to work with specific tag1 or object.
         /// </summary>
-        /// <param name="tag">Tag name of the targeted object.</param>
-        void GetTarget(string tag)
+        /// <param name="tag1">Tag name of the targeted object.</param>
+        void GetTarget(string tag1, string tag2)
         {
             if (nearAxis == Axis.None)
             {
@@ -486,7 +492,7 @@ namespace RuntimeGizmos
                     else if (!isAdding && !isRemoving)
                     {
                         
-                        if (hit.collider.tag == tag)
+                        if (hit.collider.tag == tag1 || hit.collider.tag == tag2)
                         {
                             ClearAndAddTarget(target);
                             return;
@@ -578,7 +584,7 @@ namespace RuntimeGizmos
 			children.Clear();
 		}
 
-		void ClearAndAddTarget(Transform target)
+		public void ClearAndAddTarget(Transform target)
 		{
 			UndoRedoManager.Insert(new ClearAndAddTargetCommand(this, target, targetRootsOrdered));
 
