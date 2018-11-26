@@ -196,7 +196,7 @@ public class Manager : MonoBehaviour, IInputHandler
     /// <param name="hit">Raycast hit.</param>
     private PRCube UpdateSelection(RaycastHit hit)
     {
-        if (hit.collider.tag == "PRCube")
+        if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
             // If there is a Active block and user selects another one, deselect the already Active one.
