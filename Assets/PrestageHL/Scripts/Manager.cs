@@ -4,7 +4,7 @@ using HoloToolkit.Unity.InputModule;
 using UnityEngine;
 using RuntimeGizmos;
 
-public class Manager : MonoBehaviour, IInputHandler
+public class Manager : MonoBehaviour
 {
 
     public static Manager Instance;
@@ -27,6 +27,37 @@ public class Manager : MonoBehaviour, IInputHandler
             else
             {
                 return null;
+            }
+        }
+    }
+    public string GET_COLLIDER_TAG
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.collider.tag;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public Vector3 HIT_LOCATION
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.point;
+            }
+            else
+            {
+                return Vector3.zero;
             }
         }
     }
@@ -81,7 +112,7 @@ public class Manager : MonoBehaviour, IInputHandler
     //--------------------------------------------
     public static bool InputDown;
 
-
+    #region Unity
     private void Awake()
     {
         // Makes sure that I use always a game control even if my next scence already has one.
@@ -94,17 +125,29 @@ public class Manager : MonoBehaviour, IInputHandler
         CountAndStoreBlocks();
     }
 
-    // Use this for initialization
     void Start () {
-        InputManager.Instance.AddGlobalListener(gameObject);
+
     }
 	
-	// Update is called once per frame
 	void Update () {
         //--------------------------------------------
         // Run all the time.
         //--------------------------------------------
     }
+
+    void OnEnable()
+    {
+        EventManager.AirTapDown += OnAirtapDown;
+        EventManager.AirTapUp += OnAirtapUp;
+    }
+
+    void OnDisable()
+    {
+        EventManager.AirTapDown -= OnAirtapDown;
+        EventManager.AirTapUp -= OnAirtapUp;
+    }
+    #endregion //Unity
+
 
     //-------------------------------------------------EVENTS--------------------------------------------------
     // By having the events for mouse down and up here, solved the problem of not activating the Input.GetMouseDown or Up
@@ -153,13 +196,11 @@ public class Manager : MonoBehaviour, IInputHandler
     }
 
     #region Events
-
-
-
    
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
-    public void OnInputDown(InputEventData eventData)
+    public void OnAirtapDown()
     {
+        
         InputDown = true;
         //-------------------------------------------------------
         // Update the colliderName when MouseDown.
@@ -168,17 +209,16 @@ public class Manager : MonoBehaviour, IInputHandler
         {
             PRCube block = UpdateSelection(_hit);
         }
-        //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
 
-    public void OnInputUp(InputEventData eventData)
+    public void OnAirtapUp()
     {
         InputDown = false;
-        //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
     #endregion //Events
+
     //---------------------------------------------------------------------------------------------------
     /// <summary>
     /// Crate a block. Used in button.
@@ -196,6 +236,7 @@ public class Manager : MonoBehaviour, IInputHandler
     /// <param name="hit">Raycast hit.</param>
     private PRCube UpdateSelection(RaycastHit hit)
     {
+        //print(hit.collider.tag);
         if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
@@ -210,7 +251,7 @@ public class Manager : MonoBehaviour, IInputHandler
                 geo.SelectCube(SelectedMaterial);
             }
             return geo;
-        }else if (hit.collider.tag == "BlockMenu" || hit.collider.tag == "PREdge" ||
+        }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "PREdge" ||
                   hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
             return SelectedGeo;

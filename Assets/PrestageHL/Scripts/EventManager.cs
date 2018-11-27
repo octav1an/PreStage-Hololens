@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity.InputModule;
+using UnityEngine.EventSystems;
 
 public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IFocusable
 {
@@ -20,10 +21,10 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
     public delegate void OnExitFocus();
     public static event OnExitFocus FocusExit;
 
+
     private void Start()
     {
         InputManager.Instance.AddGlobalListener(gameObject);
-        //InputManager.Instance.PushFallbackInputHandler(gameObject);
     }
 
     private void Update()
@@ -37,6 +38,8 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
         {
             AirTapDown();
         }
+
+        eventData.Use();
     }
 
     public void OnInputUp(InputEventData eventData)
@@ -45,14 +48,18 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
         {
             AirTapUp();
         }
+        eventData.Use();
     }
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
+
         if (AirTapClick != null)
         {
             AirTapClick();
         }
+
+        eventData.Use();
     }
 
     public void OnFocusEnter()

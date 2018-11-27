@@ -214,13 +214,14 @@ namespace RuntimeGizmos
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
 
-            //eventData.Use();
+            eventData.Use();
         }
 
         public void OnInputUp(InputEventData eventData)
         {
             InputUp = true;
             InputDown = false;
+            eventData.Use();
         }
 
         public void OnManipulationStarted(ManipulationEventData eventData)
