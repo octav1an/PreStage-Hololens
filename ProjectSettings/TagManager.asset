@@ -15,6 +15,7 @@ TagManager:
   - PRFace
   - PRCube
   - ContexMenu
+  - CMSubmenu
   layers:
   - Default
   - TransparentFX

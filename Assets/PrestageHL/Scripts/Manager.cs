@@ -251,8 +251,9 @@ public class Manager : MonoBehaviour
                 geo.SelectCube(SelectedMaterial);
             }
             return geo;
-        }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "PREdge" ||
-                  hit.collider.tag == "PRFace" || hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
+        }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
+                  hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
+                  hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
             return SelectedGeo;
         }

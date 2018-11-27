@@ -81,10 +81,21 @@ public class ContexMenu : MonoBehaviour
 
     private void DeactivateContexMenu()
     {
-        if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu")
+        if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" && CMSubmenu.Instance.IsAnySubmenuActive)
+        {
+            CMSubmenu.Instance.DeactivateSubmenu();
+            return;
+        }
+        if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" || Manager.Instance.GET_COLLIDER_TAG == "CMSubmenu")
         {
             return;
         }
+        // Deactivate the submenu first.
+        if (CMSubmenu.Instance.IsAnySubmenuActive)
+        {
+            CMSubmenu.Instance.DeactivateSubmenu();
+        }
+        // Deactivate the buttons of the menu.
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
