@@ -51,18 +51,12 @@ public class CMSubmenu : MonoBehaviour
             GameObject buttonGo = transform.GetChild(i).gameObject;
             if (buttonGo.name != buttonName)
             {
-                // Change button gray opacity to 50%
-                Image imgBg = buttonGo.GetComponent<Image>();
-                var tempColor = imgBg.color;
-                tempColor.a = 0.5f;
-                imgBg.color = tempColor;
-                // Change button icon opacity to 50%
-                Image imgIcon = buttonGo.transform.Find("Icon").GetComponent<Image>();
-                var tempColorIcon = imgIcon.color;
-                tempColorIcon.a = 0.5f;
-                imgIcon.color = tempColorIcon;
-                // Disable buttons functionality
-                buttonGo.GetComponent<Button>().interactable = false;
+                ChangeButtonActiveState(buttonGo, false);
+            }
+            else
+            {
+                // Disable text for the pressed button.
+                buttonGo.transform.Find("Text").gameObject.SetActive(false);
             }
         }
     }
@@ -84,21 +78,46 @@ public class CMSubmenu : MonoBehaviour
             GameObject buttonGo = transform.GetChild(i).gameObject;
             if (buttonGo.name != _activeButton)
             {
-                // Change button gray opacity to 100%
-                Image imgBg = buttonGo.GetComponent<Image>();
-                var tempColor = imgBg.color;
-                tempColor.a = 1f;
-                imgBg.color = tempColor;
-                // Change button icon opacity to 100%
-                Image imgIcon = buttonGo.transform.Find("Icon").GetComponent<Image>();
-                var tempColorIcon = imgIcon.color;
-                tempColorIcon.a = 1f;
-                imgIcon.color = tempColorIcon;
-                // Enable buttons functionality
-                buttonGo.GetComponent<Button>().interactable = true;
+                ChangeButtonActiveState(buttonGo, true);
+            }
+            else
+            {
+                // Enable text for the pressed button.
+                buttonGo.transform.Find("Text").gameObject.SetActive(true);
             }
         }
         _activeButton = null;
         IsAnySubmenuActive = false;
+    }
+
+    /// <summary>
+    /// Grays out or makes the button active, incluting text On/Off and opacity change for button's background and icon.
+    /// </summary>
+    private void ChangeButtonActiveState(GameObject buttonGo, bool active)
+    {
+        float opacity = 1f;
+        // Change the values for opacity to gray out.
+        if (!active)
+        {
+            opacity = 0.5f;
+        }
+        // Change button gray opacity.
+        Image imgBg = buttonGo.GetComponent<Image>();
+        var tempColor = imgBg.color;
+        tempColor.a = opacity;
+        imgBg.color = tempColor;
+
+        // Change button icon opacity.
+        Image imgIcon = buttonGo.transform.Find("Icon").GetComponent<Image>();
+        var tempColorIcon = imgIcon.color;
+        tempColorIcon.a = opacity;
+        imgIcon.color = tempColorIcon;
+
+        // Change text status.
+        GameObject textGo = buttonGo.transform.Find("Text").gameObject;
+        textGo.SetActive(active);
+
+        // Change buttons functionality.
+        buttonGo.GetComponent<Button>().interactable = active;
     }
 }

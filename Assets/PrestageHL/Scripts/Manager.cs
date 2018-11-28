@@ -123,6 +123,7 @@ public class Manager : MonoBehaviour
             Instance = this;
         }
         CountAndStoreBlocks();
+        SelectedGeo = null;
     }
 
     void Start () {

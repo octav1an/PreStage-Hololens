@@ -405,30 +405,34 @@ namespace RuntimeGizmos
 
 						if(nearAxis == Axis.Any)
 						{
-							Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
-							Quaternion.Euler(rotation).ToAngleAxis(out rotateAmount, out rotationAxis);
+                            //Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
+						    Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
+                            Quaternion.Euler(rotation).ToAngleAxis(out rotateAmount, out rotationAxis);
 							rotateAmount *= allRotateSpeedMultiplier;
-						}else{
-							Vector3 projected = (nearAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
-							rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
-						}
-
-						for(int i = 0; i < targetRootsOrdered.Count; i++)
+						}else
 						{
-							Transform target = targetRootsOrdered[i];
-
-							if(pivot == TransformPivot.Pivot)
-							{
-								target.Rotate(rotationAxis, rotateAmount, Space.World);
-							}
-							else if(pivot == TransformPivot.Center)
-							{
-								target.RotateAround(originalPivot, rotationAxis, rotateAmount);
-							}
+							Vector3 projected = (nearAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
+							//rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
+						    rotateAmount = (ExtVector3.MagnitudeInDirection(manipulationVec - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
+                            
 						}
+                        // Soleve the problem with continuous rotation.
+					    for (int i = 0; i < targetRootsOrdered.Count; i++)
+					    {
+					        Transform target = targetRootsOrdered[i];
+					        if (pivot == TransformPivot.Pivot)
+					        {
+					            target.Rotate(rotationAxis, rotateAmount, Space.World);
+					        }
+					        else if (pivot == TransformPivot.Center)
+					        {
+					            target.RotateAround(originalPivot, rotationAxis, rotateAmount);
+					        }
+					        
+                        }
 
-						totalRotationAmount *= Quaternion.Euler(rotationAxis * rotateAmount);
-					}
+					    totalRotationAmount *= Quaternion.Euler(rotationAxis * rotateAmount);
+                    }
 				}
 
 				previousMousePosition = mousePosition;
