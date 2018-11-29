@@ -45,6 +45,21 @@ public class Manager : MonoBehaviour
             }
         }
     }
+    public GameObject GET_COLLIDER_GO
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.collider.gameObject;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
 
     public Vector3 HIT_LOCATION
     {
@@ -134,6 +149,13 @@ public class Manager : MonoBehaviour
         //--------------------------------------------
         // Run all the time.
         //--------------------------------------------
+	    _ray = GazeManager.Instance.Rays[0];
+	    if (Physics.Raycast(_ray, out _hit))
+	    {
+	        //PRCube block = UpdateSelection(_hit);
+	        //Debug.Log(_hit.collider.tag);
+        }
+        
     }
 
     void OnEnable()
@@ -237,15 +259,19 @@ public class Manager : MonoBehaviour
     /// <param name="hit">Raycast hit.</param>
     private PRCube UpdateSelection(RaycastHit hit)
     {
+        Debug.Log("HitTag: " + hit.collider.tag);
+        Debug.Log("HitName: " + hit.collider.name);
         //print(hit.collider.tag);
         if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
+            //Debug.Log("PRCube hit");
             PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
             // If there is a Active block and user selects another one, deselect the already Active one.
             if (SelectedGeo && geo.GetInstanceID() != SelectedGeo.GetInstanceID())
             {
                 SelectedGeo.DeselectCube(UnselectedMaterial);
                 geo.SelectCube(SelectedMaterial);
+                //Debug.Log("Select hit");
             }
             else
             {
@@ -256,6 +282,7 @@ public class Manager : MonoBehaviour
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
                   hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
+            Debug.Log("OtherStuff");
             return SelectedGeo;
         }
         else

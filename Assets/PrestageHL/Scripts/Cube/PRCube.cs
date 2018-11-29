@@ -21,10 +21,6 @@ public class PRCube : MonoBehaviour
     {
         get { return GameObject.FindGameObjectWithTag("Manager").GetComponent<Manager>(); }
     }
-    public GameObject MENU_CANVAS
-    {
-        get { return transform.Find("MenuCanvas").gameObject; }
-    }
     //Vertex Array, use only geting the vertices. This property cannot rewrite them.
     public Vector3[] VERTS_COLL
     {
@@ -113,7 +109,6 @@ public class PRCube : MonoBehaviour
 
     void Start () {
         // Deactivate Cube menu
-        MENU_CANVAS.SetActive(false);
         foreach (PREdgeHolder eH in PrEdgeHolders)
         {
             //print(eH.MidPos);
@@ -169,7 +164,6 @@ public class PRCube : MonoBehaviour
         }
 
         GetComponent<MeshRenderer>().materials = selectedMats;
-        MENU_CANVAS.SetActive(true);
         MANAGER.SelectedGeo = this;
         return this;
     }
@@ -183,7 +177,6 @@ public class PRCube : MonoBehaviour
             unselectedMats[i] = unselMat;
         }
         GetComponent<MeshRenderer>().materials = unselectedMats;
-        MENU_CANVAS.SetActive(false);
         MANAGER.SelectedGeo = null;
         // Turn off TransformElements
         ActiveteVertex(false);

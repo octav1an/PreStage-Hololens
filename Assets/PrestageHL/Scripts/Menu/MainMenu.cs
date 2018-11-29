@@ -1,21 +1,40 @@
-﻿using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
+    public GameObject prefab1;
+    public GameObject prefab2;
+    public GameObject prefab3;
     public float YOffset;
 
-    // Use this for initialization
+
+    #region Unity
     void Start () {
 		
 	}
 	
-	// Update is called once per frame
 	void Update ()
 	{
 	    OrientCanvasToCamera();
 	    AlignToCenter(YOffset);
 
 	}
+    #endregion //Unity
+
+    public void InstanciatePrefab1()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity);
+        Debug.Log("New");
+    }
+    public void InstanciatePrefab2()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity);
+    }
+    public void InstanciatePrefab3()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity);
+    }
 
     /// <summary>
     /// Method that Orients the menu panel to camera view.

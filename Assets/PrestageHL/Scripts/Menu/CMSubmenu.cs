@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class CMSubmenu : MonoBehaviour
 {
     public static CMSubmenu Instance;
-    private string _activeButton;
+    public string ActiveButton;
     public bool IsAnySubmenuActive;
 
     #region Unity
@@ -32,19 +32,30 @@ public class CMSubmenu : MonoBehaviour
 	}
     #endregion // Unity
 
+    public void Print()
+    {
+        Debug.Log("DoubleCkickShit");
+    }
+
     public void ActivateSubmenu(string buttonName)
     {
+        Debug.Log("1");
         Transform subMenuHolder = transform.Find(buttonName).Find("Submenu");
         if (subMenuHolder)
         {
-            _activeButton = buttonName;
+            Debug.Log("2");
+            ActiveButton = buttonName;
             IsAnySubmenuActive = true;
             for (int i = 0; i < subMenuHolder.childCount; i++)
             {
                 GameObject child = subMenuHolder.GetChild(i).gameObject;
                 child.SetActive(true);
             }
+
+            Debug.Log("Name: " + subMenuHolder.name);
+            Debug.Log("NameButton: " + buttonName);
         }
+
         // Gray out the rest
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -63,7 +74,7 @@ public class CMSubmenu : MonoBehaviour
 
     public void DeactivateSubmenu()
     {
-        Transform subMenuHolder = transform.Find(_activeButton).Find("Submenu");
+        Transform subMenuHolder = transform.Find(ActiveButton).Find("Submenu");
         if (subMenuHolder)
         {
             for (int i = 0; i < subMenuHolder.childCount; i++)
@@ -76,7 +87,7 @@ public class CMSubmenu : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject buttonGo = transform.GetChild(i).gameObject;
-            if (buttonGo.name != _activeButton)
+            if (buttonGo.name != ActiveButton)
             {
                 ChangeButtonActiveState(buttonGo, true);
             }
@@ -86,7 +97,7 @@ public class CMSubmenu : MonoBehaviour
                 buttonGo.transform.Find("Text").gameObject.SetActive(true);
             }
         }
-        _activeButton = null;
+        ActiveButton = null;
         IsAnySubmenuActive = false;
     }
 

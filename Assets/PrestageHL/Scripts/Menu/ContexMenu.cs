@@ -75,7 +75,7 @@ public class ContexMenu : MonoBehaviour
             SavedHitPosition = Manager.Instance.HIT_LOCATION;
             //print("OneClick");
             // Deactivate if hit outside contex menu.
-            DeactivateContexMenu();
+            if(IsActive)DeactivateContexMenu();
 
         }
         else if (_tapCount == 2 && (Time.time - _timer) < Delay)
@@ -109,9 +109,11 @@ public class ContexMenu : MonoBehaviour
 
     private void DeactivateContexMenu()
     {
-        if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" && CMSubmenu.Instance.IsAnySubmenuActive)
+        if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" && CMSubmenu.Instance.IsAnySubmenuActive &&
+            CMSubmenu.Instance.ActiveButton != Manager.Instance.GET_COLLIDER_GO.transform.parent.name)
         {
             CMSubmenu.Instance.DeactivateSubmenu();
+            Debug.Log("HereWeGo!_part2");
             return;
         }
         if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" || Manager.Instance.GET_COLLIDER_TAG == "CMSubmenu")
@@ -119,6 +121,7 @@ public class ContexMenu : MonoBehaviour
             return;
         }
         // Deactivate the submenu first.
+        Debug.Log("HereWeGo!");
         if (CMSubmenu.Instance.IsAnySubmenuActive)
         {
             CMSubmenu.Instance.DeactivateSubmenu();
