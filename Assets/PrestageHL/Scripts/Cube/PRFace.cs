@@ -215,7 +215,8 @@ public class PRFace : MonoBehaviour, IFocusable
     /// <param name="offset">Offset distance of the face from its edges</param>
     public void UpdateCollider()
     {
-        //transform.localPosition = Vector3.zero;
+        // Update the face transform location, so gizmo is displayed in the center.
+        transform.localPosition = FaceHolder.CENTER;
         // 1. Get the verts of the face from cube.mesh
         Vector3[] vertColl = new Vector3[FaceHolder.F_VERTICES.Length];
         for (int i = 0; i < vertColl.Length; i++)

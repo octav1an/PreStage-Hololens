@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
+    public GameObject SceneContent;
     public GameObject prefab1;
     public GameObject prefab2;
     public GameObject prefab3;
@@ -22,19 +23,23 @@ public class MainMenu : MonoBehaviour
 	}
     #endregion //Unity
 
+    #region InstanciatePrefabs
     public void InstanciatePrefab1()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity, SceneContent.transform);
         Debug.Log("New");
     }
     public void InstanciatePrefab2()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity, SceneContent.transform);
     }
     public void InstanciatePrefab3()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity, SceneContent.transform);
     }
+    #endregion //InstanciatePrefabs
+
+    #region UpdateElements
 
     /// <summary>
     /// Method that Orients the menu panel to camera view.
@@ -46,12 +51,16 @@ public class MainMenu : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(canvasPos - cameraPos, Vector3.up);
     }
 
+    /// <summary>
+    /// Align Main Menu position to be the centroid of the avarage of the all drawn geometry.
+    /// </summary>
+    /// <param name="yOffset"> Offset on Y axix, which is the vertical. </param>
     private void AlignToCenter(float yOffset)
     {
-        Bounds bounds = GetColliderBounds(transform.parent);
+        Bounds bounds = GetColliderBounds(SceneContent.transform);
         Vector3 center = bounds.center;
         Vector3 extends = bounds.extents;
-        Vector3 pos = center + new Vector3(extends.x, extends.y + yOffset, extends.z);
+        Vector3 pos = center + new Vector3(0, extends.y + yOffset, 0);
         transform.position = pos;
     }
 
@@ -66,7 +75,7 @@ public class MainMenu : MonoBehaviour
         //GameObject children = transform.ge
         if (transform.childCount == 0) { return new Bounds(); }
         // Use 1 to get the second child in SceneContainer, because the first one is MainMenu
-        Bounds bounds = transform.GetChild(1).GetComponent<Collider>().bounds;
+        Bounds bounds = transform.GetChild(0).GetComponent<Collider>().bounds;
         for (int i = 1; i < transform.childCount; i++)
         {
             if (transform.GetChild(i).GetComponent<Collider>())
@@ -75,6 +84,8 @@ public class MainMenu : MonoBehaviour
         }
         return bounds;
     }
+    #endregion //UpdateElements
+
 
     public void MoveModelOn()
     {

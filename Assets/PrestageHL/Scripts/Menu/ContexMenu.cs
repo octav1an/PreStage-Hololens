@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class ContexMenu : MonoBehaviour
 {
+    public static ContexMenu Instance;
     public Vector3 SavedHitPosition;
     /// <summary>
     /// Used in DoubleClick logic to avoid double activation.
@@ -39,7 +40,18 @@ public class ContexMenu : MonoBehaviour
     private float _timer;
 
     #region Unity
-   
+
+    private void Awake()
+    {
+        // Makes sure that I use always a game control even if my next scence already has one.
+        // The instance of the object from the scene that is current will persist in the next scene.
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+    }
+
     void Start () {
         InputManager.Instance.AddGlobalListener(gameObject);
     }

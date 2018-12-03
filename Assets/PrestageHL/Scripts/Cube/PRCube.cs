@@ -125,7 +125,10 @@ public class PRCube : MonoBehaviour
     {
         if (Selected)
         {
+            if (CubeModeActive)
+            {
 
+            }
         }
     }
 
@@ -232,7 +235,8 @@ public class PRCube : MonoBehaviour
         // Update face locations when turning it on, so it matches the actual mesh.
         UpdateFace(PR_FACE_GO);
     }
-    public void TurnOnCube()
+
+    public IEnumerator TurnOnCube()
     {
         CubeModeActive = true;
         VertexModeActive = false;
@@ -243,6 +247,9 @@ public class PRCube : MonoBehaviour
         PR_VERTEX_GO.SetActive(VertexModeActive);
 
         GIZMO.ClearAndAddTarget(this.transform);
+        GIZMO.SavePrevPosition();
+
+        yield return null;
     }
 
     // Activate/Deactivate elements.

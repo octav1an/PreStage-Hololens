@@ -39,11 +39,9 @@ public class CMSubmenu : MonoBehaviour
 
     public void ActivateSubmenu(string buttonName)
     {
-        Debug.Log("1");
         Transform subMenuHolder = transform.Find(buttonName).Find("Submenu");
         if (subMenuHolder)
         {
-            Debug.Log("2");
             ActiveButton = buttonName;
             IsAnySubmenuActive = true;
             for (int i = 0; i < subMenuHolder.childCount; i++)
@@ -51,9 +49,6 @@ public class CMSubmenu : MonoBehaviour
                 GameObject child = subMenuHolder.GetChild(i).gameObject;
                 child.SetActive(true);
             }
-
-            Debug.Log("Name: " + subMenuHolder.name);
-            Debug.Log("NameButton: " + buttonName);
         }
 
         // Gray out the rest

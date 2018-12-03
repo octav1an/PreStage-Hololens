@@ -60,6 +60,7 @@ namespace RuntimeGizmos
 		public bool forceUpdatePivotPointOnChange = true;
         public bool InputDown = false;
         public bool InputUp = true;
+        public bool DrawHandles = true;
 
         public int maxUndoStored = 100;
 
@@ -144,16 +145,27 @@ namespace RuntimeGizmos
 			TransformSelected();
 		}
 
-		void LateUpdate()
-		{
-			if(mainTargetRoot == null) return;
+        void LateUpdate()
+        {
+            if (mainTargetRoot == null) return;
 
-			//We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
-			SetAxisInfo();
-			SetLines();
-		}
+            // If the ContexMenu is on disable the handles.
+            if (!ContexMenu.Instance.IsActive)
+            {
+                //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
+                SetAxisInfo();
+                SetLines();
+            }
+            else
+            {
+                handleLines.Clear();
+                handleTriangles.Clear();
+                handleSquares.Clear();
+                circlesLines.Clear();
+            }
+        }
 
-		void OnPostRender()
+        void OnPostRender()
 		{
 			if(mainTargetRoot == null) return;
 
@@ -202,23 +214,17 @@ namespace RuntimeGizmos
             InputDown = true;
             InputUp = false;
             GetTarget("PREdge", "PRFace");
-            targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
-           
-            for (int i = 0; i < targetRootsOrdered.Count; i++)
-            {
-                targetRootsOrderedSavedPos[i] = new Vector3(targetRootsOrdered[i].position.x,
-                    targetRootsOrdered[i].position.y,
-                    targetRootsOrdered[i].position.z);
-            }
+            SavePrevPosition();
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
-
+            print(InputDown);
             eventData.Use();
         }
 
         public void OnInputUp(InputEventData eventData)
         {
+
             InputUp = true;
             InputDown = false;
             eventData.Use();
@@ -247,6 +253,21 @@ namespace RuntimeGizmos
         }
 
         #endregion //Unity
+
+        /// <summary>
+        /// Save position of the traget, used to get the difference for maniputations.
+        /// </summary>
+        public void SavePrevPosition()
+        {
+            targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
+
+            for (int i = 0; i < targetRootsOrdered.Count; i++)
+            {
+                targetRootsOrderedSavedPos[i] = new Vector3(targetRootsOrdered[i].position.x,
+                    targetRootsOrdered[i].position.y,
+                    targetRootsOrdered[i].position.z);
+            }
+        }
 
         void HandleUndoRedo()
         {
@@ -316,7 +337,6 @@ namespace RuntimeGizmos
 				{
 					StartCoroutine(TransformSelected(type));
 				    InputDown = false;
-
 				}
 			}
 		}
@@ -351,10 +371,9 @@ namespace RuntimeGizmos
 					{
 					    float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projectedAxis) * moveSpeedMultiplier;
                         Vector3 movement = axis * moveAmount;
-
 						for(int i = 0; i < targetRootsOrdered.Count; i++)
 						{
-							Transform target = targetRootsOrdered[i];
+                            Transform target = targetRootsOrdered[i];
                             // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
 						    Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
                             target.position = targetSavedPos + movement;

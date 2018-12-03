@@ -271,18 +271,19 @@ public class Manager : MonoBehaviour
             {
                 SelectedGeo.DeselectCube(UnselectedMaterial);
                 geo.SelectCube(SelectedMaterial);
+                StartCoroutine(SelectedGeo.TurnOnCube());
                 //Debug.Log("Select hit");
             }
             else
             {
                 geo.SelectCube(SelectedMaterial);
+                StartCoroutine(SelectedGeo.TurnOnCube());
             }
             return geo;
         }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
                   hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
-            Debug.Log("OtherStuff");
             return SelectedGeo;
         }
         else
