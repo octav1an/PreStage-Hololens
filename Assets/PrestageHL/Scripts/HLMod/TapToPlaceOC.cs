@@ -1,23 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-// Modified by Octavin Catlabga, Berlin, 2018.
 
 using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity.InputModule;
-using HoloToolkit.Unity.SpatialMapping;
-using HoloToolkit.Unity;
 
-/// <summary>
-/// The TapToPlace class is a basic way to enable users to move objects 
-/// and place them on real world surfaces.
-/// Put this script on the object you want to be able to move. 
-/// Users will be able to tap objects, gaze elsewhere, and perform the tap gesture again to place.
-/// This script is used in conjunction with GazeManager, WorldAnchorManager, and SpatialMappingManager.
-/// </summary>
-[RequireComponent(typeof(Collider))]
+namespace HoloToolkit.Unity.SpatialMapping
+{
+    /// <summary>
+    /// The TapToPlace class is a basic way to enable users to move objects 
+    /// and place them on real world surfaces.
+    /// Put this script on the object you want to be able to move. 
+    /// Users will be able to tap objects, gaze elsewhere, and perform the tap gesture again to place.
+    /// This script is used in conjunction with GazeManager, WorldAnchorManager, and SpatialMappingManager.
+    /// </summary>
+    [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(Interpolator))]
-    public class TapToPlacePR : MonoBehaviour
+    public class TapToPlaceOC : MonoBehaviour, IInputClickHandler
     {
         [Tooltip("Distance from camera to keep the object while placing it.")]
         public float DefaultGazeDistance = 2.0f;
@@ -74,11 +73,9 @@ using HoloToolkit.Unity;
 
         private void OnEnable()
         {
-            //Bounds bounds = transform.GetColliderBounds();
-            Bounds bounds = GetColliderBounds(transform);
-            // Add the bounds.extents.y to place the model on the buttom surface.
-            PlacementPosOffset = (transform.position - bounds.center) + new Vector3(0, bounds.extents.y, 0);
             EventManager.AirTapClick += OnClick;
+            Bounds bounds = transform.GetColliderBounds();
+            PlacementPosOffset = transform.position - bounds.center;
         }
 
         private void OnDisable()
@@ -87,31 +84,9 @@ using HoloToolkit.Unity;
         }
 
         /// <summary>
-        /// Calculates the bounds of all the colliders attached to this GameObject and all it's children
+        /// Returns the predefined GameObject or the immediate parent when it exists
         /// </summary>
-        /// <param name="transform">Transform of root GameObject the colliders are attached to </param>
-        /// <returns>The total bounds of all colliders attached to this GameObject. 
-        /// If no colliders attached, returns a bounds of center and extents 0</returns>
-        public static Bounds GetColliderBounds(Transform transform)
-        {
-            Collider[] colliders = transform.GetComponentsInChildren<Collider>();
-            //GameObject children = transform.ge
-            if (transform.childCount == 0) { return new Bounds(); }
-            // Use 1 to get the second child in SceneContainer, because the first one is MainMenu
-            Bounds bounds = transform.GetChild(0).GetComponent<Collider>().bounds;
-            for (int i = 1; i < transform.childCount; i++)
-            {
-                if(transform.GetChild(i).GetComponent<Collider>())
-                    bounds.Encapsulate(transform.GetChild(i).GetComponent<Collider>().bounds);
-                
-            }
-        return bounds;
-        }
-
-        /// <summary>
-    /// Returns the predefined GameObject or the immediate parent when it exists
-    /// </summary>
-    /// <returns></returns>
+        /// <returns></returns>
         private GameObject GetParentToPlace()
         {
             if (ParentGameObjectToPlace)
@@ -125,28 +100,30 @@ using HoloToolkit.Unity;
         /// <summary>
         /// Ensures an interpolator on either the parent or on the GameObject itself and returns it.
         /// </summary>
-    private Interpolator EnsureInterpolator()
+        private Interpolator EnsureInterpolator()
         {
             var interpolatorHolder = PlaceParentOnTap ? ParentGameObjectToPlace : gameObject;
             return interpolatorHolder.EnsureComponent<Interpolator>();
         }
 
-    protected virtual void Update()
+        protected virtual void Update()
         {
             if (!IsBeingPlaced) { return; }
             Transform cameraTransform = CameraCache.Main.transform;
+
             Vector3 placementPosition = GetPlacementPosition(cameraTransform.position, cameraTransform.forward, DefaultGazeDistance);
+
             if (UseColliderCenter)
             {
-                placementPosition += PlacementPosOffset;   
+                placementPosition += PlacementPosOffset;
             }
-           
+
             // Here is where you might consider adding intelligence
             // to how the object is placed.  For example, consider
             // placing based on the bottom of the object's
             // collider so it sits properly on surfaces.
 
-        if (PlaceParentOnTap)
+            if (PlaceParentOnTap)
             {
                 placementPosition = ParentGameObjectToPlace.transform.position + (placementPosition - gameObject.transform.position);
             }
@@ -154,17 +131,26 @@ using HoloToolkit.Unity;
             // update the placement to match the user's gaze.
             interpolator.SetTargetPosition(placementPosition);
 
-            // Rotate this object to face the user. Closed bc it was messing the position.
-            //interpolator.SetTargetRotation(Quaternion.Euler(0, cameraTransform.localEulerAngles.y, 0));
+            // Rotate this object to face the user.
+            interpolator.SetTargetRotation(Quaternion.Euler(0, cameraTransform.localEulerAngles.y, 0));
         }
 
-        public void OnClick()
+        private void OnClick()
         {
-            // On each tap gesture, toggle whether the user is in placing mode.
+            print("Is1: " + IsBeingPlaced);
             IsBeingPlaced = !IsBeingPlaced;
+            print("Is2: " + IsBeingPlaced);
             HandlePlacement();
         }
 
+        public virtual void OnInputClicked(InputClickedEventData eventData)
+        {
+            //// On each tap gesture, toggle whether the user is in placing mode.
+            //IsBeingPlaced = !IsBeingPlaced;
+            //HandlePlacement();
+
+            //eventData.Use();
+        }
 
         private void HandlePlacement()
         {
@@ -179,25 +165,23 @@ using HoloToolkit.Unity;
         }
         private void StartPlacing()
         {
-            //var layerCacheTarget = PlaceParentOnTap ? ParentGameObjectToPlace : gameObject;
-            //layerCacheTarget.SetLayerRecursively(IgnoreRaycastLayer, out layerCache);
-            //InputManager.Instance.PushModalInputHandler(gameObject);
+            var layerCacheTarget = PlaceParentOnTap ? ParentGameObjectToPlace : gameObject;
+            layerCacheTarget.SetLayerRecursively(IgnoreRaycastLayer, out layerCache);
+            InputManager.Instance.PushModalInputHandler(gameObject);
 
             ToggleSpatialMesh();
             RemoveWorldAnchor();
-            // Update the postion everytime the I place the model.
-            Bounds bounds = GetColliderBounds(transform);
-            PlacementPosOffset = (transform.position - bounds.center) + new Vector3(0, bounds.extents.y, 0);
         }
 
         private void StopPlacing()
         {
-            //var layerCacheTarget = PlaceParentOnTap ? ParentGameObjectToPlace : gameObject;
-            //layerCacheTarget.ApplyLayerCacheRecursively(layerCache);
-            //InputManager.Instance.PopModalInputHandler();
+            var layerCacheTarget = PlaceParentOnTap ? ParentGameObjectToPlace : gameObject;
+            layerCacheTarget.ApplyLayerCacheRecursively(layerCache);
+            InputManager.Instance.PopModalInputHandler();
 
             ToggleSpatialMesh();
             AttachWorldAnchor();
+            print("stop");
             // Deactivate the component when done placing.
             MainMenu.Instance.MoveModelOff();
         }
@@ -283,3 +267,4 @@ using HoloToolkit.Unity;
             return headPosition + gazeDirection * defaultGazeDistance;
         }
     }
+}

@@ -230,7 +230,6 @@ namespace RuntimeGizmos
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
-            print(InputDown);
             eventData.Use();
         }
 

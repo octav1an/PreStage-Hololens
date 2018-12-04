@@ -59,7 +59,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
             AirTapClick();
         }
 
-        eventData.Use();
+        //eventData.Use();
     }
 
     public void OnFocusEnter()
