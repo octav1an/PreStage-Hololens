@@ -102,7 +102,11 @@ namespace RuntimeGizmos
 		WaitForEndOfFrame waitForEndOFFrame = new WaitForEndOfFrame();
 		Coroutine forceUpdatePivotCoroutine;
 
-		static Material lineMaterial;
+        // Saved at airtap down.
+        private Vector3 _savedScale;
+        private Quaternion _savedRotation;
+
+        static Material lineMaterial;
 		static Material outlineMaterial;
         
 
@@ -191,6 +195,7 @@ namespace RuntimeGizmos
 			DrawQuads(handleSquares.z, zColor);
 			DrawQuads(handleSquares.all, allColor);
 
+            // When I will use global modifier, work on this part.
 			AxisVectors rotationAxisVector = circlesLines;
 			if(isTransforming && space == TransformSpace.Global && type == TransformType.Rotate)
 			{
@@ -215,6 +220,13 @@ namespace RuntimeGizmos
             InputUp = false;
             GetTarget("PREdge", "PRFace");
             SavePrevPosition();
+            // Will run only if this Airtap is not the first one that adds the target.
+            if (targetRootsOrdered.Count > 0)
+            {
+                // Save scale of the object, to later only add the manipulation vector.
+                _savedScale = targetRootsOrdered[0].localScale;
+                _savedRotation = targetRootsOrdered[0].localRotation;
+            }
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
@@ -382,23 +394,19 @@ namespace RuntimeGizmos
 					}
 					else if(type == TransformType.Scale)
 					{
+                        // Axix.Any is the whole model scale.
 						Vector3 projected = (nearAxis == Axis.Any) ? transform.right : projectedAxis;
-						float scaleAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projected) * scaleSpeedMultiplier;
-
+                        // Calculate the projected magnitute of the vector on the projectedAxis.
+                        float scaleAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projected) * scaleSpeedMultiplier;
                         //WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
                         Vector3 localAxis = (space == TransformSpace.Local && nearAxis != Axis.Any) ? mainTargetRoot.InverseTransformDirection(axis) : axis;
-						
-						Vector3 targetScaleAmount = Vector3.one;
-						if(nearAxis == Axis.Any) targetScaleAmount = (ExtVector3.Abs(mainTargetRoot.localScale.normalized) * scaleAmount);
-						else targetScaleAmount = localAxis * scaleAmount;
 
-						for(int i = 0; i < targetRootsOrdered.Count; i++)
+                        for (int i = 0; i < targetRootsOrdered.Count; i++)
 						{
 							Transform target = targetRootsOrdered[i];
+						    Vector3 targetScale = _savedScale + (localAxis * scaleAmount);
 
-							Vector3 targetScale = target.localScale + targetScaleAmount;
-
-							if(pivot == TransformPivot.Pivot)
+                            if (pivot == TransformPivot.Pivot)
 							{
 								target.localScale = targetScale;
 							}
@@ -406,16 +414,16 @@ namespace RuntimeGizmos
 							{
 								if(scaleType == ScaleType.FromPoint)
 								{
-									target.SetScaleFrom(originalPivot, targetScale);
+                                    target.SetScaleFrom(originalPivot, targetScale);
 								}
 								else if(scaleType == ScaleType.FromPointOffset)
 								{
-									target.SetScaleFromOffset(originalPivot, targetScale);
+                                    target.SetScaleFromOffset(originalPivot, targetScale);
 								}
 							}
 						}
 
-						totalScaleAmount += scaleAmount;
+						totalScaleAmount = scaleAmount;
 					}
 					else if(type == TransformType.Rotate)
 					{
@@ -424,7 +432,6 @@ namespace RuntimeGizmos
 
 						if(nearAxis == Axis.Any)
 						{
-                            //Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
 						    Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
                             Quaternion.Euler(rotation).ToAngleAxis(out rotateAmount, out rotationAxis);
 							rotateAmount *= allRotateSpeedMultiplier;
@@ -432,17 +439,40 @@ namespace RuntimeGizmos
 						{
 							Vector3 projected = (nearAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
 							//rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
-						    rotateAmount = (ExtVector3.MagnitudeInDirection(manipulationVec - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
-                            
-						}
+						    rotateAmount = (ExtVector3.MagnitudeInDirection(manipulationVec, projected) * rotateSpeedMultiplier);
+						    Debug.Log("Projected: " + GetDistanceMultiplier());
+                            Debug.Log("rotateAmount: " + rotateAmount);
+						    Debug.Log("rotateAxis: " + rotationAxis);
+                        }
                         // Soleve the problem with continuous rotation.
 					    for (int i = 0; i < targetRootsOrdered.Count; i++)
 					    {
 					        Transform target = targetRootsOrdered[i];
 					        if (pivot == TransformPivot.Pivot)
 					        {
-					            target.Rotate(rotationAxis, rotateAmount, Space.World);
+					            if (nearAxis == Axis.X)
+					            {
+					                // Add the change of angle to the saved angle on X
+					                float xAmount = _savedRotation.eulerAngles.x + rotateAmount;
+					                target.localRotation = Quaternion.Euler(xAmount, _savedRotation.eulerAngles.y,
+					                    _savedRotation.eulerAngles.z);
+					            }
+					            else if (nearAxis == Axis.Y)
+					            {
+					                // Add the change of angle to the saved angle on Y
+					                float xAmount = _savedRotation.eulerAngles.y + rotateAmount;
+					                target.localRotation = Quaternion.Euler(_savedRotation.eulerAngles.x, xAmount,
+					                    _savedRotation.eulerAngles.z);
+					            }
+					            else if (nearAxis == Axis.Z)
+					            {
+					                // Add the change of angle to the saved angle on Z
+					                float xAmount = _savedRotation.eulerAngles.z + rotateAmount;
+					                target.localRotation = Quaternion.Euler(_savedRotation.eulerAngles.x,
+					                    _savedRotation.eulerAngles.y, xAmount);
+					            }
 					        }
+                            // I don't use this.
 					        else if (pivot == TransformPivot.Center)
 					        {
 					            target.RotateAround(originalPivot, rotationAxis, rotateAmount);
@@ -939,7 +969,7 @@ namespace RuntimeGizmos
 					if(nearAxis == Axis.X) axisInfo.xAxisEnd += (axisInfo.xDirection * totalScaleAmount);
 					if(nearAxis == Axis.Y) axisInfo.yAxisEnd += (axisInfo.yDirection * totalScaleAmount);
 					if(nearAxis == Axis.Z) axisInfo.zAxisEnd += (axisInfo.zDirection * totalScaleAmount);
-				}
+                }
 			}
 		}
 

@@ -16696,7 +16696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c0ad0e8e55c95c4e931911c4b943a64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  space: 0
+  space: 1
   type: 0
   pivot: 0
   centerType: 0
@@ -16726,13 +16726,14 @@ MonoBehaviour:
   circleDetail: 40
   minSelectedDistanceCheck: 0.01
   moveSpeedMultiplier: 2
-  scaleSpeedMultiplier: 0.1
-  rotateSpeedMultiplier: 1
+  scaleSpeedMultiplier: 1
+  rotateSpeedMultiplier: 100
   allRotateSpeedMultiplier: 1
   useFirstSelectedAsMain: 1
   forceUpdatePivotPointOnChange: 1
   InputDown: 0
   InputUp: 1
+  DrawHandles: 1
   maxUndoStored: 100
   targetRootsOrdered: []
 --- !u!1001 &2072205362
