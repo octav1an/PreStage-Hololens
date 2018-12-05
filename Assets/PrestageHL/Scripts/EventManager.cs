@@ -39,7 +39,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
             AirTapDown();
         }
 
-        eventData.Use();
+        //eventData.Use();
     }
 
     public void OnInputUp(InputEventData eventData)
@@ -48,7 +48,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IF
         {
             AirTapUp();
         }
-        eventData.Use();
+        //eventData.Use();
     }
 
     public void OnInputClicked(InputClickedEventData eventData)

@@ -42,7 +42,6 @@ public class MainMenu : MonoBehaviour
     public void InstanciatePrefab1()
     {
         GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity, SceneContentGo.transform);
-        Debug.Log("New");
     }
     public void InstanciatePrefab2()
     {

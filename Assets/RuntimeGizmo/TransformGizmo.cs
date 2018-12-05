@@ -61,6 +61,7 @@ namespace RuntimeGizmos
         public bool InputDown = false;
         public bool InputUp = true;
         public bool DrawHandles = true;
+        public bool DisableGizmo = false;
 
         public int maxUndoStored = 100;
 
@@ -152,9 +153,9 @@ namespace RuntimeGizmos
         void LateUpdate()
         {
             if (mainTargetRoot == null) return;
-
             // If the ContexMenu is on disable the handles.
-            if (!ContexMenu.Instance.IsActive)
+            // DisableGizmo - way of controling the gizmo display when Grab mode is active.
+            if (!ContexMenu.Instance.IsActive && !DisableGizmo)
             {
                 //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
                 SetAxisInfo();
@@ -230,7 +231,7 @@ namespace RuntimeGizmos
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
-            eventData.Use();
+            //eventData.Use();
         }
 
         public void OnInputUp(InputEventData eventData)
@@ -238,7 +239,7 @@ namespace RuntimeGizmos
 
             InputUp = true;
             InputDown = false;
-            eventData.Use();
+            //eventData.Use();
         }
 
         public void OnManipulationStarted(ManipulationEventData eventData)

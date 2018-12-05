@@ -281,17 +281,47 @@ public class ContexMenu : MonoBehaviour
     public void SetMoveTransformationType()
     {
         Manager.Instance.GIZMO.type = TransformType.Move;
+        // Disply the gizmo arrows.
+        Manager.Instance.GIZMO.DisableGizmo = false;
+        // Disble Grab script in selected primitive.
+        SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
+        // Reactivate the Cube mode, in order to have the gizmo displyed.
+        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
-
     public void SetRotateTransformationType()
     {
         Manager.Instance.GIZMO.type = TransformType.Rotate;
+        // Disply the gizmo arrows.
+        Manager.Instance.GIZMO.DisableGizmo = false;
+        // Disble Grab script in selected primitive.
+        SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
+        // Reactivate the Cube mode, in order to have the gizmo displyed.
+        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetScaleTransformationType()
     {
         Manager.Instance.GIZMO.type = TransformType.Scale;
+        // Disply the gizmo arrows.
+        Manager.Instance.GIZMO.DisableGizmo = false;
+        // Disble Grab script in selected primitive.
+        SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
+        // Reactivate the Cube mode, in order to have the gizmo displyed.
+        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        DeactivateContexMenu(true);
+    }
+
+    public void SetGrabTransformationType()
+    {
+        Manager.Instance.GIZMO.DisableGizmo = true;
+        SELECTED_GO.GetComponent<HandDraggable>().enabled = true;
+        // Turn off other things
+        ActiveteVertex(false);
+        ActivateEdge(false);
+        ActivateFace(false);
+        // Reactivate the Cube mode, in order to have the gizmo displyed.
+        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using HoloToolkit.Unity.InputModule;
 using PRCubeClasses;
 using RuntimeGizmos;
 
@@ -127,7 +128,7 @@ public class PRCube : MonoBehaviour
         {
             if (CubeModeActive)
             {
-
+                // Make sure the gizmo is active all the time
             }
         }
     }
