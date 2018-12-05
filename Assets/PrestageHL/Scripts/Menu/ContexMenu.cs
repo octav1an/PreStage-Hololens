@@ -93,8 +93,11 @@ public class ContexMenu : MonoBehaviour
         else if (_tapCount == 2 && (Time.time - _timer) < Delay)
         {
             _tapCount = 0;
-            //print("DoubleClick");
-            if(!IsActive)ActivateContexMenu();
+            //print("DoubleClick);
+            if (!IsActive && IsSelectedTheSameAsHit())
+            {
+                ActivateContexMenu();
+            }
         }
         else
         {
@@ -125,7 +128,6 @@ public class ContexMenu : MonoBehaviour
             CMSubmenu.Instance.ActiveButton != Manager.Instance.GET_COLLIDER_GO.transform.parent.name)
         {
             CMSubmenu.Instance.DeactivateSubmenu();
-            Debug.Log("HereWeGo!_part2");
             return;
         }
         if (Manager.Instance.GET_COLLIDER_TAG == "ContexMenu" || Manager.Instance.GET_COLLIDER_TAG == "CMSubmenu")
@@ -133,7 +135,6 @@ public class ContexMenu : MonoBehaviour
             return;
         }
         // Deactivate the submenu first.
-        Debug.Log("HereWeGo!");
         if (CMSubmenu.Instance.IsAnySubmenuActive)
         {
             CMSubmenu.Instance.DeactivateSubmenu();
@@ -311,7 +312,6 @@ public class ContexMenu : MonoBehaviour
         StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
-
     public void SetGrabTransformationType()
     {
         Manager.Instance.GIZMO.DisableGizmo = true;
@@ -340,4 +340,26 @@ public class ContexMenu : MonoBehaviour
     }
 
     #endregion //UpdateElements
+
+    #region Other
+
+    private bool IsSelectedTheSameAsHit()
+    {
+        // Check if there is a selected object.
+        if (!Manager.Instance.SelectedGeo) return false;
+        // Check if there is a hit object.
+        if (!Manager.Instance.GET_COLLIDER_GO) return false;
+        // Check if it has the same ID as the hit object.
+        if (Manager.Instance.GET_COLLIDER_GO.GetInstanceID() ==
+            Manager.Instance.SelectedGeo.gameObject.GetInstanceID())
+        {
+            //Debug.Log("1: " + Manager.Instance.GET_COLLIDER_GO.GetInstanceID());
+            //Debug.Log("2: " + Manager.Instance.SelectedGeo.gameObject.GetInstanceID());
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion //Other
 }

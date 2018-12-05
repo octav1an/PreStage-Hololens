@@ -189,12 +189,6 @@ public class PRCube : MonoBehaviour
         return this;
     }
 
-    #region Transform Methods
-
-
-
-    #endregion //Transform Methods
-
 
     #region Collider Work
     /// <summary>
@@ -207,36 +201,10 @@ public class PRCube : MonoBehaviour
     #endregion //Collider Work
 
     #region Menu Methods call
-    public void TurnOnVertex()
-    {
-        // Instanciate the field first;
-        ActiveteVertex(true);
-        // Turn off other things
-        ActivateEdge(false);
-        ActivateFace(false);
-        CubeModeActive = false;
-    }
-    public void TurnOnEdge()
-    {
-        ActivateEdge(true);
-        ActiveteVertex(false);
-        ActivateFace(false);
-        // Turn off other things
-        CubeModeActive = false;
-        // Update Edges when turned on so it fits the latest version of mesh.
-        UpdateEdges(PR_EDGE_GO);
-    }
-    public void TurnOnFace()
-    {
-        ActivateFace(true);
-        // Turn off other things
-        ActiveteVertex(false);
-        ActivateEdge(false);
-        CubeModeActive = false;
-        // Update face locations when turning it on, so it matches the actual mesh.
-        UpdateFace(PR_FACE_GO);
-    }
-
+    /// <summary>
+    /// Coroutine that activates the geometry selection mode.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator TurnOnCube()
     {
         CubeModeActive = true;
@@ -246,8 +214,9 @@ public class PRCube : MonoBehaviour
         PR_FACE_GO.SetActive(FaceModeActive);
         PR_EDGE_GO.SetActive(EdgeModeActive);
         PR_VERTEX_GO.SetActive(VertexModeActive);
-
+        // Add the whole geometry to Gizmo array.
         GIZMO.ClearAndAddTarget(this.transform);
+        // Save the position, used during movement transformation.
         GIZMO.SavePrevPosition();
 
         yield return null;
