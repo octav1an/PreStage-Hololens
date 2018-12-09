@@ -13,7 +13,7 @@ namespace RuntimeGizmos
 	//For example, if you select an object that has children, move the children elsewhere, deselect the original object, then try to add those old children to the selection, I think it wont work.
 
 	[RequireComponent(typeof(Camera))]
-	public class TransformGizmo : MonoBehaviour, IInputHandler,IManipulationHandler
+	public class TransformGizmo : MonoBehaviour
     {
 		public TransformSpace space = TransformSpace.Global;
 		public TransformType type = TransformType.Move;
@@ -121,13 +121,18 @@ namespace RuntimeGizmos
 
 		void OnEnable()
 		{
-			forceUpdatePivotCoroutine = StartCoroutine(ForceUpdatePivotPointAtEndOfFrame());
-            //print("enable");
+		    EventManager.ManipulationUpdated += OnManipulationUpdatedLocal;
+		    EventManager.ManipulationCompleted += OnManipulationCompletedLocal;
+		    EventManager.ManipulationCompleted += OnManipulationCanceledLocal;
+            forceUpdatePivotCoroutine = StartCoroutine(ForceUpdatePivotPointAtEndOfFrame());
 		}
 
 		void OnDisable()
 		{
-			ClearTargets(); //Just so things gets cleaned up, such as removing any materials we placed on objects.
+		    EventManager.ManipulationUpdated -= OnManipulationUpdatedLocal;
+		    EventManager.ManipulationCompleted -= OnManipulationCompletedLocal;
+		    EventManager.ManipulationCompleted -= OnManipulationCanceledLocal;
+            ClearTargets(); //Just so things gets cleaned up, such as removing any materials we placed on objects.
 
 			StopCoroutine(forceUpdatePivotCoroutine);
 		}
@@ -143,10 +148,13 @@ namespace RuntimeGizmos
 
 			SetSpaceAndType();
 			SetNearAxis();
-			
+		    if (Input.GetKey(KeyCode.T))
+		    {
+		        nearAxis = Axis.None;
+		    }
 
 			if(mainTargetRoot == null) return;
-			
+			//print("Vec: " + targetRootsOrdered.Count);
 			TransformSelected();
 		}
 
@@ -215,15 +223,17 @@ namespace RuntimeGizmos
 			DrawQuads(rotationAxisVector.z, zColor);
 		}
 
-        public void OnInputDown(InputEventData eventData)
+        public void OnInputDownLocal()
         {
             InputDown = true;
             InputUp = false;
-            GetTarget("PREdge", "PRFace");
-            SavePrevPosition();
+            // Reset manipulation Vector that is responisble for move transformation.
+            manipulationVec = Vector3.zero;
+            //GetTarget("PREdge", "PRFace");
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
+                SavePrevPosition();
                 // Save scale of the object, to later only add the manipulation vector.
                 _savedScale = targetRootsOrdered[0].localScale;
                 _savedRotation = targetRootsOrdered[0].localRotation;
@@ -231,37 +241,27 @@ namespace RuntimeGizmos
 
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
-            //eventData.Use();
         }
 
-        public void OnInputUp(InputEventData eventData)
+        public void OnInputUpLocal()
         {
-
             InputUp = true;
             InputDown = false;
-            //eventData.Use();
         }
-
-        public void OnManipulationStarted(ManipulationEventData eventData)
+        private void OnManipulationUpdatedLocal()
         {
-
-
-
+            manipulationVec = Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta;
         }
 
-        public void OnManipulationUpdated(ManipulationEventData eventData)
-        {
-            manipulationVec = eventData.CumulativeDelta;
-        }
-
-        public void OnManipulationCompleted(ManipulationEventData eventData)
+        private void OnManipulationCompletedLocal()
         {
             manipulationVec = Vector3.zero;
         }
 
-        public void OnManipulationCanceled(ManipulationEventData eventData)
+        private void OnManipulationCanceledLocal()
         {
-            manipulationVec = Vector3.zero;
+            // Reset highlighted handle.
+            nearAxis = Axis.None;
         }
 
         #endregion //Unity
@@ -272,7 +272,6 @@ namespace RuntimeGizmos
         public void SavePrevPosition()
         {
             targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
-
             for (int i = 0; i < targetRootsOrdered.Count; i++)
             {
                 targetRootsOrderedSavedPos[i] = new Vector3(targetRootsOrdered[i].position.x,

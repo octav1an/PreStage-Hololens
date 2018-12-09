@@ -72,16 +72,12 @@ public class PRFace : MonoBehaviour, IFocusable
     {
         EventManager.AirTapDown += OnAirtapDown;
         EventManager.AirTapUp += OnAirtapUp;
-        EventManager.FocusEnter += HighlightEdge;
-        EventManager.FocusExit += UnhighlightEdge;
     }
 
     void OnDisable()
     {
         EventManager.AirTapDown -= OnAirtapDown;
         EventManager.AirTapUp -= OnAirtapUp;
-        EventManager.FocusEnter -= HighlightEdge;
-        EventManager.FocusExit -= UnhighlightEdge;
     }
     #endregion //Unity
 

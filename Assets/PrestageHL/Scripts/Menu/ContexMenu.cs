@@ -84,7 +84,7 @@ public class ContexMenu : MonoBehaviour
         if (_tapCount == 1)
         {
             _timer = Time.time;
-            SavedHitPosition = Manager.Instance.HIT_LOCATION;
+            SavedHitPosition = Manager.Instance.GET_HIT_LOCATION;
             //print("OneClick");
             // Deactivate if hit outside contex menu.
             if(IsActive)DeactivateContexMenu();
@@ -173,7 +173,7 @@ public class ContexMenu : MonoBehaviour
 
     #endregion //MenuActivation
 
-    #region Menu Call Functions
+    #region MenuCallFunctions
 
     #region Selection Modes
     public void ActivateVertexMode()
@@ -325,7 +325,7 @@ public class ContexMenu : MonoBehaviour
         DeactivateContexMenu(true);
     }
 
-    #endregion //Menu Call Functions
+    #endregion //MenuCallFunctions
 
     #region UpdateElements
 

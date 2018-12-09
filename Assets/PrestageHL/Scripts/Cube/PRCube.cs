@@ -144,6 +144,12 @@ public class PRCube : MonoBehaviour
         EventManager.AirTapDown -= OnAirtapDown;
         EventManager.AirTapDown -= OnAirtapUp;
     }
+
+    void OnDestroy()
+    {
+        // Remove it from Gizmo if it was there.
+        GIZMO.ClearTargets();
+    }
     #endregion //Unity
 
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
@@ -200,7 +206,7 @@ public class PRCube : MonoBehaviour
     }
     #endregion //Collider Work
 
-    #region Menu Methods call
+    #region MenuMethodsCall
     /// <summary>
     /// Coroutine that activates the geometry selection mode.
     /// </summary>
@@ -218,6 +224,21 @@ public class PRCube : MonoBehaviour
         GIZMO.ClearAndAddTarget(this.transform);
         // Save the position, used during movement transformation.
         GIZMO.SavePrevPosition();
+
+        yield return null;
+    }
+
+    public IEnumerator TurnOffAllModes()
+    {
+        CubeModeActive = false;
+        VertexModeActive = false;
+        EdgeModeActive = false;
+        FaceModeActive = false;
+        PR_FACE_GO.SetActive(FaceModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+        // Remove targets.
+        GIZMO.ClearTargets();
 
         yield return null;
     }
@@ -258,7 +279,7 @@ public class PRCube : MonoBehaviour
             face.UpdateCollider();
         }
     }
-    #endregion //Menu Methods call
+    #endregion // MenuMethodsCall
 
     #region Generate
     private Mesh GenerateMesh()

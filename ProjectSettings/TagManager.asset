@@ -16,6 +16,8 @@ TagManager:
   - ContexMenu
   - CMSubmenu
   - MainMenu
+  - PropertiesPanel
+  - SceneScaler
   layers:
   - Default
   - TransparentFX

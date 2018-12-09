@@ -12,6 +12,10 @@ public class Manager : MonoBehaviour
     {
         get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
     }
+    public EventManager EVENT_MANAGER
+    {
+        get { return GetComponent<EventManager>(); }
+    }
     /// <summary>
     /// Get the name for the collider hit by the ray.
     /// </summary>
@@ -60,8 +64,10 @@ public class Manager : MonoBehaviour
             }
         }
     }
-
-    public Vector3 HIT_LOCATION
+    /// <summary>
+    /// Location where the hit point is, world space.
+    /// </summary>
+    public Vector3 GET_HIT_LOCATION
     {
         get
         {
@@ -155,19 +161,25 @@ public class Manager : MonoBehaviour
 	        //PRCube block = UpdateSelection(_hit);
 	        //Debug.Log(_hit.collider.tag);
         }
-        
-    }
+	}
 
     void OnEnable()
     {
-        EventManager.AirTapDown += OnAirtapDown;
-        EventManager.AirTapUp += OnAirtapUp;
+
+        EventManager.AirTapDown += OnInputDownLocal;
+        EventManager.AirTapUp += OnInputUpLocal;
+        EventManager.AirTapDown += GIZMO.OnInputDownLocal;
+        EventManager.AirTapUp += GIZMO.OnInputUpLocal;
+
     }
 
     void OnDisable()
     {
-        EventManager.AirTapDown -= OnAirtapDown;
-        EventManager.AirTapUp -= OnAirtapUp;
+        EventManager.AirTapDown -= OnInputDownLocal;
+        EventManager.AirTapUp -= OnInputUpLocal;
+        EventManager.AirTapDown -= GIZMO.OnInputDownLocal;
+        EventManager.AirTapUp -= GIZMO.OnInputUpLocal;
+
     }
     #endregion //Unity
 
@@ -221,7 +233,7 @@ public class Manager : MonoBehaviour
     #region Events
    
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
-    public void OnAirtapDown()
+    public void OnInputDownLocal()
     {
         
         InputDown = true;
@@ -234,9 +246,10 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void OnAirtapUp()
+    public void OnInputUpLocal()
     {
         InputDown = false;
+
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
@@ -289,8 +302,14 @@ public class Manager : MonoBehaviour
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            if(SelectedGeo)
+            if (SelectedGeo)
+            {
+                // Make sure all the all transformation modes are off.
+                StartCoroutine(SelectedGeo.TurnOffAllModes());
+                // Deselect cube.
                 SelectedGeo.DeselectCube(UnselectedMaterial);
+            }
+                
             return null;
         }
     }
