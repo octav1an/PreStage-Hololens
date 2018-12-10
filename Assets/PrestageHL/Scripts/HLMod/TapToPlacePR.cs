@@ -78,7 +78,8 @@ public class TapToPlacePR : MonoBehaviour
         //Bounds bounds = transform.GetColliderBounds();
         Bounds bounds = GetColliderBounds(transform);
         // Add the bounds.extents.y to place the model on the buttom surface.
-        PlacementPosOffset = (transform.position - bounds.center) + new Vector3(0, bounds.extents.y, 0);
+        //PlacementPosOffset = (transform.position - bounds.center) + new Vector3(0, bounds.extents.y, 0);
+        PlacementPosOffset = new Vector3(0, bounds.extents.y, 0);
         EventManager.AirTapClick += OnClick;
     }
 

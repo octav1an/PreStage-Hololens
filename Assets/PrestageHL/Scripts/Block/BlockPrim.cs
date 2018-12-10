@@ -435,7 +435,7 @@ public class BlockPrim : MonoBehaviour
         BlockMesh = GetComponent<MeshFilter>().mesh;
         Vertices = BlockMesh.vertices;
         VerticesSaved = BlockMesh.vertices;
-        if (BlockId == -1) BlockId = Manager.CollBlocksObjects.IndexOf(gameObject);
+        //if (BlockId == -1) BlockId = Manager.CollGeoObjects.IndexOf(gameObject);
         _savedMoveTarget = SetTarggetPosition();
         _movePlane = new Plane(Vector3.up, this.transform.position);
         SetUpIndividualFaces();

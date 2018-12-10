@@ -95,7 +95,7 @@ public class Manager : MonoBehaviour
     /// <summary>
     /// List with all the objects that are drawn on the canvas.
     /// </summary>
-    public static List<GameObject> CollBlocksObjects = new List<GameObject>();
+    public List<GameObject> CollGeoObjects = new List<GameObject>();
     /// <summary>
     /// Store location of mouse when right click is pressed.
     /// </summary>
@@ -164,6 +164,11 @@ public class Manager : MonoBehaviour
 	        //PRCube block = UpdateSelection(_hit);
 	        //Debug.Log(_hit.collider.tag);
         }
+
+	    if (Input.GetKeyDown(KeyCode.G))
+	    {
+            print("NumberOfObjects: " + CollGeoObjects.Count);
+	    }
     }
 
     void OnEnable()
@@ -258,15 +263,6 @@ public class Manager : MonoBehaviour
 
     #endregion //Events
 
-    //---------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Crate a block. Used in button.
-    /// </summary>
-    public void CreateBlock()
-    {
-        GameObject freshObj = (GameObject)Instantiate(BlockPrefab, new Vector3(), Quaternion.identity);
-        CollBlocksObjects.Add(freshObj);
-    }
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
@@ -339,10 +335,10 @@ public class Manager : MonoBehaviour
     /// </summary>
     private void CountAndStoreBlocks()
     {
-        GameObject[] alreadyCreated = GameObject.FindGameObjectsWithTag("BlockPrim");
+        GameObject[] alreadyCreated = GameObject.FindGameObjectsWithTag("PRCube");
         foreach (GameObject obj in alreadyCreated)
         {
-            CollBlocksObjects.Add(obj);
+            CollGeoObjects.Add(obj);
         }
 
     }
