@@ -7,9 +7,11 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
-    public GameObject SceneContentGo;
     public GameObject SceneScalerPrefab;
+    public GameObject SceneMoverPrefab;
     public GameObject SpacialMappingGo;
+    public GameObject SceneCenter;
+
     public GameObject prefab1;
     public GameObject prefab2;
     public GameObject prefab3;
@@ -24,10 +26,9 @@ public class MainMenu : MonoBehaviour
     /// SceneScaler GameObject.
     /// </summary>
     private GameObject _sceneScalerGo;
+    private GameObject _sceneMoverGo;
 
     public GameObject parentTextGo;
-    public GameObject ScalerCenter;
-    public GameObject SceneContentCenter;
 
     #region Unity
 
@@ -52,43 +53,25 @@ public class MainMenu : MonoBehaviour
 	    AlignToCenter(YOffset);
 
 	    Text paretnText = parentTextGo.GetComponent<Text>();
-	    if (SceneContentGo.transform.parent)
-	    {
-	        paretnText.text = "Parent: " + SceneContentGo.transform.parent.name;
-        }
-	    else
-	    {
-	        paretnText.text = "Parent: null";
 
-	    }
-        // Centers
-	    if (_sceneScalerGo)
-	    {
-	        ScalerCenter.transform.position = _sceneScalerGo.transform.position;
-        }
-	    else
-	    {
-	        ScalerCenter.transform.position = Vector3.zero;
-        }
-
-	    SceneContentCenter.transform.position = SceneContentGo.transform.position;
-
-
+        paretnText.text = "HitName: " + Manager.Instance.GET_COLLIDER_NAME;
+	    SceneCenter.transform.position = GetColliderBoundsNew().center;
 	}
     #endregion //Unity
 
     #region InstanciatePrefabs
     public void InstanciatePrefab1()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity, SceneContentGo.transform);
+        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
     }
     public void InstanciatePrefab2()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity, SceneContentGo.transform);
+        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity);
     }
     public void InstanciatePrefab3()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity, SceneContentGo.transform);
+        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity);
     }
     #endregion //InstanciatePrefabs
 
@@ -110,11 +93,18 @@ public class MainMenu : MonoBehaviour
     /// <param name="yOffset"> Offset on Y axix, which is the vertical. </param>
     private void AlignToCenter(float yOffset)
     {
-        Bounds bounds = GetColliderBounds(SceneContentGo.transform);
-        Vector3 center = bounds.center;
-        Vector3 extends = bounds.extents;
-        Vector3 pos = center + new Vector3(0, extends.y + yOffset, 0);
-        transform.position = pos;
+        if (Manager.Instance.CollGeoObjects.Count > 0)
+        {
+            Bounds bounds = GetColliderBoundsNew();
+            Vector3 center = bounds.center;
+            Vector3 extends = bounds.extents;
+            Vector3 pos = center + new Vector3(0, extends.y + yOffset, 0);
+            transform.position = pos;
+        }
+        else
+        {
+            transform.position = new Vector3(0, 0, 2);
+        }
     }
 
     /// <summary>
@@ -137,24 +127,50 @@ public class MainMenu : MonoBehaviour
         }
         return bounds;
     }
+
+    public Bounds GetColliderBoundsNew()
+    {
+        if(Manager.Instance.CollGeoObjects.Count == 0) return new Bounds();
+        Bounds bounds = Manager.Instance.CollGeoObjects[0].GetComponent<Collider>().bounds;
+        for (int i = 1; i < Manager.Instance.CollGeoObjects.Count; i++)
+        {
+            GameObject geo = Manager.Instance.CollGeoObjects[i];
+            if (geo.GetComponent<Collider>())
+            {
+                bounds.Encapsulate(geo.GetComponent<Collider>().bounds);
+            }
+        }
+        return bounds;
+    }
+
     #endregion //UpdateElements
 
+    #region MenuCallFunctions
 
     public void MoveModelOn()
     {
-        //GameObject parent = transform.parent.gameObject;
-        SceneContentGo.GetComponent<TapToPlacePR>().enabled = true;
+        // Create the prefab in the center of the scene
+        _sceneMoverGo = (GameObject)Instantiate(SceneMoverPrefab, GetColliderBoundsNew().center, Quaternion.identity);
+        _sceneMoverGo.GetComponent<TapToPlacePR>().enabled = true;
+        // Parent all scene geometry to SceneMoverPrefab
+        for(int i = 0; i < Manager.Instance.CollGeoObjects.Count; i++)
+        {
+            GameObject geo = Manager.Instance.CollGeoObjects[i];
+            geo.transform.parent = _sceneMoverGo.transform;
+        }
         //SceneContentGo.GetComponent<TapToPlaceOC>().IsBeingPlaced = true;
         SpacialMappingGo.SetActive(true);
-        Debug.Log("ModelButtonOn");
-        Debug.Log("Enable: " + SceneContentGo.GetComponent<TapToPlacePR>().enabled);
-        Debug.Log("IsBeingPlaced: " + SceneContentGo.GetComponent<TapToPlacePR>().IsBeingPlaced);
     }
 
     public void MoveModelOff()
     {
-        SceneContentGo.GetComponent<TapToPlacePR>().IsBeingPlaced = false;
-        SceneContentGo.GetComponent<TapToPlacePR>().enabled = false;
+        // Unparent scene geometry
+        for (int i = 0; i < Manager.Instance.CollGeoObjects.Count; i++)
+        {
+            GameObject geo = Manager.Instance.CollGeoObjects[i];
+            geo.transform.parent = null;
+        }
+        Destroy(_sceneMoverGo);
         SpacialMappingGo.SetActive(false);
     }
 
@@ -174,33 +190,7 @@ public class MainMenu : MonoBehaviour
 
     public void ScaleModelOn()
     {
-        Bounds sceneBounds = TapToPlacePR.GetColliderBounds(SceneContentGo.transform);
-        Vector3 center = sceneBounds.center;
-        Vector3 extents = sceneBounds.extents;
-        // Create and adjust scaler object position.
-        _sceneScalerGo = (GameObject) Instantiate(SceneScalerPrefab, center, Quaternion.identity);
-        // Activate the TwoHandManipulation script for scale manipulations.
-        _sceneScalerGo.GetComponent<TwoHandManipulatable>().enabled = true;
-        // Create collider box
-        BoxCollider boxCol = _sceneScalerGo.AddComponent<BoxCollider>();
-        // Scale collider box using scene bounds.
-        boxCol.size = extents * 2.05f;
-        // Create BoundingBox mesh from BoxCollider
-        Mesh boundingMesh = new Mesh();
-        boundingMesh.vertices = SetUpBoundingBoxMeshVertices();
-        int[] meshIndecies = new int[24] {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23};
-        boundingMesh.SetIndices(meshIndecies, MeshTopology.Quads, 0);
-        boundingMesh.RecalculateBounds();
-        boundingMesh.RecalculateNormals();
-        boundingMesh.RecalculateTangents();
-        _sceneScalerGo.GetComponent<MeshFilter>().mesh = boundingMesh;
-        // Parent SceneContent to SceneScaler.
-        SceneContentGo.transform.parent = _sceneScalerGo.transform;
-    }
-
-    public void ScaleModelOn2()
-    {
-        Bounds sceneBounds = TapToPlacePR.GetColliderBounds(SceneContentGo.transform);
+        Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;
         // Create and adjust scaler object position.
@@ -210,62 +200,14 @@ public class MainMenu : MonoBehaviour
         // Create collider box
         BoxCollider boxCol = _sceneScalerGo.AddComponent<BoxCollider>();
         _sceneScalerGo.transform.localScale = extents * 2 + new Vector3(0.02f, 0.02f, 0.02f);
-        // Parent SceneContent to SceneScaler.
-        SceneContentGo.transform.parent = _sceneScalerGo.transform;
-
-        Debug.Log("SceneContentGoPos: " + SceneContentGo.transform.position);
-        Debug.Log("_sceneScalerGoPos: " + _sceneScalerGo.transform.position);
-    }
-
-    public void ScaleModeOff()
-    {
-        SceneContentGo.transform.parent = null;
-        Destroy(_sceneScalerGo);
-    }
-
-    Vector3[] GetColliderVertexPositions(GameObject obj)
-    {
-        var vertices = new Vector3[8];
-        var thisMatrix = obj.transform.localToWorldMatrix;
-        var storedRotation = obj.transform.rotation;
-        obj.transform.rotation = Quaternion.identity;
-       
-        var extents = obj.GetComponent<BoxCollider>().bounds.extents;
-        vertices[0] = thisMatrix.MultiplyPoint3x4(extents);
-        vertices[1] = thisMatrix.MultiplyPoint3x4(new Vector3(-extents.x, extents.y, extents.z));
-        vertices[2] = thisMatrix.MultiplyPoint3x4(new Vector3(extents.x, extents.y, -extents.z));
-        vertices[3] = thisMatrix.MultiplyPoint3x4(new Vector3(-extents.x, extents.y, -extents.z));
-        vertices[4] = thisMatrix.MultiplyPoint3x4(new Vector3(extents.x, -extents.y, extents.z));
-        vertices[5] = thisMatrix.MultiplyPoint3x4(new Vector3(-extents.x, -extents.y, extents.z));
-        vertices[6] = thisMatrix.MultiplyPoint3x4(new Vector3(extents.x, -extents.y, -extents.z));
-        vertices[7] = thisMatrix.MultiplyPoint3x4(-extents);
-       
-        obj.transform.rotation = storedRotation;
-
-        return vertices;
-    }
-
-    Vector3[] SetUpBoundingBoxMeshVertices()
-    {
-        // Collection with all the vertices for the box.
-        Vector3[] vertCollAll = new Vector3[24];
-        Vector3[] vertColl = GetColliderVertexPositions(_sceneScalerGo);
-
-        int[] meshIndecies = new int[24]
+        // Parent scene geometry to SceneScaler.
+        for (int i = 0; i < Manager.Instance.CollGeoObjects.Count; i++)
         {
-            1,5,4,0,
-            0,4,6,2,
-            2,6,7,3,
-            3,7,5,1,
-            0,2,3,1,
-            4,6,7,5
-        };
-
-        for (int i = 0; i < vertCollAll.Length; i++)
-        {
-            vertCollAll[i] = _sceneScalerGo.transform.InverseTransformPoint(vertColl[meshIndecies[i]]);
+            GameObject geo = Manager.Instance.CollGeoObjects[i];
+            geo.transform.parent = _sceneScalerGo.transform;
         }
-        return vertCollAll;
     }
+
+    #endregion // MenuCallFunctions
 
 }

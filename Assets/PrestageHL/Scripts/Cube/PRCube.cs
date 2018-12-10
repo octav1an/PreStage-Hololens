@@ -18,10 +18,6 @@ public class PRCube : MonoBehaviour
     /// Bool that is activated when the cube is Active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
-    public Manager MANAGER
-    {
-        get { return GameObject.FindGameObjectWithTag("Manager").GetComponent<Manager>(); }
-    }
     //Vertex Array, use only geting the vertices. This property cannot rewrite them.
     public Vector3[] VERTS_COLL
     {
@@ -149,6 +145,7 @@ public class PRCube : MonoBehaviour
     {
         // Remove it from Gizmo if it was there.
         GIZMO.ClearTargets();
+        Manager.Instance.CollGeoObjects.Remove(gameObject);
     }
     #endregion //Unity
 
@@ -174,7 +171,7 @@ public class PRCube : MonoBehaviour
         }
 
         GetComponent<MeshRenderer>().materials = selectedMats;
-        MANAGER.SelectedGeo = this;
+        Manager.Instance.SelectedGeo = this;
         return this;
     }
 
@@ -187,7 +184,7 @@ public class PRCube : MonoBehaviour
             unselectedMats[i] = unselMat;
         }
         GetComponent<MeshRenderer>().materials = unselectedMats;
-        MANAGER.SelectedGeo = null;
+        Manager.Instance.SelectedGeo = null;
         // Turn off TransformElements
         ActiveteVertex(false);
         ActivateEdge(false);
