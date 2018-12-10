@@ -27,6 +27,9 @@ public class ScalerCanvasPR : MonoBehaviour
     public void ScalerTurnOff()
     {
         MainMenu.Instance.SceneContentGo.transform.parent = null;
+        Destroy(GameObject.Find("AppBar(Clone)"));
+        Destroy(GameObject.Find("center"));
+        Destroy(GameObject.Find("BoundingBoxBasic(Clone)"));
         Destroy(SceneScalerGo);
     }
     #endregion //MenuCallFunctions

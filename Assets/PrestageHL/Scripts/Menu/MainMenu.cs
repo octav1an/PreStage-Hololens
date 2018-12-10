@@ -2,6 +2,7 @@
 using HoloToolkit.Unity.InputModule.Utilities.Interactions;
 using HoloToolkit.Unity.SpatialMapping;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
@@ -18,12 +19,15 @@ public class MainMenu : MonoBehaviour
     public float YOffset;
     private bool SpatialActive = true;
 
-    public GameObject[] coll = new GameObject[8];
 
     /// <summary>
     /// SceneScaler GameObject.
     /// </summary>
     private GameObject _sceneScalerGo;
+
+    public GameObject parentTextGo;
+    public GameObject ScalerCenter;
+    public GameObject SceneContentCenter;
 
     #region Unity
 
@@ -46,6 +50,28 @@ public class MainMenu : MonoBehaviour
 	{
 	    OrientCanvasToCamera();
 	    AlignToCenter(YOffset);
+
+	    Text paretnText = parentTextGo.GetComponent<Text>();
+	    if (SceneContentGo.transform.parent)
+	    {
+	        paretnText.text = "Parent: " + SceneContentGo.transform.parent.name;
+        }
+	    else
+	    {
+	        paretnText.text = "Parent: null";
+
+	    }
+        // Centers
+	    if (_sceneScalerGo)
+	    {
+	        ScalerCenter.transform.position = _sceneScalerGo.transform.position;
+        }
+	    else
+	    {
+	        ScalerCenter.transform.position = Vector3.zero;
+        }
+
+	    SceneContentCenter.transform.position = SceneContentGo.transform.position;
 
 
 	}
@@ -186,6 +212,9 @@ public class MainMenu : MonoBehaviour
         _sceneScalerGo.transform.localScale = extents * 2 + new Vector3(0.02f, 0.02f, 0.02f);
         // Parent SceneContent to SceneScaler.
         SceneContentGo.transform.parent = _sceneScalerGo.transform;
+
+        Debug.Log("SceneContentGoPos: " + SceneContentGo.transform.position);
+        Debug.Log("_sceneScalerGoPos: " + _sceneScalerGo.transform.position);
     }
 
     public void ScaleModeOff()

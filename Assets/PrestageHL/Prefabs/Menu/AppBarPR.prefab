@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4554453680391764}
-  - component: {fileID: 114673494508808472}
+  - component: {fileID: 114398031973911678}
   m_Layer: 0
   m_Name: AppBarPR
   m_TagString: SceneScaler
@@ -141,7 +141,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1674900668879750}
   m_Mesh: {fileID: 4300006, guid: c68a88ae5c5b91f41b94c83aa4c4196e, type: 3}
---- !u!114 &114673494508808472
+--- !u!114 &114398031973911678
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1151885675987728}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80c870726057bb743b9c4f8faa604b98, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f57119cb0db55642a3897c4201033a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   interactables: []
@@ -158,15 +158,74 @@ MonoBehaviour:
   HoverOffsetYScale: 0.35
   HoverOffsetZ: 0
   useTightFollow: 0
-  SquareButtonPrefab: {fileID: 1210820392543280, guid: 40da8a1b3b26ba743b892d890b95a9f9,
-    type: 2}
+  SquareButtonPrefab: {fileID: 0}
   UseRemove: 0
   UseAdjust: 1
   UseHide: 1
   DisplayType: 0
   State: 0
   CustomButtonIconProfile: {fileID: 0}
-  buttons: []
+  buttons:
+  - DefaultPosition: 0
+    ManipulationPosition: 0
+    Type: 0
+    Name: 
+    Icon: 
+    Text: 
+    EventTarget: {fileID: 0}
+    OnTappedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+  - DefaultPosition: 0
+    ManipulationPosition: 0
+    Type: 0
+    Name: 
+    Icon: 
+    Text: 
+    EventTarget: {fileID: 0}
+    OnTappedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+  - DefaultPosition: 0
+    ManipulationPosition: 0
+    Type: 0
+    Name: 
+    Icon: 
+    Text: 
+    EventTarget: {fileID: 0}
+    OnTappedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+  - DefaultPosition: 0
+    ManipulationPosition: 0
+    Type: 0
+    Name: 
+    Icon: 
+    Text: 
+    EventTarget: {fileID: 0}
+    OnTappedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+  - DefaultPosition: 0
+    ManipulationPosition: 0
+    Type: 0
+    Name: 
+    Icon: 
+    Text: 
+    EventTarget: {fileID: 0}
+    OnTappedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
   buttonParent: {fileID: 4122813679483276}
   baseRenderer: {fileID: 1151885675987728}
   backgroundBar: {fileID: 1674900668879750}

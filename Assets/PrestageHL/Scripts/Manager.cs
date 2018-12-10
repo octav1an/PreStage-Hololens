@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using UnityEngine;
 using RuntimeGizmos;
+using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
@@ -133,6 +134,8 @@ public class Manager : MonoBehaviour
     //--------------------------------------------
     public static bool InputDown;
 
+
+
     #region Unity
     private void Awake()
     {
@@ -161,7 +164,7 @@ public class Manager : MonoBehaviour
 	        //PRCube block = UpdateSelection(_hit);
 	        //Debug.Log(_hit.collider.tag);
         }
-	}
+    }
 
     void OnEnable()
     {
