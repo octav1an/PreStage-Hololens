@@ -2,11 +2,21 @@
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using UnityEngine;
+using RuntimeGizmos;
+using UnityEngine.UI;
 
-public class Manager : MonoBehaviour, IInputHandler
+public class Manager : MonoBehaviour
 {
 
     public static Manager Instance;
+    public TransformGizmo GIZMO
+    {
+        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
+    }
+    public EventManager EVENT_MANAGER
+    {
+        get { return GetComponent<EventManager>(); }
+    }
     /// <summary>
     /// Get the name for the collider hit by the ray.
     /// </summary>
@@ -25,13 +35,63 @@ public class Manager : MonoBehaviour, IInputHandler
             }
         }
     }
-
-    public BlockPrim SelectedBlock;
+    public string GET_COLLIDER_TAG
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.collider.tag;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+    public GameObject GET_COLLIDER_GO
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.collider.gameObject;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
     /// <summary>
-    /// Highlight Material when the block is selected.
+    /// Location where the hit point is, world space.
+    /// </summary>
+    public Vector3 GET_HIT_LOCATION
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit))
+            {
+                return _hit.point;
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+        }
+    }
+
+    public PRCube SelectedGeo;
+    /// <summary>
+    /// Highlight Material when the block is Active.
     /// </summary>
     public Material SelectedMaterial;
     public Material UnselectedMaterial;
+    public Material HighlightColliderMat;
+    public Material ActiveColliderMat;
     /// <summary>
     /// List with all the objects that are drawn on the canvas.
     /// </summary>
@@ -70,11 +130,13 @@ public class Manager : MonoBehaviour, IInputHandler
     public GameObject BlockPrefab;
     //--------------------------------------------
     private static Ray _ray;
-    private static RaycastHit _hit;
+    public static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
 
 
+
+    #region Unity
     private void Awake()
     {
         // Makes sure that I use always a game control even if my next scence already has one.
@@ -85,19 +147,45 @@ public class Manager : MonoBehaviour, IInputHandler
             Instance = this;
         }
         CountAndStoreBlocks();
+        SelectedGeo = null;
     }
 
-    // Use this for initialization
     void Start () {
-        InputManager.Instance.AddGlobalListener(gameObject);
+
     }
 	
-	// Update is called once per frame
 	void Update () {
         //--------------------------------------------
         // Run all the time.
         //--------------------------------------------
+	    _ray = GazeManager.Instance.Rays[0];
+	    if (Physics.Raycast(_ray, out _hit))
+	    {
+	        //PRCube block = UpdateSelection(_hit);
+	        //Debug.Log(_hit.collider.tag);
+        }
     }
+
+    void OnEnable()
+    {
+
+        EventManager.AirTapDown += OnInputDownLocal;
+        EventManager.AirTapUp += OnInputUpLocal;
+        EventManager.AirTapDown += GIZMO.OnInputDownLocal;
+        EventManager.AirTapUp += GIZMO.OnInputUpLocal;
+
+    }
+
+    void OnDisable()
+    {
+        EventManager.AirTapDown -= OnInputDownLocal;
+        EventManager.AirTapUp -= OnInputUpLocal;
+        EventManager.AirTapDown -= GIZMO.OnInputDownLocal;
+        EventManager.AirTapUp -= GIZMO.OnInputUpLocal;
+
+    }
+    #endregion //Unity
+
 
     //-------------------------------------------------EVENTS--------------------------------------------------
     // By having the events for mouse down and up here, solved the problem of not activating the Input.GetMouseDown or Up
@@ -116,7 +204,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE UP-------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is released and the block is selected.
+    /// Method that is activated once when the mouse right click is released and the block is Active.
     /// </summary>
     private void OnMouseUpGlobal()
     {
@@ -128,7 +216,7 @@ public class Manager : MonoBehaviour, IInputHandler
 
     //---------------------------------------------MOUSE DOWN------------------------------------------------------
     /// <summary>
-    /// Method that is activated once when the mouse right click is pressed and the block is selected.
+    /// Method that is activated once when the mouse right click is pressed and the block is Active.
     /// </summary>
     private void OnMouseDownGlobal()
     {
@@ -139,35 +227,36 @@ public class Manager : MonoBehaviour, IInputHandler
             _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(_ray, out _hit))
             {
-                SelectBlock(_hit);
+                UpdateSelection(_hit);
             }
 
         }
     }
+
+    #region Events
+   
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
-    public void OnInputDown(InputEventData eventData)
+    public void OnInputDownLocal()
     {
+        
         InputDown = true;
         //-------------------------------------------------------
         // Update the colliderName when MouseDown.
         _ray = GazeManager.Instance.Rays[0];
         if (Physics.Raycast(_ray, out _hit))
         {
-            BlockPrim block = SelectBlock(_hit);
-            if(SelectedBlock)SelectedBlock.OnInputDownLocal();
+            PRCube block = UpdateSelection(_hit);
         }
-        //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
     }
 
-    public void OnInputUp(InputEventData eventData)
+    public void OnInputUpLocal()
     {
         InputDown = false;
-        //DeselectBlock(SelectedBlock);
-        // Update the Block info on Tap Up.
-        if(SelectedBlock) SelectedBlock.OnInputUpLocal();
-        //eventData.Use(); // Mark the event as used, so it doesn't fall through to other handlers.
+
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
+
+    #endregion //Events
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
@@ -184,54 +273,62 @@ public class Manager : MonoBehaviour, IInputHandler
     /// Select the block I am hitting.
     /// </summary>
     /// <param name="hit">Raycast hit.</param>
-    private BlockPrim SelectBlock(RaycastHit hit)
+    private PRCube UpdateSelection(RaycastHit hit)
     {
-        if (hit.collider.tag == "BlockFace")
+        Debug.Log("HitTag: " + hit.collider.tag);
+        Debug.Log("HitName: " + hit.collider.name);
+        //print(hit.collider.tag);
+        if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
-            BlockPrim block = hit.collider.gameObject.GetComponent<BlockFace>().BLOCK_COMP;
-            // If there is a selected block and user selects another one, deselect the already selected one.
-            if (SelectedBlock && block.BlockId != SelectedBlock.BlockId)
+            //Debug.Log("PRCube hit");
+            PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
+            // If there is a Active block and user selects another one, deselect the already Active one.
+            if (SelectedGeo && geo.GetInstanceID() != SelectedGeo.GetInstanceID())
             {
-                DeselectBlock(SelectedBlock);
-                block.Selected = true;
-                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
-                SelectedBlock = block;
+                SelectedGeo.DeselectCube(UnselectedMaterial);
+                geo.SelectCube(SelectedMaterial);
+                StartCoroutine(SelectedGeo.TurnOnCube());
+                //Debug.Log("Select hit");
             }
             else
             {
-                block.Selected = true;
-                block.GetComponent<MeshRenderer>().material = SelectedMaterial;
-                SelectedBlock = block;
+                geo.SelectCube(SelectedMaterial);
+                StartCoroutine(SelectedGeo.TurnOnCube());
             }
-            return block;
-        }else if (hit.collider.tag == "BlockMenu")
+            return geo;
+        }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
+                  hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
+                  hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
-            return SelectedBlock;
+            return SelectedGeo;
         }
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            DeselectBlock(SelectedBlock);
+            if (SelectedGeo)
+            {
+                // Make sure all the all transformation modes are off.
+                StartCoroutine(SelectedGeo.TurnOffAllModes());
+                // Deselect cube.
+                SelectedGeo.DeselectCube(UnselectedMaterial);
+            }
+                
             return null;
         }
     }
 
-    private void DeselectBlock(BlockPrim selected)
+    private void DeselectBlock(PRCube selected)
     {
         if (selected != null)
         {
-            selected.GetComponent<MeshRenderer>().material = UnselectedMaterial;
+            Material[] unselectedMats = new Material[selected.GetComponent<MeshRenderer>().materials.Length];
+            for (int i = 0; i < selected.GetComponent<MeshRenderer>().materials.Length; i++)
+            {
+                unselectedMats[i] = UnselectedMaterial;
+            }
+            selected.GetComponent<MeshRenderer>().materials = unselectedMats;
             selected.Selected = false;
-            selected.OnInputUpLocal();
             selected = null;
-        }
-    }
-
-    private void SaveMouseLocation()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            SavedMouseLoc = Input.mousePosition;
         }
     }
 
@@ -249,5 +346,11 @@ public class Manager : MonoBehaviour, IInputHandler
         }
 
     }
+
+    #region Draw
+
+    #endregion //Draw
+
+
 
 }

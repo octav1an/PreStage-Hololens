@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PanelCanvas : MonoBehaviour {
 
-    public BlockPrim BLOCK_COMP
+    public PRCube CUBE_COMP
     {
         get
         {
-            return transform.GetComponentInParent<BlockPrim>();
+            return transform.GetComponentInParent<PRCube>();
         }
     }
 
@@ -21,7 +21,7 @@ public class PanelCanvas : MonoBehaviour {
 	void Update ()
 	{
 	    OrientCanvasToCamera();
-	    AlignCenterFace(BLOCK_COMP.FACE_POS_Y.FACE_CENTER, 2f);
+	    AlignCenterFace(CUBE_COMP.CENTER_GEOMETRICAL, 3f);
 
 	}
 

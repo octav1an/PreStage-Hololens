@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using HoloToolkit.Unity.InputModule;
 using PRCubeClasses;
+using RuntimeGizmos;
 
-public class PRCube : MonoBehaviour {
+public class PRCube : MonoBehaviour
+{
 
     /// <summary>
     /// Cube ID in the list that stores all existing geometry. This is not uniq, because
@@ -12,7 +15,7 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     public int CubeId = -1;
     /// <summary>
-    /// Bool that is activated when the cube is selected. Now works when the cube is moved.
+    /// Bool that is activated when the cube is Active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
     public Manager MANAGER
@@ -31,6 +34,10 @@ public class PRCube : MonoBehaviour {
     /// Cube's mesh component.
     /// </summary>
     public Mesh CubeMesh;
+    public TransformGizmo GIZMO
+    {
+        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
+    }
     //public Vector3 
     // Elements Prefabs.
     public GameObject VertexPref;
@@ -42,7 +49,6 @@ public class PRCube : MonoBehaviour {
         get { return transform.Find("Vertex").gameObject; }
     }
     private GameObject[] VertexCollGO;
-
     public GameObject PR_EDGE_GO
     {
         get { return transform.Find("Edge").gameObject; }
@@ -51,9 +57,14 @@ public class PRCube : MonoBehaviour {
     {
         get { return transform.Find("Face").gameObject; }
     }
+    public bool VertexModeActive;
+    public bool EdgeModeActive;
+    public bool FaceModeActive;
+    public bool CubeModeActive;
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
+    public string ColliderName;
 
     public Vector3 CENTER_GEOMETRICAL
     {
@@ -89,43 +100,100 @@ public class PRCube : MonoBehaviour {
     void Awake()
     {
         GetComponent<MeshFilter>().mesh = GenerateMesh();
-    }
-
-    void Start () {
-		CubeMesh = GetComponent<MeshFilter>().mesh;
-
-        Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
+        CubeMesh = GetComponent<MeshFilter>().mesh;
+        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
+        // Generate Cue elements.
         GenerateVertexHandles();
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         GenerateFacePrefabs();
+    }
 
-        for (int i = 0; i < (int)CubeMesh.GetIndexCount(1); i++)
+    void Start () {
+        // Deactivate Cube menu
+        foreach (PREdgeHolder eH in PrEdgeHolders)
         {
-            //print("mesh: " + CubeMesh.triangles[i]);
-            //print(CubeMesh.GetTriangles(0)[i]);
-            //print(CubeMesh.GetIndices(1)[i]);
+            //print(eH.MidPos);
         }
-       //print(CubeMesh.GetIndices(1));
     }
 	
 	void Update ()
 	{
 	    DrawCubeAxis(true);
-	    objCenter.transform.position = transform.position;
+	    //objCenter.transform.position = transform.position;
 	}
+
+    void LateUpdate()
+    {
+        if (Selected)
+        {
+            if (CubeModeActive)
+            {
+                // Make sure the gizmo is active all the time
+            }
+        }
+    }
+
+    void OnEnable()
+    {
+        EventManager.AirTapDown += OnAirtapDown;
+        EventManager.AirTapDown += OnAirtapUp;
+    }
+
+    void OnDisable()
+    {
+        EventManager.AirTapDown -= OnAirtapDown;
+        EventManager.AirTapDown -= OnAirtapUp;
+    }
+
+    void OnDestroy()
+    {
+        // Remove it from Gizmo if it was there.
+        GIZMO.ClearTargets();
+    }
     #endregion //Unity
 
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
-    public void OnInputDownLocal()
+    public void OnAirtapDown()
     {
 
     }
-
-    public void OnInputUpLocal()
+    public void OnAirtapUp()
     {
-
+        UpdateBlockCollider();
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
+
+    public PRCube SelectCube(Material selMat)
+    {
+
+        Selected = true;
+        Material[] selectedMats = new Material[GetComponent<MeshRenderer>().materials.Length];
+        for (int i = 0; i < GetComponent<MeshRenderer>().materials.Length; i++)
+        {
+            selectedMats[i] = selMat;
+        }
+
+        GetComponent<MeshRenderer>().materials = selectedMats;
+        MANAGER.SelectedGeo = this;
+        return this;
+    }
+
+    public PRCube DeselectCube(Material unselMat)
+    {
+        Selected = false;
+        Material[] unselectedMats = new Material[GetComponent<MeshRenderer>().materials.Length];
+        for (int i = 0; i < GetComponent<MeshRenderer>().materials.Length; i++)
+        {
+            unselectedMats[i] = unselMat;
+        }
+        GetComponent<MeshRenderer>().materials = unselectedMats;
+        MANAGER.SelectedGeo = null;
+        // Turn off TransformElements
+        ActiveteVertex(false);
+        ActivateEdge(false);
+        ActivateFace(false);
+        return this;
+    }
 
 
     #region Collider Work
@@ -134,12 +202,84 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     public void UpdateBlockCollider()
     {
-        BoxCollider blockCollider = this.GetComponent<BoxCollider>();
-        // Update collider center to be the geometric center of the block, which is not equal to the transform.position.
-        blockCollider.center = CENTER_GEOMETRICAL;
-        blockCollider.size = new Vector3(LENGTH_X, 1, LENGTH_Z);
+        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
     }
     #endregion //Collider Work
+
+    #region MenuMethodsCall
+    /// <summary>
+    /// Coroutine that activates the geometry selection mode.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator TurnOnCube()
+    {
+        CubeModeActive = true;
+        VertexModeActive = false;
+        EdgeModeActive = false;
+        FaceModeActive = false;
+        PR_FACE_GO.SetActive(FaceModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+        // Add the whole geometry to Gizmo array.
+        GIZMO.ClearAndAddTarget(this.transform);
+        // Save the position, used during movement transformation.
+        GIZMO.SavePrevPosition();
+
+        yield return null;
+    }
+
+    public IEnumerator TurnOffAllModes()
+    {
+        CubeModeActive = false;
+        VertexModeActive = false;
+        EdgeModeActive = false;
+        FaceModeActive = false;
+        PR_FACE_GO.SetActive(FaceModeActive);
+        PR_EDGE_GO.SetActive(EdgeModeActive);
+        PR_VERTEX_GO.SetActive(VertexModeActive);
+        // Remove targets.
+        GIZMO.ClearTargets();
+
+        yield return null;
+    }
+
+    // Activate/Deactivate elements.
+    private void ActiveteVertex(bool state)
+    {
+        VertexModeActive = state;
+        PR_VERTEX_GO.SetActive(state);
+    }
+    private void ActivateEdge(bool state)
+    {
+        EdgeModeActive = state;
+        PR_EDGE_GO.SetActive(state);
+    }
+    private void ActivateFace(bool state)
+    {
+        FaceModeActive = state;
+        PR_FACE_GO.SetActive(state);
+    }
+
+    // Update Elements when switching between modes.
+    private void UpdateEdges(GameObject parent)
+    {
+        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
+        foreach (var edge in edgeColl)
+        {
+            edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
+            edge.UpdateCollider();
+        }
+    }
+
+    private void UpdateFace(GameObject paretn)
+    {
+        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
+        foreach (var face in faceColl)
+        {
+            face.UpdateCollider();
+        }
+    }
+    #endregion // MenuMethodsCall
 
     #region Generate
     private Mesh GenerateMesh()
@@ -241,6 +381,7 @@ public class PRCube : MonoBehaviour {
             GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]), 
                 Quaternion.identity, PR_VERTEX_GO.transform);
             obj.name = "Vertex" + i;
+            obj.SetActive(true);
             VertexCollGO[i] = obj;
         }
 
@@ -249,7 +390,7 @@ public class PRCube : MonoBehaviour {
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
     /// <returns>Array with overlaping EdgeHolders.</returns>
-    private PREdgeHolder[] GenerateEdgeHolders()
+    public PREdgeHolder[] GenerateEdgeHolders()
     {
         PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
         for (int i = 0; i < CubeMesh.subMeshCount; i++)
@@ -264,14 +405,18 @@ public class PRCube : MonoBehaviour {
                 {
                     Vector3 v0 = CubeMesh.vertices[j];
                     Vector3 v1 = CubeMesh.vertices[j + 1];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.transform);
+                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                    edge.V0Index = (int)j;
+                    edge.V1Index = (int)j + 1;
                     edgeColl[j] = edge;
                 }
                 else
                 {
                     Vector3 v0 = CubeMesh.vertices[j];
                     Vector3 v1 = CubeMesh.vertices[j - 3];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.transform);
+                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                    edge.V0Index = (int)j;
+                    edge.V1Index = (int)j - 3;
                     edgeColl[j] = edge;
                 }
             }
@@ -284,7 +429,7 @@ public class PRCube : MonoBehaviour {
     /// </summary>
     /// <param name="edgeColl">Dirty array with edges</param>
     /// <returns>Clean array of edges</returns>
-    private PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
+    public PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
     {
         // Group the edges according to the MidPos vector. For the cube I will have groups of 2 edges that overlap.
         var result = edgeColl.GroupBy(edge => edge.MidPos);
@@ -297,9 +442,22 @@ public class PRCube : MonoBehaviour {
             GameObject obj = GameObject.Instantiate(EdgePref, transform.TransformPoint(cleaEdgeColl[i].MidPos),
                 cleaEdgeColl[i].MidRot, PR_EDGE_GO.transform);
             obj.name = "Edge" + i;
+            obj.SetActive(true);
+            // Setup the PREdge file
+            PREdge edgeCO = obj.GetComponent<PREdge>();
+            edgeCO.EdgeHolder = cleaEdgeColl[i];
         }
 
         return cleaEdgeColl;
+    }
+
+    public void CleanUpEdgePrefabs()
+    {
+        for (int i = 0; i < PR_EDGE_GO.transform.childCount; i++)
+        {
+            GameObject go = PR_EDGE_GO.transform.GetChild(i).gameObject;
+            DestroyObject(go);
+        }
     }
 
     private void GenerateFacePrefabs()
@@ -307,14 +465,18 @@ public class PRCube : MonoBehaviour {
         PRFaceHolder[] faceColl = new PRFaceHolder[CubeMesh.subMeshCount];
         for (int i = 0; i < faceColl.Length; i++)
         {
-            PRFaceHolder face = new PRFaceHolder(CubeMesh, CubeMesh.GetIndices(i), this.transform);
+            PRFaceHolder face = new PRFaceHolder(CubeMesh, CubeMesh.GetIndices(i), this.gameObject);
             // 1. Position
             // 2. Quaterion
-            GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.Center),
-                face.FaceRot, PR_FACE_GO.transform);
+            //GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.Center),
+              //  face.FaceRot, PR_FACE_GO.transform);
+            GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.CENTER),
+                Quaternion.identity, PR_FACE_GO.transform);
             // Rename the objects.
             obj.name = "Face" + i;
-            FacePref.GetComponent<PRFace>().face = face;
+            obj.SetActive(true);
+            obj.GetComponent<PRFace>().FaceHolder = face;
+            obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRFace>().GenerateMeshCollider();
         }
     }
     #endregion //Generate
