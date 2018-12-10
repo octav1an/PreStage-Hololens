@@ -4203,7 +4203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6980b8592945e7a42b2cadcd72506a70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneContentGo: {fileID: 0}
   SceneScalerPrefab: {fileID: 1059489091330820, guid: 8502059072995e74cb6b52b86dd04453,
     type: 2}
   SceneMoverPrefab: {fileID: 1937208295754592, guid: ad37cc80c4603194cbaeb22729e52e5d,
@@ -4215,7 +4214,6 @@ MonoBehaviour:
   prefab3: {fileID: 1261703479784480, guid: bd4e215901783c34e9f9c87f4ad3f2fe, type: 2}
   YOffset: 0.7
   parentTextGo: {fileID: 1634496047307870}
-  SceneContentCenter: {fileID: 1793721476511114}
 --- !u!114 &114178886875898212
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -193,13 +193,22 @@ public class MainMenu : MonoBehaviour
         Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;
+        // Compute the center of bounds that is at the buttom.
+        Vector3 offsetCenter = center + new Vector3(0, -extents.y, 0); 
         // Create and adjust scaler object position.
-        _sceneScalerGo = (GameObject)Instantiate(SceneScalerPrefab, center, Quaternion.identity);
+        _sceneScalerGo = (GameObject)Instantiate(SceneScalerPrefab, offsetCenter, Quaternion.identity);
         // Activate the TwoHandManipulation script for scale manipulations.
         _sceneScalerGo.GetComponent<TwoHandManipulatable>().enabled = true;
         // Create collider box
+        
         BoxCollider boxCol = _sceneScalerGo.AddComponent<BoxCollider>();
+        // Adjust the colider center to compensate for center offset.
+        boxCol.center += new Vector3(0, boxCol.size.y / 2, 0);
+        
+        // Adjust the mesh to compensate for the center offset.
+        OffsetMesh(_sceneScalerGo.GetComponent<MeshFilter>().mesh, new Vector3(0, boxCol.size.y/2, 0));
         _sceneScalerGo.transform.localScale = extents * 2 + new Vector3(0.02f, 0.02f, 0.02f);
+        
         // Parent scene geometry to SceneScaler.
         for (int i = 0; i < Manager.Instance.CollGeoObjects.Count; i++)
         {
@@ -210,4 +219,19 @@ public class MainMenu : MonoBehaviour
 
     #endregion // MenuCallFunctions
 
+    /// <summary>
+    /// Move the vertices of a mesh with a vector.
+    /// </summary>
+    /// <param name="mesh"> Mesh to move. </param>
+    /// <param name="offset"> Offset vector. </param>
+    private void OffsetMesh(Mesh mesh, Vector3 offset)
+    {
+        Vector3[] verts = mesh.vertices;
+        for (int i = 0; i < mesh.vertexCount; i++)
+        {
+            verts[i] += offset;
+        }
+        mesh.vertices = verts;
+        mesh.RecalculateBounds();
+    }
 }
