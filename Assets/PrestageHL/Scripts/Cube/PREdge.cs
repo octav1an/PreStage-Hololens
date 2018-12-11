@@ -20,10 +20,6 @@ public class PREdge : MonoBehaviour, IFocusable
     /// <summary>
     /// GIZMO used for getting the selected object.
     /// </summary>
-    public TransformGizmo GIZMO
-    {
-        get { return PARENT_CUBE.GIZMO; }
-    }
     public PREdgeHolder EdgeHolder;
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
@@ -32,14 +28,12 @@ public class PREdge : MonoBehaviour, IFocusable
     public bool Active;
     public bool FocusActive = false;
 
-
-
     #region Unity
 
     void Start ()
 	{
-        
-	}
+	    _savePos = transform.localPosition;
+    }
 	
 	void Update ()
 	{
@@ -52,7 +46,17 @@ public class PREdge : MonoBehaviour, IFocusable
 	    {
 	        GetComponent<MeshRenderer>().material = _savedThisMat;
         }
-	}
+
+        //UpdateCollider(true);
+	    if (this.name == "Edge7")
+	    {
+	        float lineLength = 0.1f;
+	        Vector3 center = transform.position;
+	        Debug.DrawLine(center, center + (transform.right * lineLength), Color.cyan);
+	        Debug.DrawLine(center, center + (transform.up * lineLength), Color.magenta);
+	        Debug.DrawLine(center, center + (-transform.forward * lineLength), Color.yellow);
+        }
+    }
 
     void OnEnable()
     {
@@ -164,6 +168,7 @@ public class PREdge : MonoBehaviour, IFocusable
 
     #region UpdateElements
 
+
     /// <summary>
     /// Update the collider of the edge at AirtapUp to match the modified edge.
     /// </summary>
@@ -172,11 +177,12 @@ public class PREdge : MonoBehaviour, IFocusable
         // Place it at the center.
         transform.localPosition = EdgeHolder.MidPos;
         transform.localRotation = EdgeHolder.MidRot;
+
         // Scale the mesh and collider
         Vector3 scaleVec = EdgeHolder.V0 - EdgeHolder.V1;
         float mag = scaleVec.magnitude;
         Vector3 actualScale = transform.localScale;
-        transform.localScale = new Vector3(actualScale.x, actualScale.y, mag);
+        transform.localScale = new Vector3(actualScale.x, mag/2, actualScale.z);
     }
 
     /// <summary>
@@ -184,9 +190,9 @@ public class PREdge : MonoBehaviour, IFocusable
     /// </summary>
     private void UpdateActiveStatus()
     {
-        if (GIZMO.targetRootsOrdered.Count > 0)
+        if (Manager.Instance.GIZMO.targetRootsOrdered.Count > 0)
         {
-            if (GIZMO.targetRootsOrdered[0].name == this.name)
+            if (Manager.Instance.GIZMO.targetRootsOrdered[0].name == this.name)
             {
                 Active = true;
             }

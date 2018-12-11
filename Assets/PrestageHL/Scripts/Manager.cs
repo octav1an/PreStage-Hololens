@@ -9,10 +9,21 @@ public class Manager : MonoBehaviour
 {
 
     public static Manager Instance;
-    public TransformGizmo GIZMO
-    {
-        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
-    }
+    //public TransformGizmo GIZMO
+    //{
+    //    get
+    //    {
+    //        if (Camera.main)
+    //        {
+    //            return Camera.main.gameObject.GetComponent<TransformGizmo>();
+    //        }
+    //        else
+    //        {
+    //            return null;
+    //        }
+    //    }
+    //}
+    public TransformGizmo GIZMO;
     public EventManager EVENT_MANAGER
     {
         get { return GetComponent<EventManager>(); }
@@ -133,6 +144,7 @@ public class Manager : MonoBehaviour
     public static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
+    public bool FirstTime = true;
 
 
 
@@ -178,6 +190,7 @@ public class Manager : MonoBehaviour
         EventManager.AirTapUp += OnInputUpLocal;
         EventManager.AirTapDown += GIZMO.OnInputDownLocal;
         EventManager.AirTapUp += GIZMO.OnInputUpLocal;
+        EventManager.AirTapClick += GIZMO.OnClickLocal;
 
     }
 
@@ -187,6 +200,7 @@ public class Manager : MonoBehaviour
         EventManager.AirTapUp -= OnInputUpLocal;
         EventManager.AirTapDown -= GIZMO.OnInputDownLocal;
         EventManager.AirTapUp -= GIZMO.OnInputUpLocal;
+        EventManager.AirTapClick -= GIZMO.OnClickLocal;
 
     }
     #endregion //Unity

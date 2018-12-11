@@ -30,10 +30,6 @@ public class PRCube : MonoBehaviour
     /// Cube's mesh component.
     /// </summary>
     public Mesh CubeMesh;
-    public TransformGizmo GIZMO
-    {
-        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
-    }
     //public Vector3 
     // Elements Prefabs.
     public GameObject VertexPref;
@@ -144,7 +140,7 @@ public class PRCube : MonoBehaviour
     void OnDestroy()
     {
         // Remove it from Gizmo if it was there.
-        GIZMO.ClearTargets();
+        Manager.Instance.GIZMO.ClearTargets();
         Manager.Instance.CollGeoObjects.Remove(gameObject);
     }
     #endregion //Unity
@@ -218,9 +214,9 @@ public class PRCube : MonoBehaviour
         PR_EDGE_GO.SetActive(EdgeModeActive);
         PR_VERTEX_GO.SetActive(VertexModeActive);
         // Add the whole geometry to Gizmo array.
-        GIZMO.ClearAndAddTarget(this.transform);
+        Manager.Instance.GIZMO.ClearAndAddTarget(this.transform);
         // Save the position, used during movement transformation.
-        GIZMO.SavePrevPosition();
+        Manager.Instance.GIZMO.SavePrevPosition();
 
         yield return null;
     }
@@ -235,7 +231,7 @@ public class PRCube : MonoBehaviour
         PR_EDGE_GO.SetActive(EdgeModeActive);
         PR_VERTEX_GO.SetActive(VertexModeActive);
         // Remove targets.
-        GIZMO.ClearTargets();
+        Manager.Instance.GIZMO.ClearTargets();
 
         yield return null;
     }

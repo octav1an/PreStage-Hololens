@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using RuntimeGizmos;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class ContexMenu : MonoBehaviour
@@ -178,6 +179,9 @@ public class ContexMenu : MonoBehaviour
     #region Selection Modes
     public void ActivateVertexMode()
     {
+        // First deactivate all modes.
+        StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
         // Instanciate the field first;
         ActiveteVertex(true);
         // Turn off other things
@@ -191,6 +195,9 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
+            // First deactivate all modes.
+            StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
             ActivateEdge(true);
             // Turn off other things
             ActiveteVertex(false);
@@ -206,6 +213,9 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
+            // First deactivate all modes.
+            StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
             ActivateFace(true);
             // Turn off other things
             ActiveteVertex(false);
@@ -281,6 +291,9 @@ public class ContexMenu : MonoBehaviour
 
     public void SetMoveTransformationType()
     {
+        // Set the Space to Global.
+        Manager.Instance.GIZMO.space = TransformSpace.Global;
+
         Manager.Instance.GIZMO.type = TransformType.Move;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
@@ -292,6 +305,9 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetRotateTransformationType()
     {
+        // Set the Space to Local.
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+
         Manager.Instance.GIZMO.type = TransformType.Rotate;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
@@ -303,6 +319,9 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetScaleTransformationType()
     {
+        // Set the Space to Local.
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+
         Manager.Instance.GIZMO.type = TransformType.Scale;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
@@ -355,6 +374,12 @@ public class ContexMenu : MonoBehaviour
         {
             //Debug.Log("1: " + Manager.Instance.GET_COLLIDER_GO.GetInstanceID());
             //Debug.Log("2: " + Manager.Instance.SelectedGeo.gameObject.GetInstanceID());
+            return true;
+        }
+        // Activate the context menu when hitting faces or edges.
+        if (Manager.Instance.GET_COLLIDER_TAG == "PRFace" ||
+            Manager.Instance.GET_COLLIDER_TAG == "PREdge")
+        {
             return true;
         }
 

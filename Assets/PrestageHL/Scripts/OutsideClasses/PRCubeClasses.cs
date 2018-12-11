@@ -108,7 +108,8 @@ namespace PRCubeClasses
 
         private Quaternion ComputeMidRot(Vector3 v0, Vector3 v1, Transform objTrs)
         {
-            return Quaternion.FromToRotation(objTrs.forward, v0 - v1);
+            Vector3 dir = Parent.GetComponent<PRCube>().EdgePref.transform.up;
+            return Quaternion.FromToRotation(dir, v0 - v1);
         }
         #endregion //Setup
     }
