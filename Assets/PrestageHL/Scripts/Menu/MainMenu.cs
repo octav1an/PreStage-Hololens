@@ -7,28 +7,37 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
-    public GameObject SceneScalerPrefab;
     public GameObject SceneMoverPrefab;
-    public GameObject SpacialMappingGo;
+    public GameObject SceneScalerPrefab;
+    public GameObject SceneRotatorPrefab;
     public GameObject SceneCenter;
 
+    public GameObject prefab0;
     public GameObject prefab1;
     public GameObject prefab2;
     public GameObject prefab3;
+    public GameObject prefab4;
+    public GameObject prefab5;
     /// <summary>
     /// Offset of Main menu on vertical axis.
     /// </summary>
     public float YOffset;
     private bool SpatialActive = true;
 
-
-    /// <summary>
-    /// SceneScaler GameObject.
-    /// </summary>
-    private GameObject _sceneScalerGo;
     private GameObject _sceneMoverGo;
+    private GameObject _sceneScalerGo;
+    private GameObject _sceneRotatorGo;
 
     public GameObject parentTextGo;
+    /// <summary>
+    /// Scene center.
+    /// </summary>
+    private Vector3 _sceneCenter;
+
+    private Vector3 _sceneCenterOffseted
+    {
+        get { return _sceneCenter - Camera.main.transform.forward.normalized * 0.5f; }
+    }
 
     #region Unity
 
@@ -54,24 +63,42 @@ public class MainMenu : MonoBehaviour
 
 	    Text paretnText = parentTextGo.GetComponent<Text>();
 
-        paretnText.text = "HitName: " + Manager.Instance.GET_COLLIDER_NAME;
-	    SceneCenter.transform.position = GetColliderBoundsNew().center;
-	}
+        if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
+	    _sceneCenter = GetColliderBoundsNew().center;
+        //SceneCenter.transform.position = _sceneCenterOffseted;
+    }
     #endregion //Unity
 
     #region InstanciatePrefabs
+    public void InstanciatePrefab0()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab0, _sceneCenterOffseted, Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
+    }
     public void InstanciatePrefab1()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab1, new Vector3(0,-1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab1, _sceneCenterOffseted, Quaternion.identity);
         Manager.Instance.CollGeoObjects.Add(freshObj);
     }
     public void InstanciatePrefab2()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab2, new Vector3(0, -1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab2, _sceneCenterOffseted, Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
     }
     public void InstanciatePrefab3()
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab3, new Vector3(0, -1, 2), Quaternion.identity);
+        GameObject freshObj = (GameObject)Instantiate(prefab3, _sceneCenterOffseted, Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
+    }
+    public void InstanciatePrefab4()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab4, _sceneCenterOffseted, Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
+    }
+    public void InstanciatePrefab5()
+    {
+        GameObject freshObj = (GameObject)Instantiate(prefab5, _sceneCenterOffseted, Quaternion.identity);
+        Manager.Instance.CollGeoObjects.Add(freshObj);
     }
     #endregion //InstanciatePrefabs
 
@@ -159,7 +186,7 @@ public class MainMenu : MonoBehaviour
             geo.transform.parent = _sceneMoverGo.transform;
         }
         //SceneContentGo.GetComponent<TapToPlaceOC>().IsBeingPlaced = true;
-        SpacialMappingGo.SetActive(true);
+        Manager.Instance.SpatialMappingGo.SetActive(true);
     }
 
     public void MoveModelOff()
@@ -171,7 +198,7 @@ public class MainMenu : MonoBehaviour
             geo.transform.parent = null;
         }
         Destroy(_sceneMoverGo);
-        SpacialMappingGo.SetActive(false);
+        Manager.Instance.SpatialMappingGo.SetActive(false);
     }
 
     public void TurnOffSpacialMapping()
@@ -179,12 +206,12 @@ public class MainMenu : MonoBehaviour
         if (SpatialActive)
         {
             SpatialActive = false;
-            SpacialMappingGo.SetActive(false);
+            Manager.Instance.SpatialMappingGo.SetActive(false);
         }
         else
         {
             SpatialActive = true;
-            SpacialMappingGo.SetActive(true);
+            Manager.Instance.SpatialMappingGo.SetActive(true);
         }
     }
 
@@ -200,7 +227,6 @@ public class MainMenu : MonoBehaviour
         // Activate the TwoHandManipulation script for scale manipulations.
         _sceneScalerGo.GetComponent<TwoHandManipulatable>().enabled = true;
         // Create collider box
-        
         BoxCollider boxCol = _sceneScalerGo.AddComponent<BoxCollider>();
         // Adjust the colider center to compensate for center offset.
         boxCol.center += new Vector3(0, boxCol.size.y / 2, 0);
@@ -214,6 +240,28 @@ public class MainMenu : MonoBehaviour
         {
             GameObject geo = Manager.Instance.CollGeoObjects[i];
             geo.transform.parent = _sceneScalerGo.transform;
+        }
+    }
+
+    public void RotateModelOn()
+    {
+        Bounds sceneBounds = GetColliderBoundsNew();
+        Vector3 center = sceneBounds.center;
+        Vector3 extents = sceneBounds.extents;
+        // Create and adjust scaler object position.
+        _sceneRotatorGo = (GameObject)Instantiate(SceneRotatorPrefab, center, Quaternion.identity);
+        // Activate the TwoHandManipulation script for scale manipulations.
+        _sceneRotatorGo.GetComponent<TwoHandManipulatable>().enabled = true;
+        // Create collider box
+        BoxCollider boxCol = _sceneRotatorGo.AddComponent<BoxCollider>();
+        // Adjust Rotator scale to match the sceneBounds size.
+        _sceneRotatorGo.transform.localScale = extents * 2 + new Vector3(0.02f, 0.02f, 0.02f);
+
+        // Parent scene geometry to SceneScaler.
+        for (int i = 0; i < Manager.Instance.CollGeoObjects.Count; i++)
+        {
+            GameObject geo = Manager.Instance.CollGeoObjects[i];
+            geo.transform.parent = _sceneRotatorGo.transform;
         }
     }
 

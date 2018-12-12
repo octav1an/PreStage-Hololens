@@ -30,10 +30,6 @@ public class PRCube : MonoBehaviour
     /// Cube's mesh component.
     /// </summary>
     public Mesh CubeMesh;
-    public TransformGizmo GIZMO
-    {
-        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
-    }
     //public Vector3 
     // Elements Prefabs.
     public GameObject VertexPref;
@@ -144,7 +140,7 @@ public class PRCube : MonoBehaviour
     void OnDestroy()
     {
         // Remove it from Gizmo if it was there.
-        GIZMO.ClearTargets();
+        Manager.Instance.GIZMO.ClearTargets();
         Manager.Instance.CollGeoObjects.Remove(gameObject);
     }
     #endregion //Unity
@@ -211,6 +207,7 @@ public class PRCube : MonoBehaviour
     public IEnumerator TurnOnCube()
     {
         CubeModeActive = true;
+        ContexMenu.Instance.GeometryModeActive = true;
         VertexModeActive = false;
         EdgeModeActive = false;
         FaceModeActive = false;
@@ -218,9 +215,9 @@ public class PRCube : MonoBehaviour
         PR_EDGE_GO.SetActive(EdgeModeActive);
         PR_VERTEX_GO.SetActive(VertexModeActive);
         // Add the whole geometry to Gizmo array.
-        GIZMO.ClearAndAddTarget(this.transform);
+        Manager.Instance.GIZMO.ClearAndAddTarget(this.transform);
         // Save the position, used during movement transformation.
-        GIZMO.SavePrevPosition();
+        Manager.Instance.GIZMO.SavePrevPosition();
 
         yield return null;
     }
@@ -228,6 +225,7 @@ public class PRCube : MonoBehaviour
     public IEnumerator TurnOffAllModes()
     {
         CubeModeActive = false;
+        ContexMenu.Instance.GeometryModeActive = false;
         VertexModeActive = false;
         EdgeModeActive = false;
         FaceModeActive = false;
@@ -235,7 +233,7 @@ public class PRCube : MonoBehaviour
         PR_EDGE_GO.SetActive(EdgeModeActive);
         PR_VERTEX_GO.SetActive(VertexModeActive);
         // Remove targets.
-        GIZMO.ClearTargets();
+        Manager.Instance.GIZMO.ClearTargets();
 
         yield return null;
     }
@@ -484,15 +482,15 @@ public class PRCube : MonoBehaviour
         Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
 
 
-        Drawing.DrawLabel(transform.TransformPoint(vColl[0]), "V0");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[1]), "V1");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[2]), "V2");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[3]), "V3");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[0]), "V0");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[1]), "V1");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[2]), "V2");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[3]), "V3");
 
-        Drawing.DrawLabel(transform.TransformPoint(vColl[4]), "V4");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[5]), "V5");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[6]), "V6");
-        Drawing.DrawLabel(transform.TransformPoint(vColl[7]), "V7");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[4]), "V4");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[5]), "V5");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[6]), "V6");
+        //Drawing.DrawLabel(transform.TransformPoint(vColl[7]), "V7");
     }
 
     void DrawCubeAxis(bool drawOn)

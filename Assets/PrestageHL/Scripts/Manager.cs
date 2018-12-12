@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
+using HoloToolkit.Unity.SpatialMapping;
 using UnityEngine;
 using RuntimeGizmos;
 using UnityEngine.UI;
@@ -9,14 +10,26 @@ public class Manager : MonoBehaviour
 {
 
     public static Manager Instance;
-    public TransformGizmo GIZMO
-    {
-        get { return Camera.main.gameObject.GetComponent<TransformGizmo>(); }
-    }
+    //public TransformGizmo GIZMO
+    //{
+    //    get
+    //    {
+    //        if (Camera.main)
+    //        {
+    //            return Camera.main.gameObject.GetComponent<TransformGizmo>();
+    //        }
+    //        else
+    //        {
+    //            return null;
+    //        }
+    //    }
+    //}
+    public TransformGizmo GIZMO;
     public EventManager EVENT_MANAGER
     {
         get { return GetComponent<EventManager>(); }
     }
+    public GameObject SpatialMappingGo;
     /// <summary>
     /// Get the name for the collider hit by the ray.
     /// </summary>
@@ -84,7 +97,10 @@ public class Manager : MonoBehaviour
         }
     }
 
+    // TODO Change the SelectedGeo to be a regular gameObject. - better for the future.
+    public GameObject SelectedGo;
     public PRCube SelectedGeo;
+    
     /// <summary>
     /// Highlight Material when the block is Active.
     /// </summary>
@@ -133,6 +149,7 @@ public class Manager : MonoBehaviour
     public static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
+    public bool FirstTime = true;
 
 
 
@@ -169,7 +186,10 @@ public class Manager : MonoBehaviour
 	    {
             print("NumberOfObjects: " + CollGeoObjects.Count);
 	    }
-    }
+        //
+        //Debug.Log(SpatialMappingManager.Instance.GetMeshes());
+	    //Debug.Log("MeshCounts: " + SpatialMappingManager.Instance.GetMeshes().Count);
+	}
 
     void OnEnable()
     {
@@ -178,6 +198,8 @@ public class Manager : MonoBehaviour
         EventManager.AirTapUp += OnInputUpLocal;
         EventManager.AirTapDown += GIZMO.OnInputDownLocal;
         EventManager.AirTapUp += GIZMO.OnInputUpLocal;
+        EventManager.AirTapClick += GIZMO.OnClickLocal;
+        EventManager.SpeechKeywordRecognized += OnSpeechKeywordRecognizedLocal;
 
     }
 
@@ -187,25 +209,11 @@ public class Manager : MonoBehaviour
         EventManager.AirTapUp -= OnInputUpLocal;
         EventManager.AirTapDown -= GIZMO.OnInputDownLocal;
         EventManager.AirTapUp -= GIZMO.OnInputUpLocal;
+        EventManager.AirTapClick -= GIZMO.OnClickLocal;
+        EventManager.SpeechKeywordRecognized -= OnSpeechKeywordRecognizedLocal;
 
     }
     #endregion //Unity
-
-
-    //-------------------------------------------------EVENTS--------------------------------------------------
-    // By having the events for mouse down and up here, solved the problem of not activating the Input.GetMouseDown or Up
-    // because, I think this event runs first. Moved everything to LateUpdate in BlockPrim, and works.
-    //private void OnEnable()
-    //{
-    //    //EventManager.MouseDownGlobal += OnMouseDownGlobal;
-    //    //EventManager.MouseUpGlobal += OnMouseUpGlobal;
-    //}
-    //private void OnDisable()
-    //{
-    //    //EventManager.MouseDownGlobal -= OnMouseDownGlobal;
-    //    //EventManager.MouseUpGlobal -= OnMouseUpGlobal;
-    //}
-    //---------------------------------------------------------------------------------------------------
 
     //---------------------------------------------MOUSE UP-------------------------------------------------------
     /// <summary>
@@ -261,6 +269,17 @@ public class Manager : MonoBehaviour
     }
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
 
+    public void OnSpeechKeywordRecognizedLocal()
+    {
+        // If hit collider is PRCube or PRFace or PREdge or PRVertex - do the change
+        if (GET_COLLIDER_TAG == "PRCube" || GET_COLLIDER_TAG == "PRVertex" || 
+            GET_COLLIDER_TAG == "PREdge" || GET_COLLIDER_TAG == "PRFace")
+        {
+            Debug.Log("speech: " + EVENT_MANAGER.EventDataSpeech.RecognizedText);
+            //SelectedGeo.gameObject.GetComponent<SpeachGeometyKeywords>().OnSpeechKeywordRecognizedLocal();
+        }
+    }
+
     #endregion //Events
 
 
@@ -271,8 +290,8 @@ public class Manager : MonoBehaviour
     /// <param name="hit">Raycast hit.</param>
     private PRCube UpdateSelection(RaycastHit hit)
     {
-        Debug.Log("HitTag: " + hit.collider.tag);
-        Debug.Log("HitName: " + hit.collider.name);
+        //Debug.Log("HitTag: " + hit.collider.tag);
+        //Debug.Log("HitName: " + hit.collider.name);
         //print(hit.collider.tag);
         if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {

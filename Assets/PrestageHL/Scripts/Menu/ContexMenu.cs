@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using RuntimeGizmos;
+#if UNITY_EDITOR
+    using UnityEditorInternal;
+#endif
 using UnityEngine;
 
 public class ContexMenu : MonoBehaviour
@@ -156,6 +159,7 @@ public class ContexMenu : MonoBehaviour
     {
         if (noColliderCheck)
         {
+            if(!IsActive) return;
             // Deactivate the submenu first.
             if (CMSubmenu.Instance.IsAnySubmenuActive)
             {
@@ -176,8 +180,13 @@ public class ContexMenu : MonoBehaviour
     #region MenuCallFunctions
 
     #region Selection Modes
-    public void ActivateVertexMode()
+    public void SetVertexMode()
     {
+        // Set the Space to Global.
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+        // First deactivate all modes.
+        StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
         // Instanciate the field first;
         ActiveteVertex(true);
         // Turn off other things
@@ -187,10 +196,15 @@ public class ContexMenu : MonoBehaviour
         // Deactivate ContexMenu to get it out of the way.
         DeactivateContexMenu(true);
     }
-    public void ActivateEdgeMode()
+    public void SetEdgeMode()
     {
         if (SELECTED_GO != null)
         {
+            // Set the Space to Global.
+            Manager.Instance.GIZMO.space = TransformSpace.Local;
+            // First deactivate all modes.
+            StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
             ActivateEdge(true);
             // Turn off other things
             ActiveteVertex(false);
@@ -202,10 +216,16 @@ public class ContexMenu : MonoBehaviour
             DeactivateContexMenu(true);
         }
     }
-    public void ActivateFaceMode()
+    public void SetFaceMode()
     {
         if (SELECTED_GO != null)
         {
+            // Set the Space to Global.
+            Manager.Instance.GIZMO.space = TransformSpace.Local;
+
+            // First deactivate all modes.
+            StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
+
             ActivateFace(true);
             // Turn off other things
             ActiveteVertex(false);
@@ -217,10 +237,13 @@ public class ContexMenu : MonoBehaviour
             DeactivateContexMenu(true);
         }
     }
-    public void ActivateGeometryMode()
+    public void SetGeometryMode()
     {
         if (SELECTED_GO != null)
         {
+            // Set the Space to Global only if the transform mode is Move.
+            if (Manager.Instance.GIZMO.type == TransformType.Move) Manager.Instance.GIZMO.space = TransformSpace.Global;
+
             GeometryModeActive = true;
             ActiveteVertex(false);
             ActivateEdge(false);
@@ -281,35 +304,44 @@ public class ContexMenu : MonoBehaviour
 
     public void SetMoveTransformationType()
     {
+        // Set the Space to Global.
+        if(GeometryModeActive) Manager.Instance.GIZMO.space = TransformSpace.Global;
+
         Manager.Instance.GIZMO.type = TransformType.Move;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
-        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        if(SELECTED_PRCUBE.CubeModeActive)StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetRotateTransformationType()
     {
+        // Set the Space to Local.
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+
         Manager.Instance.GIZMO.type = TransformType.Rotate;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
-        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        if (SELECTED_PRCUBE.CubeModeActive) StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetScaleTransformationType()
     {
+        // Set the Space to Local.
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+
         Manager.Instance.GIZMO.type = TransformType.Scale;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
-        StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        if (SELECTED_PRCUBE.CubeModeActive) StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetGrabTransformationType()
@@ -321,6 +353,7 @@ public class ContexMenu : MonoBehaviour
         ActivateEdge(false);
         ActivateFace(false);
         // Reactivate the Cube mode, in order to have the gizmo displyed.
+        // TODO: Grab only works with Mode
         StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
@@ -355,6 +388,12 @@ public class ContexMenu : MonoBehaviour
         {
             //Debug.Log("1: " + Manager.Instance.GET_COLLIDER_GO.GetInstanceID());
             //Debug.Log("2: " + Manager.Instance.SelectedGeo.gameObject.GetInstanceID());
+            return true;
+        }
+        // Activate the context menu when hitting faces or edges.
+        if (Manager.Instance.GET_COLLIDER_TAG == "PRFace" ||
+            Manager.Instance.GET_COLLIDER_TAG == "PREdge")
+        {
             return true;
         }
 

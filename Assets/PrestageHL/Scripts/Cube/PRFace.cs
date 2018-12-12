@@ -15,13 +15,6 @@ public class PRFace : MonoBehaviour, IFocusable
     {
         get { return PARENT_CUBE.CubeMesh; }
     }
-    private TransformGizmo GIZMO
-    {
-        get
-        {
-            return PARENT_CUBE.GIZMO;
-        }
-    }
     public PRFaceHolder FaceHolder;
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
@@ -100,7 +93,7 @@ public class PRFace : MonoBehaviour, IFocusable
         }
     }
 
-    private void OnAirtapDown()
+    public void OnAirtapDown()
     {
         if (UpdateActiveStatus())
         {
@@ -228,16 +221,15 @@ public class PRFace : MonoBehaviour, IFocusable
         GetComponent<MeshCollider>().sharedMesh = FACE_MESH;
     }
 
-
     /// <summary>
     /// Get the selected object form gizmo and check if it is this.
     /// </summary>
     private bool UpdateActiveStatus()
     {
-        if (GIZMO.targetRootsOrdered.Count > 0)
+        if (Manager.Instance.GIZMO.targetRootsOrdered.Count > 0)
         {
             
-            if (GIZMO.targetRootsOrdered[0].name == this.name)
+            if (Manager.Instance.GIZMO.targetRootsOrdered[0].name == this.name)
             {
                 Active = true;
                 return true;

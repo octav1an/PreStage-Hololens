@@ -62,6 +62,7 @@ namespace RuntimeGizmos
         public bool InputUp = true;
         public bool DrawHandles = true;
         public bool DisableGizmo = false;
+        public bool FirstTime = false;
 
         public int maxUndoStored = 100;
 
@@ -124,6 +125,7 @@ namespace RuntimeGizmos
 		    EventManager.ManipulationUpdated += OnManipulationUpdatedLocal;
 		    EventManager.ManipulationCompleted += OnManipulationCompletedLocal;
 		    EventManager.ManipulationCompleted += OnManipulationCanceledLocal;
+		    EventManager.NavigationCanceled += OnNavigationCanceledLocal;
             forceUpdatePivotCoroutine = StartCoroutine(ForceUpdatePivotPointAtEndOfFrame());
 		}
 
@@ -132,6 +134,7 @@ namespace RuntimeGizmos
 		    EventManager.ManipulationUpdated -= OnManipulationUpdatedLocal;
 		    EventManager.ManipulationCompleted -= OnManipulationCompletedLocal;
 		    EventManager.ManipulationCompleted -= OnManipulationCanceledLocal;
+		    EventManager.NavigationCanceled -= OnNavigationCanceledLocal;
             ClearTargets(); //Just so things gets cleaned up, such as removing any materials we placed on objects.
 
 			StopCoroutine(forceUpdatePivotCoroutine);
@@ -168,6 +171,7 @@ namespace RuntimeGizmos
                 //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
                 SetAxisInfo();
                 SetLines();
+                
             }
             else
             {
@@ -176,6 +180,8 @@ namespace RuntimeGizmos
                 handleSquares.Clear();
                 circlesLines.Clear();
             }
+
+           //if(Manager.Instance.EVENT_MANAGER.EventDataManipulation != null) print(Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta);
         }
 
         void OnPostRender()
@@ -229,7 +235,7 @@ namespace RuntimeGizmos
             InputUp = false;
             // Reset manipulation Vector that is responisble for move transformation.
             manipulationVec = Vector3.zero;
-            //GetTarget("PREdge", "PRFace");
+            GetTarget("PREdge", "PRFace");
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
@@ -247,23 +253,45 @@ namespace RuntimeGizmos
         {
             InputUp = true;
             InputDown = false;
+            handleLines.Clear();
+            handleTriangles.Clear();
+            handleSquares.Clear();
+            circlesLines.Clear();
         }
+
         private void OnManipulationUpdatedLocal()
         {
             manipulationVec = Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta;
+            //Manager.Instance.EVENT_MANAGER.EventDataManipulation.
         }
 
         private void OnManipulationCompletedLocal()
         {
-            manipulationVec = Vector3.zero;
+            // Reset highlighted handle.
+            nearAxis = Axis.None;
+
         }
 
         private void OnManipulationCanceledLocal()
         {
-            // Reset highlighted handle.
-            nearAxis = Axis.None;
+
         }
 
+        private void OnNavigationCanceledLocal()
+        {
+            Debug.Log("Navigation Canceled!!!");
+            // Reset highlighted handle.
+            nearAxis = Axis.None;
+            OnInputUpLocal();
+        }
+
+        public void OnClickLocal()
+        {
+            if (FirstTime)
+            {
+                FirstTime = false;
+            }
+        }
         #endregion //Unity
 
         /// <summary>
@@ -380,7 +408,7 @@ namespace RuntimeGizmos
 				{
 					if(type == TransformType.Move)
 					{
-					    float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projectedAxis) * moveSpeedMultiplier;
+                        float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projectedAxis) * moveSpeedMultiplier;
                         Vector3 movement = axis * moveAmount;
 						for(int i = 0; i < targetRootsOrdered.Count; i++)
 						{
@@ -394,7 +422,7 @@ namespace RuntimeGizmos
 					else if(type == TransformType.Scale)
 					{
                         // Axix.Any is the whole model scale.
-						Vector3 projected = (nearAxis == Axis.Any) ? transform.right : projectedAxis;
+                        Vector3 projected = (nearAxis == Axis.Any) ? transform.right : projectedAxis;
                         // Calculate the projected magnitute of the vector on the projectedAxis.
                         float scaleAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projected) * scaleSpeedMultiplier;
                         //WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
@@ -426,7 +454,7 @@ namespace RuntimeGizmos
 					}
 					else if(type == TransformType.Rotate)
 					{
-						float rotateAmount = 0;
+                        float rotateAmount = 0;
 						Vector3 rotationAxis = axis;
 
 						if(nearAxis == Axis.Any)
@@ -439,9 +467,6 @@ namespace RuntimeGizmos
 							Vector3 projected = (nearAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
 							//rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
 						    rotateAmount = (ExtVector3.MagnitudeInDirection(manipulationVec, projected) * rotateSpeedMultiplier);
-						    Debug.Log("Projected: " + GetDistanceMultiplier());
-                            Debug.Log("rotateAmount: " + rotateAmount);
-						    Debug.Log("rotateAxis: " + rotationAxis);
                         }
                         // Soleve the problem with continuous rotation.
 					    for (int i = 0; i < targetRootsOrdered.Count; i++)
@@ -523,42 +548,22 @@ namespace RuntimeGizmos
         {
             if (nearAxis == Axis.None)
             {
-                //bool isAdding = Input.GetKey(AddSelection);
-                //bool isRemoving = Input.GetKey(RemoveSelection);
-                bool isAdding = false;
-                bool isRemoving = false;
-
                 RaycastHit hit;
                 Ray ray = GazeManager.Instance.Rays[0];
 
                 if (Physics.Raycast(ray, out hit))
                 {
                     Transform target = hit.transform;
-                    if (isAdding)
+                    if (hit.collider.tag == tag1 || hit.collider.tag == tag2)
                     {
-                        //AddTarget(target);
+                        ClearAndAddTarget(target);
+                        return;
                     }
-                    else if (isRemoving)
-                    {
-                        //RemoveTarget(target);
-                    }
-                    else if (!isAdding && !isRemoving)
-                    {
-                        
-                        if (hit.collider.tag == tag1 || hit.collider.tag == tag2)
-                        {
-                            ClearAndAddTarget(target);
-                            return;
-                        }
-                        ClearTargets();
-                    }
+                    //ClearTargets();
                 }
                 else
                 {
-                    if (!isAdding && !isRemoving)
-                    {
-                        ClearTargets();
-                    }
+                    //ClearTargets();
                 }
             }
         }
@@ -640,8 +645,10 @@ namespace RuntimeGizmos
 		public void ClearAndAddTarget(Transform target)
 		{
 			UndoRedoManager.Insert(new ClearAndAddTargetCommand(this, target, targetRootsOrdered));
-
-			ClearTargets(false);
+            // Trigger the first time boolean, to ignore any manipulations.
+		    FirstTime = true;
+            print("Add");
+            ClearTargets(false);
 			AddTarget(target, false);
 		}
 

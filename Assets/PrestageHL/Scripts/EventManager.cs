@@ -4,7 +4,7 @@ using UnityEngine;
 using HoloToolkit.Unity.InputModule;
 using UnityEngine.EventSystems;
 
-public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IManipulationHandler
+public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IManipulationHandler, ISpeechHandler, INavigationHandler
 {
     public delegate void OnAirTapDown();
     public static event OnAirTapDown AirTapDown;
@@ -27,12 +27,15 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
     public delegate void OnManipulationCanceledPR();
     public static event OnManipulationCanceledPR ManipulationCanceled;
 
+    public delegate void OnNavigationCanceledPR();
+    public static event OnNavigationCanceledPR NavigationCanceled;
+
+    public delegate void OnSpeechKeywordRecognizedPR();
+    public static event OnSpeechKeywordRecognizedPR SpeechKeywordRecognized;
+
     // Variables
     public ManipulationEventData EventDataManipulation;
-    // TODO : remove this variables because they share the same data. 
-    public ManipulationEventData EventDataManipulationUpdated;
-    public ManipulationEventData EventDataManipulationCompleted;
-    public ManipulationEventData EventDataManipulationCanceled;
+    public SpeechEventData EventDataSpeech;
 
     #region Unity
     private void Start()
@@ -90,8 +93,6 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
         {
             ManipulationUpdated();
         }
-
-        EventDataManipulationUpdated = eventData;
     }
 
     public void OnManipulationCompleted(ManipulationEventData eventData)
@@ -114,5 +115,38 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
 
         // Remove EventDataManipulation data.
         EventDataManipulation = null;
+    }
+
+    public void OnSpeechKeywordRecognized(SpeechEventData eventData)
+    {
+        if (SpeechKeywordRecognized != null)
+        {
+            EventDataSpeech = eventData;
+            SpeechKeywordRecognized();
+        }
+    }
+
+    public void OnNavigationStarted(NavigationEventData eventData)
+    {
+
+    }
+
+    public void OnNavigationUpdated(NavigationEventData eventData)
+    {
+        
+    }
+
+    public void OnNavigationCompleted(NavigationEventData eventData)
+    {
+        
+    }
+
+    // Use this event to check if the hand has left the tracking field.
+    public void OnNavigationCanceled(NavigationEventData eventData)
+    {
+        if (NavigationCanceled != null)
+        {
+            NavigationCanceled();
+        }
     }
 }
