@@ -125,6 +125,7 @@ namespace RuntimeGizmos
 		    EventManager.ManipulationUpdated += OnManipulationUpdatedLocal;
 		    EventManager.ManipulationCompleted += OnManipulationCompletedLocal;
 		    EventManager.ManipulationCompleted += OnManipulationCanceledLocal;
+		    EventManager.NavigationCanceled += OnNavigationCanceledLocal;
             forceUpdatePivotCoroutine = StartCoroutine(ForceUpdatePivotPointAtEndOfFrame());
 		}
 
@@ -133,6 +134,7 @@ namespace RuntimeGizmos
 		    EventManager.ManipulationUpdated -= OnManipulationUpdatedLocal;
 		    EventManager.ManipulationCompleted -= OnManipulationCompletedLocal;
 		    EventManager.ManipulationCompleted -= OnManipulationCanceledLocal;
+		    EventManager.NavigationCanceled -= OnNavigationCanceledLocal;
             ClearTargets(); //Just so things gets cleaned up, such as removing any materials we placed on objects.
 
 			StopCoroutine(forceUpdatePivotCoroutine);
@@ -169,6 +171,7 @@ namespace RuntimeGizmos
                 //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
                 SetAxisInfo();
                 SetLines();
+                
             }
             else
             {
@@ -177,6 +180,8 @@ namespace RuntimeGizmos
                 handleSquares.Clear();
                 circlesLines.Clear();
             }
+
+           //if(Manager.Instance.EVENT_MANAGER.EventDataManipulation != null) print(Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta);
         }
 
         void OnPostRender()
@@ -257,17 +262,27 @@ namespace RuntimeGizmos
         private void OnManipulationUpdatedLocal()
         {
             manipulationVec = Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta;
+            //Manager.Instance.EVENT_MANAGER.EventDataManipulation.
         }
 
         private void OnManipulationCompletedLocal()
         {
-            manipulationVec = Vector3.zero;
+            // Reset highlighted handle.
+            nearAxis = Axis.None;
+
         }
 
         private void OnManipulationCanceledLocal()
         {
+
+        }
+
+        private void OnNavigationCanceledLocal()
+        {
+            Debug.Log("Navigation Canceled!!!");
             // Reset highlighted handle.
             nearAxis = Axis.None;
+            OnInputUpLocal();
         }
 
         public void OnClickLocal()
