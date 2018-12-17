@@ -1,13 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using HoloToolkit.Unity.InputModule;
 using PRGeoClasses;
-using RuntimeGizmos;
+using UnityEngine;
 
-public class PRCube : MonoBehaviour
-{
+public class PRGeo : MonoBehaviour {
 
     /// <summary>
     /// Bool that is activated when the cube is Active. Now works when the cube is moved.
@@ -65,10 +62,8 @@ public class PRCube : MonoBehaviour
         }
     }
 
-    public GameObject objCenter;
-
     #region Unity
-    void Awake()
+    public void Awake()
     {
         GetComponent<MeshFilter>().mesh = GenerateMesh();
         CubeMesh = GetComponent<MeshFilter>().mesh;
@@ -79,25 +74,26 @@ public class PRCube : MonoBehaviour
         GenerateFacePrefabs();
     }
 
-    void Start () {
+    public void Start()
+    {
         // Deactivate Cube menu
         foreach (PREdgeHolder eH in PrEdgeHolders)
         {
             //print(eH.MidPos);
         }
     }
-	
-	void Update ()
-	{
-	    DrawCubeAxis(true);
-	    //objCenter.transform.position = transform.position;
-	}
 
-    void LateUpdate()
+    public void Update()
+    {
+        DrawCubeAxis(true);
+        //objCenter.transform.position = transform.position;
+    }
+
+    public void LateUpdate()
     {
         if (Selected)
         {
-            
+
         }
     }
 
@@ -132,7 +128,7 @@ public class PRCube : MonoBehaviour
     }
     #endregion // Events
 
-    public PRCube SelectCube(Material selMat)
+    public PRGeo SelectCube(Material selMat)
     {
 
         Selected = true;
@@ -143,11 +139,11 @@ public class PRCube : MonoBehaviour
         }
 
         GetComponent<MeshRenderer>().materials = selectedMats;
-        //Manager.Instance.SelectedGeo = this;
+        Manager.Instance.SelectedGeo = this;
         return this;
     }
 
-    public PRCube DeselectCube(Material unselMat)
+    public PRGeo DeselectCube(Material unselMat)
     {
         Selected = false;
         Material[] unselectedMats = new Material[GetComponent<MeshRenderer>().materials.Length];
@@ -163,7 +159,6 @@ public class PRCube : MonoBehaviour
         ActivateFace(false);
         return this;
     }
-
 
     #region Collider Work
     /// <summary>
@@ -234,7 +229,7 @@ public class PRCube : MonoBehaviour
     // Update Elements when switching between modes.
     private void UpdateEdges(GameObject parent)
     {
-        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
+        PRGeoEdge[] edgeColl = parent.GetComponentsInChildren<PRGeoEdge>();
         foreach (var edge in edgeColl)
         {
             edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
@@ -244,7 +239,7 @@ public class PRCube : MonoBehaviour
 
     private void UpdateFace(GameObject paretn)
     {
-        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
+        PRGeoFace[] faceColl = paretn.GetComponentsInChildren<PRGeoFace>();
         foreach (var face in faceColl)
         {
             face.UpdateCollider();
@@ -349,7 +344,7 @@ public class PRCube : MonoBehaviour
         Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
         for (int i = 0; i < vColl.Length; i++)
         {
-            GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]), 
+            GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]),
                 Quaternion.identity, PR_VERTEX_GO.transform);
             obj.name = "Vertex" + i;
             obj.SetActive(true);
@@ -415,7 +410,7 @@ public class PRCube : MonoBehaviour
             obj.name = "Edge" + i;
             obj.SetActive(true);
             // Setup the PREdge file
-            PREdge edgeCO = obj.GetComponent<PREdge>();
+            PRGeoEdge edgeCO = obj.GetComponent<PRGeoEdge>();
             edgeCO.EdgeHolder = cleaEdgeColl[i];
         }
 
@@ -444,8 +439,8 @@ public class PRCube : MonoBehaviour
             // Rename the objects.
             obj.name = "Face" + i;
             obj.SetActive(true);
-            obj.GetComponent<PRFace>().FaceHolder = face;
-            obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRFace>().GenerateMeshCollider();
+            obj.GetComponent<PRGeoFace>().FaceHolder = face;
+            obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRGeoFace>().GenerateMeshCollider();
         }
     }
     #endregion //Generate
@@ -479,5 +474,4 @@ public class PRCube : MonoBehaviour
         }
     }
     #endregion //Draw Elements
-
 }

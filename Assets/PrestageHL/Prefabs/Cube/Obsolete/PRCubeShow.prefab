@@ -466,7 +466,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HostTransform: {fileID: 0}
   DistanceScale: 2
-  RotationMode: 0
+  RotationMode: 1
   PositionLerpSpeed: 0.2
   RotationLerpSpeed: 0.2
   IsDraggingEnabled: 1
@@ -569,7 +569,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114105641703437160}
-          m_MethodName: ChangeTransformationMode
+          m_MethodName: ChangeSelectionMode
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -586,7 +586,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114105641703437160}
-          m_MethodName: ChangeTransformationMode
+          m_MethodName: ChangeSelectionMode
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -603,7 +603,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114105641703437160}
-          m_MethodName: ChangeTransformationMode
+          m_MethodName: ChangeSelectionMode
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -620,7 +620,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114105641703437160}
-          m_MethodName: ChangeTransformationMode
+          m_MethodName: ChangeSelectionMode
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -678,7 +678,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c80c0f1d7d219df439596c091a475dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CubeId: -1
   Selected: 0
   CubeMesh: {fileID: 0}
   VertexPref: {fileID: 1487363424648150}
@@ -688,7 +687,6 @@ MonoBehaviour:
   EdgeModeActive: 0
   FaceModeActive: 0
   CubeModeActive: 0
-  ColliderName: 
   objCenter: {fileID: 0}
 --- !u!135 &135750808904828308
 SphereCollider:

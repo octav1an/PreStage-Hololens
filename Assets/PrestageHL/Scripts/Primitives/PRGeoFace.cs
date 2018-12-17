@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using PRGeoClasses;
 using HoloToolkit.Unity.InputModule;
-using RuntimeGizmos;
+using PRGeoClasses;
+using UnityEngine;
 
-public class PRFace : MonoBehaviour, IFocusable
+public class PRGeoFace : MonoBehaviour, IFocusable
 {
-    private PRCube PARENT_CUBE
+
+    private PRGeo PARENT_CUBE
     {
-        get { return transform.parent.parent.GetComponent<PRCube>(); }
+        get { return transform.parent.parent.GetComponent<PRGeo>(); }
     }
     private Mesh CUBE_MESH
     {
@@ -30,17 +30,17 @@ public class PRFace : MonoBehaviour, IFocusable
 
 
     #region Unity
-    void Awake()
+    public void Awake()
     {
         MeshCollider mC = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
     }
 
-    void Start()
+    public void Start()
     {
-        
+
     }
 
-    void Update()
+    public void Update()
     {
         MoveFace();
         if (Active)
@@ -102,7 +102,7 @@ public class PRFace : MonoBehaviour, IFocusable
 
     private void OnInputUpLocal()
     {
-        
+
         if (Active)
         {
             _savePos = Vector3.zero;
@@ -116,7 +116,7 @@ public class PRFace : MonoBehaviour, IFocusable
             UpdateCollider();
         }
         UpdateActiveStatus();
-        
+
     }
 
     private void HighlightFace()
@@ -220,7 +220,7 @@ public class PRFace : MonoBehaviour, IFocusable
     {
         if (Manager.Instance.GIZMO.targetRootsOrdered.Count > 0)
         {
-            
+
             if (Manager.Instance.GIZMO.targetRootsOrdered[0].name == this.name)
             {
                 Active = true;
@@ -239,6 +239,4 @@ public class PRFace : MonoBehaviour, IFocusable
         }
     }
     #endregion //UpdateElements
-
-
 }

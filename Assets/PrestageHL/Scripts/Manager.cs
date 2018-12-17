@@ -99,7 +99,7 @@ public class Manager : MonoBehaviour
 
     // TODO Change the SelectedGeo to be a regular gameObject. - better for the future.
     public GameObject SelectedGo;
-    public PRCube SelectedGeo;
+    public PRGeo SelectedGeo;
     
     /// <summary>
     /// Highlight Material when the block is Active.
@@ -258,7 +258,7 @@ public class Manager : MonoBehaviour
         _ray = GazeManager.Instance.Rays[0];
         if (Physics.Raycast(_ray, out _hit))
         {
-            PRCube block = UpdateSelection(_hit);
+            PRGeo block = UpdateSelection(_hit);
         }
     }
 
@@ -288,7 +288,7 @@ public class Manager : MonoBehaviour
     /// Select the block I am hitting.
     /// </summary>
     /// <param name="hit">Raycast hit.</param>
-    private PRCube UpdateSelection(RaycastHit hit)
+    private PRGeo UpdateSelection(RaycastHit hit)
     {
         //Debug.Log("HitTag: " + hit.collider.tag);
         //Debug.Log("HitName: " + hit.collider.name);
@@ -296,7 +296,7 @@ public class Manager : MonoBehaviour
         if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
             //Debug.Log("PRCube hit");
-            PRCube geo = hit.collider.gameObject.GetComponent<PRCube>();
+            PRGeo geo = hit.collider.gameObject.GetComponent<PRGeo>();
             // If there is a Active block and user selects another one, deselect the already Active one.
             if (SelectedGeo && geo.GetInstanceID() != SelectedGeo.GetInstanceID())
             {

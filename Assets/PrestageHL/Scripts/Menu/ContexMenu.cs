@@ -32,9 +32,9 @@ public class ContexMenu : MonoBehaviour
             return null;
         }
     }
-    private PRCube SELECTED_PRCUBE
+    private PRGeo SELECTED_PRCUBE
     {
-        get { return SELECTED_GO.GetComponent<PRCube>(); }
+        get { return SELECTED_GO.GetComponent<PRGeo>(); }
     }
 
     // Double click fields.
@@ -274,7 +274,7 @@ public class ContexMenu : MonoBehaviour
     // Update Elements when switching between modes.
     private void UpdateEdges(GameObject parent)
     {
-        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
+        PRGeoEdge[] edgeColl = parent.GetComponentsInChildren<PRGeoEdge>();
         foreach (var edge in edgeColl)
         {
             edge.EdgeHolder.UpdateInactiveEdgeInfo(SELECTED_PRCUBE.CubeMesh);
@@ -284,7 +284,7 @@ public class ContexMenu : MonoBehaviour
 
     private void UpdateFace(GameObject paretn)
     {
-        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
+        PRGeoFace[] faceColl = paretn.GetComponentsInChildren<PRGeoFace>();
         foreach (var face in faceColl)
         {
             face.UpdateCollider();

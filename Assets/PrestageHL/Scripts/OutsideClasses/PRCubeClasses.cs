@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PRCubeClasses
+namespace PRGeoClasses
 {
     public class PREdgeHolder
     {
@@ -14,9 +14,9 @@ namespace PRCubeClasses
         public int V1Index;
         public GameObject Parent;
         public PREdgeHolder savedEH;
-        private PRCube PR_CO
+        private PRGeo PR_CO
         {
-            get { return Parent.GetComponent<PRCube>(); }
+            get { return Parent.GetComponent<PRGeo>(); }
         }
         public List<int> SameV0Index;
         public List<int> SameV1Index;
@@ -108,7 +108,7 @@ namespace PRCubeClasses
 
         private Quaternion ComputeMidRot(Vector3 v0, Vector3 v1, Transform objTrs)
         {
-            Vector3 dir = Parent.GetComponent<PRCube>().EdgePref.transform.up;
+            Vector3 dir = Parent.GetComponent<PRGeo>().EdgePref.transform.up;
             return Quaternion.FromToRotation(dir, v0 - v1);
         }
         #endregion //Setup
@@ -143,9 +143,9 @@ namespace PRCubeClasses
             get { return ComputeFaceRot(Parent.transform); }
         }
         public GameObject Parent;
-        private PRCube PR_CO
+        private PRGeo PR_CO
         {
-            get { return Parent.GetComponent<PRCube>(); }
+            get { return Parent.GetComponent<PRGeo>(); }
         }
         public Vector3 V0;
         public Vector3 V1;

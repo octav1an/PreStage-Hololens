@@ -1,17 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using PRGeoClasses;
-using RuntimeGizmos;
-using UnityEngine;
-using UnityEngine.UI;
 using HoloToolkit.Unity.InputModule;
+using PRGeoClasses;
+using UnityEngine;
 
-
-public class PREdge : MonoBehaviour, IFocusable
+public class PRGeoEdge : MonoBehaviour, IFocusable
 {
-    private PRCube PARENT_CUBE
+
+    private PRGeo PARENT_CUBE
     {
-        get { return transform.parent.parent.GetComponent<PRCube>(); }
+        get { return transform.parent.parent.GetComponent<PRGeo>(); }
     }
     private Mesh CUBE_MESH
     {
@@ -30,44 +28,34 @@ public class PREdge : MonoBehaviour, IFocusable
 
     #region Unity
 
-    public void Start ()
-	{
-	    _savePos = transform.localPosition;
+    public void Start()
+    {
+        _savePos = transform.localPosition;
     }
-	
-	public void Update ()
-	{
-	    MoveEdge();
-	    if (Active)
-	    {
-	        GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
-        }
-	    else if(!Active && _savedThisMat && !FocusActive)
-	    {
-	        GetComponent<MeshRenderer>().material = _savedThisMat;
-        }
 
-        //UpdateCollider(true);
-	    if (this.name == "Edge7")
-	    {
-	        float lineLength = 0.1f;
-	        Vector3 center = transform.position;
-	        Debug.DrawLine(center, center + (transform.right * lineLength), Color.cyan);
-	        Debug.DrawLine(center, center + (transform.up * lineLength), Color.magenta);
-	        Debug.DrawLine(center, center + (-transform.forward * lineLength), Color.yellow);
+    public void Update()
+    {
+        MoveEdge();
+        if (Active)
+        {
+            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+        }
+        else if (!Active && _savedThisMat && !FocusActive)
+        {
+            GetComponent<MeshRenderer>().material = _savedThisMat;
         }
     }
 
     void OnEnable()
     {
-        EventManager.AirTapDown += OnAirtapDown;
-        EventManager.AirTapUp += OnAirtapUp;
+        EventManager.AirTapDown += OnInputDownLocal;
+        EventManager.AirTapUp += OnInputUpLocal;
     }
 
     void OnDisable()
     {
-        EventManager.AirTapDown -= OnAirtapDown;
-        EventManager.AirTapUp -= OnAirtapUp;
+        EventManager.AirTapDown -= OnInputDownLocal;
+        EventManager.AirTapUp -= OnInputUpLocal;
     }
 
     #endregion //Unity
@@ -92,7 +80,7 @@ public class PREdge : MonoBehaviour, IFocusable
         }
     }
 
-    private void OnAirtapDown()
+    private void OnInputDownLocal()
     {
         UpdateActiveStatus();
         if (Active)
@@ -109,7 +97,7 @@ public class PREdge : MonoBehaviour, IFocusable
         }
     }
 
-    private void OnAirtapUp()
+    private void OnInputUpLocal()
     {
         if (Active)
         {
@@ -168,7 +156,6 @@ public class PREdge : MonoBehaviour, IFocusable
 
     #region UpdateElements
 
-
     /// <summary>
     /// Update the collider of the edge at AirtapUp to match the modified edge.
     /// </summary>
@@ -182,7 +169,7 @@ public class PREdge : MonoBehaviour, IFocusable
         Vector3 scaleVec = EdgeHolder.V0 - EdgeHolder.V1;
         float mag = scaleVec.magnitude;
         Vector3 actualScale = transform.localScale;
-        transform.localScale = new Vector3(actualScale.x, mag/2, actualScale.z);
+        transform.localScale = new Vector3(actualScale.x, mag / 2, actualScale.z);
     }
 
     /// <summary>
@@ -208,6 +195,4 @@ public class PREdge : MonoBehaviour, IFocusable
     }
 
     #endregion //UpdateElements
-
-
 }

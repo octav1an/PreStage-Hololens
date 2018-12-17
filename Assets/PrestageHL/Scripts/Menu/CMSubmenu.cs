@@ -34,7 +34,6 @@ public class CMSubmenu : MonoBehaviour
 
     public void Print()
     {
-        Debug.Log("DoubleCkickShit");
     }
 
     public void ActivateSubmenu(string buttonName)
