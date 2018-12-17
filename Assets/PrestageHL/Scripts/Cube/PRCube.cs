@@ -56,7 +56,6 @@ public class PRCube : MonoBehaviour
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
-    public string ColliderName;
 
     public Vector3 CENTER_GEOMETRICAL
     {
@@ -70,21 +69,6 @@ public class PRCube : MonoBehaviour
             return center / 24;
         }
     }
-    public float LENGTH_Z
-    {
-        get
-        {
-            return (VERTS_COLL[0] - VERTS_COLL[11]).magnitude;
-        }
-    }
-    public float LENGTH_X
-    {
-        get
-        {
-            return (VERTS_COLL[4] - VERTS_COLL[15]).magnitude;
-        }
-    }
-
 
     public GameObject objCenter;
 
@@ -118,23 +102,20 @@ public class PRCube : MonoBehaviour
     {
         if (Selected)
         {
-            if (CubeModeActive)
-            {
-                // Make sure the gizmo is active all the time
-            }
+            
         }
     }
 
     void OnEnable()
     {
-        EventManager.AirTapDown += OnAirtapDown;
-        EventManager.AirTapDown += OnAirtapUp;
+        EventManager.AirTapDown += OnInputDownLocal;
+        EventManager.AirTapDown += OnInputUpLocal;
     }
 
     void OnDisable()
     {
-        EventManager.AirTapDown -= OnAirtapDown;
-        EventManager.AirTapDown -= OnAirtapUp;
+        EventManager.AirTapDown -= OnInputDownLocal;
+        EventManager.AirTapDown -= OnInputUpLocal;
     }
 
     void OnDestroy()
@@ -145,16 +126,16 @@ public class PRCube : MonoBehaviour
     }
     #endregion //Unity
 
-    //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
-    public void OnAirtapDown()
+    #region Events
+    public void OnInputDownLocal()
     {
 
     }
-    public void OnAirtapUp()
+    public void OnInputUpLocal()
     {
         UpdateBlockCollider();
     }
-    //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
+    #endregion // Events
 
     public PRCube SelectCube(Material selMat)
     {
@@ -463,8 +444,6 @@ public class PRCube : MonoBehaviour
             PRFaceHolder face = new PRFaceHolder(CubeMesh, CubeMesh.GetIndices(i), this.gameObject);
             // 1. Position
             // 2. Quaterion
-            //GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.Center),
-              //  face.FaceRot, PR_FACE_GO.transform);
             GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.CENTER),
                 Quaternion.identity, PR_FACE_GO.transform);
             // Rename the objects.

@@ -30,7 +30,6 @@ public class PRFace : MonoBehaviour, IFocusable
 
 
     #region Unity
-
     void Awake()
     {
         MeshCollider mC = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
@@ -39,16 +38,10 @@ public class PRFace : MonoBehaviour, IFocusable
     void Start()
     {
         
-        //GetComponent<MeshFilter>().mesh = GenerateMeshCollider();
     }
 
     void Update()
     {
-        //transform.position = PARENT_CUBE.transform.TransformPoint(FaceHolder.CENTER);
-        if (this.name == "Face5")
-        {
-
-        }
         MoveFace();
         if (Active)
         {
@@ -60,17 +53,16 @@ public class PRFace : MonoBehaviour, IFocusable
         }
     }
 
-
     void OnEnable()
     {
-        EventManager.AirTapDown += OnAirtapDown;
-        EventManager.AirTapUp += OnAirtapUp;
+        EventManager.AirTapDown += OnInputDownLocal;
+        EventManager.AirTapUp += OnInputUpLocal;
     }
 
     void OnDisable()
     {
-        EventManager.AirTapDown -= OnAirtapDown;
-        EventManager.AirTapUp -= OnAirtapUp;
+        EventManager.AirTapDown -= OnInputDownLocal;
+        EventManager.AirTapUp -= OnInputUpLocal;
     }
     #endregion //Unity
 
@@ -80,7 +72,7 @@ public class PRFace : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = true;
-            HighlightEdge();
+            HighlightFace();
         }
     }
 
@@ -89,11 +81,11 @@ public class PRFace : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = false;
-            UnhighlightEdge();
+            UnhighlightFace();
         }
     }
 
-    public void OnAirtapDown()
+    public void OnInputDownLocal()
     {
         if (UpdateActiveStatus())
         {
@@ -108,7 +100,7 @@ public class PRFace : MonoBehaviour, IFocusable
         }
     }
 
-    private void OnAirtapUp()
+    private void OnInputUpLocal()
     {
         
         if (Active)
@@ -127,7 +119,7 @@ public class PRFace : MonoBehaviour, IFocusable
         
     }
 
-    private void HighlightEdge()
+    private void HighlightFace()
     {
         // Store this object material.
         _savedThisMat = GetComponent<MeshRenderer>().material;
@@ -136,7 +128,7 @@ public class PRFace : MonoBehaviour, IFocusable
         GetComponent<MeshRenderer>().material = highlight;
     }
 
-    private void UnhighlightEdge()
+    private void UnhighlightFace()
     {
         GetComponent<MeshRenderer>().material = _savedThisMat;
     }
