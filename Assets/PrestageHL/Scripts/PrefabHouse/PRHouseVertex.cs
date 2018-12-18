@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PRCubeEdge : PRGeoEdge
+public class PRHouseVertex : PRGeoVertex 
 {
 
     #region Unity
-    void Start()
+    protected override void Start()
     {
         base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
         base.Update();
     }
-    #endregion //Unity
-
+    #endregion // Unity
 }

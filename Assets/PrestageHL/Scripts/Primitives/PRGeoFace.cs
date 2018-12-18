@@ -30,17 +30,17 @@ public class PRGeoFace : MonoBehaviour, IFocusable
 
 
     #region Unity
-    public void Awake()
+    protected virtual void Awake()
     {
         MeshCollider mC = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
     }
 
-    public void Start()
+    protected virtual void Start()
     {
 
     }
 
-    public void Update()
+    protected virtual void Update()
     {
         MoveFace();
         if (Active)

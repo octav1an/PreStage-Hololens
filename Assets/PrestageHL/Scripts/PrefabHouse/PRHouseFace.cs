@@ -2,23 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PRCubeFace : PRGeoFace
+public class PRHouseFace : PRGeoFace
 {
 
     #region Unity
-    void Awake()
+    protected override void Awake()
     {
         base.Awake();
     }
 
-    void Start()
+    protected override void Start()
     {
         base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
         base.Update();
     }
     #endregion //Unity
+
 }

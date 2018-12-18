@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33991356062009208}
   - component: {fileID: 135094969654186352}
   - component: {fileID: 23632031690867244}
+  - component: {fileID: 114756895379855632}
   m_Layer: 0
   m_Name: CubeVertexPrefab
   m_TagString: PRVertex
@@ -83,6 +84,17 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1753866274470134}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &114756895379855632
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1753866274470134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a6e8ad3f27ebd4bb1c9abfaf105c29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!135 &135094969654186352
 SphereCollider:
   m_ObjectHideFlags: 1

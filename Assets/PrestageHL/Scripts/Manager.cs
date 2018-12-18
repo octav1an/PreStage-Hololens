@@ -313,7 +313,7 @@ public class Manager : MonoBehaviour
             return geo;
         }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
-                  hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
+                  hit.collider.tag == "PRCubeVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
             return SelectedGeo;
         }
@@ -332,7 +332,8 @@ public class Manager : MonoBehaviour
         }
     }
 
-    private void DeselectBlock(PRCube selected)
+    // TODO: remove the Mehtod
+    private void DeselectBlock(PRGeo selected)
     {
         if (selected != null)
         {

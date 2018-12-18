@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParentFace : MonoBehaviour {
+public class ParentEdge : MonoBehaviour {
 
-    public GameObject[] FACE_COLL_GO
+    public GameObject[] EDGE_COLL_GO
     {
         get
         {
@@ -16,14 +16,14 @@ public class ParentFace : MonoBehaviour {
             return coll;
         }
     }
-    public PRFace[] FACE_COLL_COMP
+    public PRGeoEdge[] EDGE_COLL_COMP
     {
         get
         {
-            PRFace[] coll = new PRFace[transform.childCount];
+            PRGeoEdge[] coll = new PRGeoEdge[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {
-                coll[i] = transform.GetChild(i).GetComponent<PRFace>();
+                coll[i] = transform.GetChild(i).GetComponent<PRGeoEdge>();
             }
             return coll;
         }

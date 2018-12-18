@@ -63,7 +63,7 @@ public class PRGeo : MonoBehaviour {
     }
 
     #region Unity
-    public void Awake()
+    protected virtual void Awake()
     {
         GetComponent<MeshFilter>().mesh = GenerateMesh();
         CubeMesh = GetComponent<MeshFilter>().mesh;
@@ -74,22 +74,22 @@ public class PRGeo : MonoBehaviour {
         GenerateFacePrefabs();
     }
 
-    public void Start()
+    protected virtual void Start()
     {
         // Deactivate Cube menu
-        foreach (PREdgeHolder eH in PrEdgeHolders)
-        {
+        //foreach (PREdgeHolder eH in PrEdgeHolders)
+        //{
             //print(eH.MidPos);
-        }
+        //}
     }
 
-    public void Update()
+    protected virtual void Update()
     {
         DrawCubeAxis(true);
         //objCenter.transform.position = transform.position;
     }
 
-    public void LateUpdate()
+    protected virtual void LateUpdate()
     {
         if (Selected)
         {
@@ -248,7 +248,7 @@ public class PRGeo : MonoBehaviour {
     #endregion // MenuMethodsCall
 
     #region Generate
-    private Mesh GenerateMesh()
+    protected virtual Mesh GenerateMesh()
     {
         Mesh mesh = new Mesh();
         mesh.subMeshCount = 6;
@@ -356,7 +356,7 @@ public class PRGeo : MonoBehaviour {
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
     /// <returns>Array with overlaping EdgeHolders.</returns>
-    public PREdgeHolder[] GenerateEdgeHolders()
+    public virtual PREdgeHolder[] GenerateEdgeHolders()
     {
         PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
         for (int i = 0; i < CubeMesh.subMeshCount; i++)

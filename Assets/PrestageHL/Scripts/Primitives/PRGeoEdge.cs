@@ -28,12 +28,12 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
 
     #region Unity
 
-    public void Start()
+    protected virtual void Start()
     {
         _savePos = transform.localPosition;
     }
 
-    public void Update()
+    protected virtual void Update()
     {
         MoveEdge();
         if (Active)

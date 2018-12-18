@@ -6,22 +6,23 @@ public class PRCubeGeo : PRGeo
 {
 
     #region Unity
-    void Awake()
+    protected override void Awake()
     {
         base.Awake();
     }
 
-    void Start()
+    protected override void Start()
     {
         base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
         base.Update();
+        
     }
 
-    void LateUpdate()
+    protected override void LateUpdate()
     {
         base.LateUpdate();
     }
