@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
 using PRGeoClasses;
+using RuntimeGizmos;
 using UnityEngine;
 
-public class PRGeoEdge : MonoBehaviour, IFocusable
+public class PREdge : MonoBehaviour, IFocusable
 {
 
     private PRGeo PARENT_CUBE
@@ -31,19 +32,13 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
     protected virtual void Start()
     {
         _savePos = transform.localPosition;
+        _savedThisMat = GetComponent<MeshRenderer>().material;
     }
 
     protected virtual void Update()
     {
         MoveEdge();
-        if (Active)
-        {
-            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
-        }
-        else if (!Active && _savedThisMat && !FocusActive)
-        {
-            GetComponent<MeshRenderer>().material = _savedThisMat;
-        }
+        UpdateHighlightStatus();
     }
 
     void OnEnable()
@@ -67,7 +62,7 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = true;
-            HighlightEdge();
+
         }
     }
 
@@ -76,7 +71,7 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = false;
-            UnhighlightEdge();
+            //UnhighlightEdge();
         }
     }
 
@@ -86,7 +81,6 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         if (Active)
         {
             _savePos = transform.localPosition;
-            //_savedThisMat = GetComponent<MeshRenderer>().material;
             // Save the edge holder.
             EdgeHolder.savedEH = new PREdgeHolder(EdgeHolder);
             _meshVertices = CUBE_MESH.vertices;
@@ -94,6 +88,7 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         else
         {
             EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            EdgeMeshDisplay(false);
         }
     }
 
@@ -112,12 +107,14 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         }
         UpdateActiveStatus();
         UpdateCollider();
+        // Display all the edges.
+        EdgeMeshDisplay(true);
     }
 
     private void HighlightEdge()
     {
         // Store this object material.
-        _savedThisMat = GetComponent<MeshRenderer>().material;
+        //_savedThisMat = GetComponent<MeshRenderer>().material;
 
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
         GetComponent<MeshRenderer>().material = highlight;
@@ -128,6 +125,19 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         GetComponent<MeshRenderer>().material = _savedThisMat;
     }
 
+    protected void DeactivateInactiveEdgesDuringTransformation()
+    {
+        if (!Active)
+        {
+            //DeactivateEdgeMesh
+        }
+    }
+
+    protected void EdgeMeshDisplay(bool state)
+    {
+        GetComponent<MeshRenderer>().enabled = state;
+        GetComponent<Collider>().enabled = state;
+    }
     #endregion //Events
 
     #region Move&Snap
@@ -194,5 +204,30 @@ public class PRGeoEdge : MonoBehaviour, IFocusable
         }
     }
 
+    private void UpdateHighlightStatus()
+    {
+        // Change Edge material to activeMaterial.
+        if (Active)
+        {
+            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+        }
+
+        // Unhighlight all edges when they are inactive and Gizmo.nearAxis is not None.
+        if (!Active && Manager.Instance.GIZMO.NEAR_AXIS != Axis.None)
+        {
+            UnhighlightEdge();
+        }
+        if (FocusActive)
+        {
+            if (Manager.Instance.GIZMO.NEAR_AXIS == Axis.None)
+            {
+                HighlightEdge();
+            }
+        }
+        else if (!Active)
+        {
+            UnhighlightEdge();
+        }
+    }
     #endregion //UpdateElements
 }

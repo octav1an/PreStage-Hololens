@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PRCubeVertex : PRGeoVertex
+public class PRGeoVertex : PRVertex
 {
 
 

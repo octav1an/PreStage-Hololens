@@ -229,7 +229,7 @@ public class PRGeo : MonoBehaviour {
     // Update Elements when switching between modes.
     private void UpdateEdges(GameObject parent)
     {
-        PRGeoEdge[] edgeColl = parent.GetComponentsInChildren<PRGeoEdge>();
+        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
         foreach (var edge in edgeColl)
         {
             edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
@@ -239,7 +239,7 @@ public class PRGeo : MonoBehaviour {
 
     private void UpdateFace(GameObject paretn)
     {
-        PRGeoFace[] faceColl = paretn.GetComponentsInChildren<PRGeoFace>();
+        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
         foreach (var face in faceColl)
         {
             face.UpdateCollider();
@@ -479,7 +479,7 @@ public class PRGeo : MonoBehaviour {
             obj.name = "Edge" + i;
             obj.SetActive(true);
             // Setup the PREdge file
-            PRGeoEdge edgeCO = obj.GetComponent<PRGeoEdge>();
+            PREdge edgeCO = obj.GetComponent<PREdge>();
             edgeCO.EdgeHolder = cleaEdgeColl[i];
         }
 
@@ -499,9 +499,9 @@ public class PRGeo : MonoBehaviour {
             // Rename the objects.
             obj.name = "Face" + i;
             obj.SetActive(true);
-            obj.GetComponent<PRGeoFace>().FaceHolder = face;
-            //print(obj.GetComponent<PRGeoFace>().FaceHolder.MeshTopo);
-            obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRGeoFace>().GenerateMeshCollider();
+            obj.GetComponent<PRFace>().FaceHolder = face;
+            //print(obj.GetComponent<PRFace>().FaceHolder.MeshTopo);
+            obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRFace>().GenerateMeshCollider();
         }
     }
     #endregion //Generate

@@ -16,14 +16,14 @@ public class ParentEdge : MonoBehaviour {
             return coll;
         }
     }
-    public PRGeoEdge[] EDGE_COLL_COMP
+    public PREdge[] EDGE_COLL_COMP
     {
         get
         {
-            PRGeoEdge[] coll = new PRGeoEdge[transform.childCount];
+            PREdge[] coll = new PREdge[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {
-                coll[i] = transform.GetChild(i).GetComponent<PRGeoEdge>();
+                coll[i] = transform.GetChild(i).GetComponent<PREdge>();
             }
             return coll;
         }

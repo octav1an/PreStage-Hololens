@@ -16,14 +16,14 @@ public class ParentVertex : MonoBehaviour {
             return coll;
         }
     }
-    public PRCubeVertex[] CUBE_VERTEX_COLL_COMP
+    public PRGeoVertex[] GEO_VERTEX_COLL_COMP
     {
         get
         {
-            PRCubeVertex[] coll = new PRCubeVertex[transform.childCount];
+            PRGeoVertex[] coll = new PRGeoVertex[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {
-                coll[i] = transform.GetChild(i).GetComponent<PRCubeVertex>();
+                coll[i] = transform.GetChild(i).GetComponent<PRGeoVertex>();
             }
             return coll;
         }

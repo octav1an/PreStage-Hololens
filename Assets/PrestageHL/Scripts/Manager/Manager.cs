@@ -10,20 +10,6 @@ public class Manager : MonoBehaviour
 {
 
     public static Manager Instance;
-    //public TransformGizmo GIZMO
-    //{
-    //    get
-    //    {
-    //        if (Camera.main)
-    //        {
-    //            return Camera.main.gameObject.GetComponent<TransformGizmo>();
-    //        }
-    //        else
-    //        {
-    //            return null;
-    //        }
-    //    }
-    //}
     public TransformGizmo GIZMO;
     public EventManager EVENT_MANAGER
     {
@@ -313,7 +299,7 @@ public class Manager : MonoBehaviour
             return geo;
         }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
-                  hit.collider.tag == "PRCubeVertex" || GIZMO.NEAR_AXIS != Axis.None)
+                  hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
         {
             return SelectedGeo;
         }

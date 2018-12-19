@@ -60,7 +60,6 @@ namespace RuntimeGizmos
 		public bool forceUpdatePivotPointOnChange = true;
         public bool InputDown = false;
         public bool InputUp = true;
-        public bool DrawHandles = true;
         public bool DisableGizmo = false;
         public bool FirstTime = false;
 
@@ -148,13 +147,8 @@ namespace RuntimeGizmos
 		void Update()
 		{
 			HandleUndoRedo();
-
 			SetSpaceAndType();
 			SetNearAxis();
-		    if (Input.GetKey(KeyCode.T))
-		    {
-		        nearAxis = Axis.None;
-		    }
 
 			if(mainTargetRoot == null) return;
 			//print("Vec: " + targetRootsOrdered.Count);
@@ -190,14 +184,16 @@ namespace RuntimeGizmos
 
 			lineMaterial.SetPass(0);
 
-			Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : hoverColor : this.xColor;
+			//Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : hoverColor : this.xColor;
 			Color yColor = (nearAxis == Axis.Y) ? (isTransforming) ? selectedColor : hoverColor : this.yColor;
 			Color zColor = (nearAxis == Axis.Z) ? (isTransforming) ? selectedColor : hoverColor : this.zColor;
 			Color allColor = (nearAxis == Axis.Any) ? (isTransforming) ? selectedColor : hoverColor : this.allColor;
 
-			//Note: The order of drawing the axis decides what gets drawn over what.
+		    Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : new Color(1, 1, 1, 1) : this.xColor;
 
-			DrawQuads(handleLines.z, zColor);
+            //Note: The order of drawing the axis decides what gets drawn over what.
+
+            DrawQuads(handleLines.z, zColor);
 			DrawQuads(handleLines.x, xColor);
 			DrawQuads(handleLines.y, yColor);
 

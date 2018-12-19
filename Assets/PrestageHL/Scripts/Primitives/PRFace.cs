@@ -4,7 +4,7 @@ using HoloToolkit.Unity.InputModule;
 using PRGeoClasses;
 using UnityEngine;
 
-public class PRGeoFace : MonoBehaviour, IFocusable
+public class PRFace : MonoBehaviour, IFocusable
 {
 
     private PRGeo PARENT_CUBE

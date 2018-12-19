@@ -16,14 +16,14 @@ public class ParentFace : MonoBehaviour {
             return coll;
         }
     }
-    public PRGeoFace[] FACE_COLL_COMP
+    public PRFace[] FACE_COLL_COMP
     {
         get
         {
-            PRGeoFace[] coll = new PRGeoFace[transform.childCount];
+            PRFace[] coll = new PRFace[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {
-                coll[i] = transform.GetChild(i).GetComponent<PRGeoFace>();
+                coll[i] = transform.GetChild(i).GetComponent<PRFace>();
             }
             return coll;
         }

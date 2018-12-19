@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PRCubeEdge : PRGeoEdge
+public class PRGeoEdge : PREdge
 {
 
     #region Unity

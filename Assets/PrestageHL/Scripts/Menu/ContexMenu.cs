@@ -274,7 +274,7 @@ public class ContexMenu : MonoBehaviour
     // Update Elements when switching between modes.
     private void UpdateEdges(GameObject parent)
     {
-        PRGeoEdge[] edgeColl = parent.GetComponentsInChildren<PRGeoEdge>();
+        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
         foreach (var edge in edgeColl)
         {
             edge.EdgeHolder.UpdateInactiveEdgeInfo(SELECTED_PRCUBE.CubeMesh);
@@ -284,7 +284,7 @@ public class ContexMenu : MonoBehaviour
 
     private void UpdateFace(GameObject paretn)
     {
-        PRGeoFace[] faceColl = paretn.GetComponentsInChildren<PRGeoFace>();
+        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
         foreach (var face in faceColl)
         {
             face.UpdateCollider();
