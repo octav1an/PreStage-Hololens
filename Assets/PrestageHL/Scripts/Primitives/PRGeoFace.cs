@@ -26,7 +26,7 @@ public class PRGeoFace : MonoBehaviour, IFocusable
 
     public bool Active;
     public bool FocusActive = false;
-    public float OffsetFromFace = 0.02f;
+    public float OffsetFromFace = 0.01f;
 
 
     #region Unity
@@ -37,7 +37,7 @@ public class PRGeoFace : MonoBehaviour, IFocusable
 
     protected virtual void Start()
     {
-
+        Debug.Log("MSTopo: " + FaceHolder.MeshTopo);
     }
 
     protected virtual void Update()
@@ -51,6 +51,13 @@ public class PRGeoFace : MonoBehaviour, IFocusable
         {
             GetComponent<MeshRenderer>().material = _savedThisMat;
         }
+
+        if (gameObject.name == "Face0")
+        {
+            //Debug.Log("Offset: " + OffsetFromFace);
+            //Debug.Log("Index: " + FaceHolder.SameV3Index.Count);
+        }
+
     }
 
     void OnEnable()
@@ -155,9 +162,13 @@ public class PRGeoFace : MonoBehaviour, IFocusable
             {
                 _meshVertices[FaceHolder.SameV2Index[i]] = FaceHolder.F_VERTICES[2];
             }
-            for (int i = 0; i < FaceHolder.SameV3Index.Count; i++)
+            // If the face is a quad transform the 4th vertex too.
+            if (FaceHolder.MeshTopo == MeshTopology.Quads)
             {
-                _meshVertices[FaceHolder.SameV3Index[i]] = FaceHolder.F_VERTICES[3];
+                for (int i = 0; i < FaceHolder.SameV3Index.Count; i++)
+                {
+                    _meshVertices[FaceHolder.SameV3Index[i]] = FaceHolder.F_VERTICES[3];
+                }
             }
             CUBE_MESH.vertices = _meshVertices;
             CUBE_MESH.RecalculateBounds();
@@ -171,9 +182,18 @@ public class PRGeoFace : MonoBehaviour, IFocusable
         Mesh mesh = new Mesh();
         // Assign verts
         mesh.vertices = FaceHolder.F_VERTICES;
-        // Create Quads
-        int[] quad = new int[4] { 0, 1, 2, 3 };
-        mesh.SetIndices(quad, MeshTopology.Quads, 0);
+        // Create Mesh either as Quad or Triangle.
+        if (FaceHolder.MeshTopo == MeshTopology.Quads)
+        {
+            int[] quad = new int[4] { 0, 1, 2, 3 };
+            mesh.SetIndices(quad, MeshTopology.Quads, 0);
+        }
+        else if (FaceHolder.MeshTopo == MeshTopology.Triangles)
+        {
+            int[] quad = new int[3] { 0, 1, 2 };
+            mesh.SetIndices(quad, MeshTopology.Triangles, 0);
+        }
+
         // Recalculate all
         Vector3[] newVerts = mesh.vertices;
         for (int i = 0; i < mesh.vertexCount; i++)
@@ -203,7 +223,7 @@ public class PRGeoFace : MonoBehaviour, IFocusable
         for (int i = 0; i < vertColl.Length; i++)
         {
             vertColl[i] = CUBE_MESH.vertices[FaceHolder.VertexIndices[i]];
-            vertColl[i] += (FaceHolder.NORMALS[i] * OffsetFromFace) - transform.localPosition;
+            vertColl[i] += (FaceHolder.NORMALS[i].normalized * OffsetFromFace) - transform.localPosition;
         }
         // 2. Update the face verts
         FACE_MESH.vertices = vertColl;

@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23730852355655082}
   - component: {fileID: 114078891717292432}
   m_Layer: 0
-  m_Name: CubeFacePrefab
+  m_Name: FacePrefab
   m_TagString: PRFace
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,4 +96,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Active: 0
   FocusActive: 0
-  OffsetFromFace: 0.02
+  OffsetFromFace: 0.001

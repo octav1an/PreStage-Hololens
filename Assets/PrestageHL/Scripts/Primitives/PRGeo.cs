@@ -253,7 +253,7 @@ public class PRGeo : MonoBehaviour {
         Mesh mesh = new Mesh();
         mesh.subMeshCount = 6;
         // 2.5 because i scale down the main object to 0.2 scale factor.
-        float size = 2.5f;
+        float size = 1f;
         Vector3 v0 = new Vector3(size, size, size);
         Vector3 v1 = new Vector3(size, size, -size);
         Vector3 v2 = new Vector3(size, -size, -size);
@@ -338,10 +338,10 @@ public class PRGeo : MonoBehaviour {
         return mesh;
     }
 
-    private void GenerateVertexHandles()
+    protected void GenerateVertexHandles()
     {
-        VertexCollGO = new GameObject[8];
         Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
+        VertexCollGO = new GameObject[vColl.Length];
         for (int i = 0; i < vColl.Length; i++)
         {
             GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]),
@@ -352,38 +352,107 @@ public class PRGeo : MonoBehaviour {
         }
 
     }
+
+    // TODO: Remove if everything is on with Edges
+    ///// <summary>
+    ///// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
+    ///// </summary>
+    ///// <returns>Array with overlaping EdgeHolders.</returns>
+    //protected virtual PREdgeHolder[] GenerateEdgeHolders()
+    //{
+    //    PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
+    //    for (int i = 0; i < CubeMesh.subMeshCount; i++)
+    //    {
+    //        // Keep track of the actual number of the edge that is being generated,
+    //        // If it is the last one - connect the vertex to first one.
+    //        int index = -1;
+    //        for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
+    //        {
+    //            index++;
+    //            if (index < 3)
+    //            {
+    //                Vector3 v0 = CubeMesh.vertices[j];
+    //                Vector3 v1 = CubeMesh.vertices[j + 1];
+    //                PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+    //                edge.V0Index = (int)j;
+    //                edge.V1Index = (int)j + 1;
+    //                edgeColl[j] = edge;
+    //            }
+    //            else
+    //            {
+    //                Vector3 v0 = CubeMesh.vertices[j];
+    //                Vector3 v1 = CubeMesh.vertices[j - 3];
+    //                PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+    //                edge.V0Index = (int)j;
+    //                edge.V1Index = (int)j - 3;
+    //                edgeColl[j] = edge;
+    //            }
+    //        }
+    //    }
+    //    return edgeColl;
+    //}
+
     /// <summary>
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
     /// <returns>Array with overlaping EdgeHolders.</returns>
-    public virtual PREdgeHolder[] GenerateEdgeHolders()
+    protected virtual PREdgeHolder[] GenerateEdgeHolders()
     {
         PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
         for (int i = 0; i < CubeMesh.subMeshCount; i++)
         {
             // Keep track of the actual number of the edge that is being generated,
             // If it is the last one - connect the vertex to first one.
-            int index = -1;
-            for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
+            if (CubeMesh.GetTopology(i) == MeshTopology.Quads)
             {
-                index++;
-                if (index < 3)
+                int index = -1;
+                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
                 {
-                    Vector3 v0 = CubeMesh.vertices[j];
-                    Vector3 v1 = CubeMesh.vertices[j + 1];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                    edge.V0Index = (int)j;
-                    edge.V1Index = (int)j + 1;
-                    edgeColl[j] = edge;
+                    index++;
+                    if (index < 3)
+                    {
+                        Vector3 v0 = CubeMesh.vertices[j];
+                        Vector3 v1 = CubeMesh.vertices[j + 1];
+                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                        edge.V0Index = (int)j;
+                        edge.V1Index = (int)j + 1;
+                        edgeColl[j] = edge;
+                    }
+                    else
+                    {
+                        Vector3 v0 = CubeMesh.vertices[j];
+                        Vector3 v1 = CubeMesh.vertices[j - 3];
+                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                        edge.V0Index = (int)j;
+                        edge.V1Index = (int)j - 3;
+                        edgeColl[j] = edge;
+                    }
                 }
-                else
+            }
+            else if (CubeMesh.GetTopology(i) == MeshTopology.Triangles)
+            {
+                int index = -1;
+                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
                 {
-                    Vector3 v0 = CubeMesh.vertices[j];
-                    Vector3 v1 = CubeMesh.vertices[j - 3];
-                    PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                    edge.V0Index = (int)j;
-                    edge.V1Index = (int)j - 3;
-                    edgeColl[j] = edge;
+                    index++;
+                    if (index < 2)
+                    {
+                        Vector3 v0 = CubeMesh.vertices[j];
+                        Vector3 v1 = CubeMesh.vertices[j + 1];
+                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                        edge.V0Index = (int)j;
+                        edge.V1Index = (int)j + 1;
+                        edgeColl[j] = edge;
+                    }
+                    else
+                    {
+                        Vector3 v0 = CubeMesh.vertices[j];
+                        Vector3 v1 = CubeMesh.vertices[j - 2];
+                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
+                        edge.V0Index = (int)j;
+                        edge.V1Index = (int)j - 2;
+                        edgeColl[j] = edge;
+                    }
                 }
             }
         }
@@ -395,7 +464,7 @@ public class PRGeo : MonoBehaviour {
     /// </summary>
     /// <param name="edgeColl">Dirty array with edges</param>
     /// <returns>Clean array of edges</returns>
-    public PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
+    protected PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
     {
         // Group the edges according to the MidPos vector. For the cube I will have groups of 2 edges that overlap.
         var result = edgeColl.GroupBy(edge => edge.MidPos);
@@ -417,21 +486,12 @@ public class PRGeo : MonoBehaviour {
         return cleaEdgeColl;
     }
 
-    public void CleanUpEdgePrefabs()
-    {
-        for (int i = 0; i < PR_EDGE_GO.transform.childCount; i++)
-        {
-            GameObject go = PR_EDGE_GO.transform.GetChild(i).gameObject;
-            DestroyObject(go);
-        }
-    }
-
-    private void GenerateFacePrefabs()
+    protected virtual void GenerateFacePrefabs()
     {
         PRFaceHolder[] faceColl = new PRFaceHolder[CubeMesh.subMeshCount];
         for (int i = 0; i < faceColl.Length; i++)
         {
-            PRFaceHolder face = new PRFaceHolder(CubeMesh, CubeMesh.GetIndices(i), this.gameObject);
+            PRFaceHolder face = new PRFaceHolder(CubeMesh, i, this.gameObject);
             // 1. Position
             // 2. Quaterion
             GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.CENTER),
@@ -440,6 +500,7 @@ public class PRGeo : MonoBehaviour {
             obj.name = "Face" + i;
             obj.SetActive(true);
             obj.GetComponent<PRGeoFace>().FaceHolder = face;
+            //print(obj.GetComponent<PRGeoFace>().FaceHolder.MeshTopo);
             obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRGeoFace>().GenerateMeshCollider();
         }
     }

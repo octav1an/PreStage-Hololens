@@ -1081,10 +1081,11 @@ MonoBehaviour:
   BlockId: -1
   Selected: 0
   BlockMesh: {fileID: 0}
+  SnapDistance: 0
   Vertices: []
   VerticesSaved: []
   ColliderName: 
-  obj: {fileID: 0}
+  BlockMenu: {fileID: 0}
 --- !u!114 &114932157939399424
 MonoBehaviour:
   m_ObjectHideFlags: 1

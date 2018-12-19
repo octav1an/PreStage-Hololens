@@ -9,19 +9,15 @@ public class PRHouseGeo : PRGeo
     #region Unity
     protected override void Awake()
     {
-        //base.Awake();
-        GetComponent<MeshFilter>().mesh = GenerateMesh();
-        CubeMesh = GetComponent<MeshFilter>().mesh;
-        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
+        base.Awake();
 
-        PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         // Invert normals
-        ReverseNormals();
+        //ReverseNormals();
     }
 
     protected override void Start()
     {
-        //base.Start();
+        base.Start();
     }
 
     protected override void Update()
@@ -115,15 +111,15 @@ public class PRHouseGeo : PRGeo
         };
         // Create FaceIndices arrays.
         // TODO: Here is the problem
-        int[] faceIndices0 = new int[4] { 3, 2, 1, 0 };
-        int[] faceIndices1 = new int[4] { 4, 5, 6, 7 };
-        int[] faceIndices2 = new int[4] { 8, 9, 10, 11 };
-        int[] faceIndices3 = new int[4] { 12, 13, 14, 15 };
-        int[] faceIndices4 = new int[4] { 19, 18, 17, 16 };
-        int[] faceIndices5 = new int[4] { 20, 21, 22, 23 };
-        int[] faceIndices6 = new int[4] { 24, 25, 26, 27 };
-        int[] faceIndices7 = new int[3] { 30, 29, 28 };
-        int[] faceIndices8 = new int[3] { 33, 32, 31 };
+        int[] faceIndices0 = new int[4] { 0, 1, 2, 3 };
+        int[] faceIndices1 = new int[4] { 7, 6, 5, 4 };
+        int[] faceIndices2 = new int[4] { 11, 10, 9, 8 };
+        int[] faceIndices3 = new int[4] { 15, 14, 13, 12 };
+        int[] faceIndices4 = new int[4] { 16, 17, 18, 19 };
+        int[] faceIndices5 = new int[4] { 23, 22, 21, 20 };
+        int[] faceIndices6 = new int[4] { 27, 26, 25, 24 };
+        int[] faceIndices7 = new int[3] { 28, 29, 30 };
+        int[] faceIndices8 = new int[3] { 31, 32, 33 };
         // Join the array with vertices.
         var list = new List<Vector3>();
         list.AddRange(face0);
@@ -152,73 +148,6 @@ public class PRHouseGeo : PRGeo
         mesh.RecalculateTangents();
 
         return mesh;
-    }
-
-    /// <summary>
-    /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
-    /// </summary>
-    /// <returns>Array with overlaping EdgeHolders.</returns>
-    public override PREdgeHolder[] GenerateEdgeHolders()
-    {
-        PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
-        for (int i = 0; i < CubeMesh.subMeshCount; i++)
-        {
-            // Keep track of the actual number of the edge that is being generated,
-            // If it is the last one - connect the vertex to first one.
-            if (CubeMesh.GetTopology(i) == MeshTopology.Quads)
-            {
-                int index = -1;
-                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
-                {
-                    index++;
-                    if (index < 3)
-                    {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j + 1];
-                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                        edge.V0Index = (int) j;
-                        edge.V1Index = (int) j + 1;
-                        edgeColl[j] = edge;
-                    }
-                    else
-                    {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j - 3];
-                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                        edge.V0Index = (int) j;
-                        edge.V1Index = (int) j - 3;
-                        edgeColl[j] = edge;
-                    }
-                }
-            }
-            else if (CubeMesh.GetTopology(i) == MeshTopology.Triangles)
-            {
-                int index = -1;
-                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
-                {
-                    index++;
-                    if (index < 2)
-                    {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j + 1];
-                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                        edge.V0Index = (int)j;
-                        edge.V1Index = (int)j + 1;
-                        edgeColl[j] = edge;
-                    }
-                    else
-                    {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j - 2];
-                        PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-                        edge.V0Index = (int)j;
-                        edge.V1Index = (int)j - 2;
-                        edgeColl[j] = edge;
-                    }
-                }
-            }
-        }
-        return edgeColl;
     }
 
     void ReverseNormals()

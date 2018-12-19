@@ -117,6 +117,7 @@ namespace PRGeoClasses
     public class PRFaceHolder
     {
         public Mesh Mesh;
+        public int Index;
         public int[] VertexIndices; 
         // Not updated
         public Vector3 Normal;
@@ -150,35 +151,61 @@ namespace PRGeoClasses
         public Vector3 V0;
         public Vector3 V1;
         public Vector3 V2;
+        /// <summary>
+        /// This is the 4th Vertex, only used for Quad topology.
+        /// </summary>
         public Vector3 V3;
+        public MeshTopology MeshTopo;
         public PRFaceHolder savedFH;
         public List<int> SameV0Index;
         public List<int> SameV1Index;
         public List<int> SameV2Index;
+        /// <summary>
+        /// This is the 4th Vertex Index, only used for Quad topology.
+        /// </summary>
         public List<int> SameV3Index;
 
         public Vector3[] F_VERTICES
         {
             get
             {
-                Vector3[] coll = new Vector3[4];
-                coll[0] = V0;
-                coll[1] = V1;
-                coll[2] = V2;
-                coll[3] = V3;
-                return coll;
+                if (MeshTopo == MeshTopology.Quads)
+                {
+                    Vector3[] coll = new Vector3[4];
+                    coll[0] = V0;
+                    coll[1] = V1;
+                    coll[2] = V2;
+                    coll[3] = V3;
+                    return coll;
+                }
+                else if (MeshTopo == MeshTopology.Triangles)
+                {
+                    Vector3[] coll = new Vector3[3];
+                    coll[0] = V0;
+                    coll[1] = V1;
+                    coll[2] = V2;
+                    return coll;
+                }
+                else
+                {
+                    return null;
+                }
+
             }
         }
         private float threshold = 0.01f;
 
         // Constructor
-        public PRFaceHolder(Mesh mesh, int[] vertexIndices, GameObject parent)
+
+        public PRFaceHolder(Mesh mesh, int index, GameObject parent)
         {
             Mesh = mesh;
-            VertexIndices = vertexIndices;
+            Index = index;
+            MeshTopo = mesh.GetTopology(Index);
+            VertexIndices = mesh.GetIndices(index);
             Parent = parent;
-            SetupVertices(mesh, vertexIndices);
-            Normal = SetupNormal(Mesh, vertexIndices);
+            SetupVertices(mesh, VertexIndices);
+            Normal = SetupNormal(Mesh, VertexIndices);
             FaceRot = ComputeFaceRot(parent.transform);
             SetupSameVertices();
         }
@@ -188,6 +215,8 @@ namespace PRGeoClasses
             Mesh = fH.Mesh;
             VertexIndices = fH.VertexIndices;
             Parent = fH.Parent;
+            Index = fH.Index;
+            MeshTopo = fH.MeshTopo;
             SetupVertices(Mesh, VertexIndices);
             FaceRot = ComputeFaceRot(Parent.transform);
             SetupSameVertices();
@@ -199,7 +228,10 @@ namespace PRGeoClasses
             V0 = mesh.vertices[VertexIndices[0]];
             V1 = mesh.vertices[VertexIndices[1]];
             V2 = mesh.vertices[VertexIndices[2]];
-            V3 = mesh.vertices[VertexIndices[3]];
+            if (MeshTopo == MeshTopology.Quads)
+            {
+                V3 = mesh.vertices[VertexIndices[3]];
+            }
             FaceRot = ComputeFaceRot(Parent.transform);
         }
 
@@ -221,7 +253,10 @@ namespace PRGeoClasses
                 V0 = savedFH.F_VERTICES[0] + move;
                 V1 = savedFH.F_VERTICES[1] + move;
                 V2 = savedFH.F_VERTICES[2] + move;
-                V3 = savedFH.F_VERTICES[3] + move;
+                if (MeshTopo == MeshTopology.Quads)
+                {
+                    V3 = savedFH.F_VERTICES[3] + move;
+                }
             }
         }
 
@@ -231,48 +266,89 @@ namespace PRGeoClasses
         /// </summary>
         public void SetupSameVertices()
         {
-            SameV0Index = new List<int>();
-            SameV1Index = new List<int>();
-            SameV2Index = new List<int>();
-            SameV3Index = new List<int>();
-
-            for (int i = 0; i < Mesh.vertexCount; i++)
+            if (MeshTopo == MeshTopology.Quads)
             {
-                Vector3 v = Mesh.vertices[i];
-                if (Mathf.Abs(v.x - V0.x) < threshold &&
-                    Mathf.Abs(v.y - V0.y) < threshold &&
-                    Mathf.Abs(v.z - V0.z) < threshold)
+                SameV0Index = new List<int>();
+                SameV1Index = new List<int>();
+                SameV2Index = new List<int>();
+                SameV3Index = new List<int>();
+                for (int i = 0; i < Mesh.vertexCount; i++)
                 {
-                    SameV0Index.Add(i);
+                    Vector3 v = Mesh.vertices[i];
+                    if (Mathf.Abs(v.x - V0.x) < threshold &&
+                        Mathf.Abs(v.y - V0.y) < threshold &&
+                        Mathf.Abs(v.z - V0.z) < threshold)
+                    {
+                        SameV0Index.Add(i);
+                    }
+                    else if (Mathf.Abs(v.x - V1.x) < threshold &&
+                             Mathf.Abs(v.y - V1.y) < threshold &&
+                             Mathf.Abs(v.z - V1.z) < threshold)
+                    {
+                        SameV1Index.Add(i);
+                    }
+                    else if (Mathf.Abs(v.x - V2.x) < threshold &&
+                             Mathf.Abs(v.y - V2.y) < threshold &&
+                             Mathf.Abs(v.z - V2.z) < threshold)
+                    {
+                        SameV2Index.Add(i);
+                    }
+                    else if (Mathf.Abs(v.x - V3.x) < threshold &&
+                             Mathf.Abs(v.y - V3.y) < threshold &&
+                             Mathf.Abs(v.z - V3.z) < threshold)
+                    {
+                        SameV3Index.Add(i);
+                    }
                 }
-                else if (Mathf.Abs(v.x - V1.x) < threshold &&
-                         Mathf.Abs(v.y - V1.y) < threshold &&
-                         Mathf.Abs(v.z - V1.z) < threshold)
+            }
+            else if (MeshTopo == MeshTopology.Triangles)
+            {
+                SameV0Index = new List<int>();
+                SameV1Index = new List<int>();
+                SameV2Index = new List<int>();
+                for (int i = 0; i < Mesh.vertexCount; i++)
                 {
-                    SameV1Index.Add(i);
-                }
-                else if (Mathf.Abs(v.x - V2.x) < threshold &&
-                         Mathf.Abs(v.y - V2.y) < threshold &&
-                         Mathf.Abs(v.z - V2.z) < threshold)
-                {
-                    SameV2Index.Add(i);
-                }
-                else if (Mathf.Abs(v.x - V3.x) < threshold &&
-                         Mathf.Abs(v.y - V3.y) < threshold &&
-                         Mathf.Abs(v.z - V3.z) < threshold)
-                {
-                    SameV3Index.Add(i);
+                    Vector3 v = Mesh.vertices[i];
+                    if (Mathf.Abs(v.x - V0.x) < threshold &&
+                        Mathf.Abs(v.y - V0.y) < threshold &&
+                        Mathf.Abs(v.z - V0.z) < threshold)
+                    {
+                        SameV0Index.Add(i);
+                    }
+                    else if (Mathf.Abs(v.x - V1.x) < threshold &&
+                             Mathf.Abs(v.y - V1.y) < threshold &&
+                             Mathf.Abs(v.z - V1.z) < threshold)
+                    {
+                        SameV1Index.Add(i);
+                    }
+                    else if (Mathf.Abs(v.x - V2.x) < threshold &&
+                             Mathf.Abs(v.y - V2.y) < threshold &&
+                             Mathf.Abs(v.z - V2.z) < threshold)
+                    {
+                        SameV2Index.Add(i);
+                    }
                 }
             }
         }
 
         private void SetupVertices(Mesh mesh, int[] vertexIndices)
         {
-            V0 = mesh.vertices[vertexIndices[0]];
-            V1 = mesh.vertices[vertexIndices[1]];
-            V2 = mesh.vertices[vertexIndices[2]];
-            V3 = mesh.vertices[vertexIndices[3]];
+            if (MeshTopo == MeshTopology.Quads)
+            {
+                V0 = mesh.vertices[vertexIndices[0]];
+                V1 = mesh.vertices[vertexIndices[1]];
+                V2 = mesh.vertices[vertexIndices[2]];
+                V3 = mesh.vertices[vertexIndices[3]];
+            }
+            else if (MeshTopo == MeshTopology.Triangles)
+            {
+                V0 = mesh.vertices[vertexIndices[0]];
+                V1 = mesh.vertices[vertexIndices[1]];
+                V2 = mesh.vertices[vertexIndices[2]];
+            }
         }
+
+        // TODO: Make an average normal calculation.
         private Vector3 SetupNormal(Mesh mesh, int[] vertexIndices)
         {
             // I get the normal only from the first vector. Can have problems.
