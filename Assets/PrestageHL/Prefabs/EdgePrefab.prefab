@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23250114894618942}
   - component: {fileID: 64689373954953268}
   - component: {fileID: 114771796679147184}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: EdgePrefab
   m_TagString: PREdge
   m_Icon: {fileID: 0}

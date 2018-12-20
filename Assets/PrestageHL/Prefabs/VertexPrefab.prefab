@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 135094969654186352}
   - component: {fileID: 23632031690867244}
   - component: {fileID: 114756895379855632}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: VertexPrefab
   m_TagString: PRVertex
   m_Icon: {fileID: 0}

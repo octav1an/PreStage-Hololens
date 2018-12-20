@@ -109,6 +109,10 @@ namespace RuntimeGizmos
 
         static Material lineMaterial;
 		static Material outlineMaterial;
+        public GameObject GizmoGo;
+        //======================================
+        private Vector3 _savedHitLoc;
+        public GameObject geoProgected;
         
 
         #region Unity
@@ -152,8 +156,12 @@ namespace RuntimeGizmos
 
 			if(mainTargetRoot == null) return;
 			//print("Vec: " + targetRootsOrdered.Count);
-			TransformSelected();
-		}
+			//TransformSelected();
+		    TransformSelected2();
+		    Vector3 prjLoc = Vector3.Project(Manager.Instance.GET_HIT_LOCATION, GizmoGo.transform.right);
+
+            geoProgected.transform.position = GizmoGo.transform.position + prjLoc;
+        }
 
         void LateUpdate()
         {
@@ -163,9 +171,9 @@ namespace RuntimeGizmos
             if (!ContexMenu.Instance.IsActive && !DisableGizmo)
             {
                 //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
-                SetAxisInfo();
-                SetLines();
-                
+                //SetAxisInfo();
+                //SetLines();
+                GizmoGo.transform.position = mainTargetRoot.transform.position;
             }
             else
             {
@@ -184,12 +192,10 @@ namespace RuntimeGizmos
 
 			lineMaterial.SetPass(0);
 
-			//Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : hoverColor : this.xColor;
+			Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : hoverColor : this.xColor;
 			Color yColor = (nearAxis == Axis.Y) ? (isTransforming) ? selectedColor : hoverColor : this.yColor;
 			Color zColor = (nearAxis == Axis.Z) ? (isTransforming) ? selectedColor : hoverColor : this.zColor;
 			Color allColor = (nearAxis == Axis.Any) ? (isTransforming) ? selectedColor : hoverColor : this.allColor;
-
-		    Color xColor = (nearAxis == Axis.X) ? (isTransforming) ? selectedColor : new Color(1, 1, 1, 1) : this.xColor;
 
             //Note: The order of drawing the axis decides what gets drawn over what.
 
@@ -235,6 +241,9 @@ namespace RuntimeGizmos
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
+                //============================================
+                _savedHitLoc = Manager.Instance.GET_HIT_LOCATION;
+                //============================================
                 SavePrevPosition();
                 // Save scale of the object, to later only add the manipulation vector.
                 _savedScale = targetRootsOrdered[0].localScale;
@@ -296,6 +305,7 @@ namespace RuntimeGizmos
         public void SavePrevPosition()
         {
             targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
+
             for (int i = 0; i < targetRootsOrdered.Count; i++)
             {
                 targetRootsOrderedSavedPos[i] = new Vector3(targetRootsOrdered[i].position.x,
@@ -375,8 +385,225 @@ namespace RuntimeGizmos
 				}
 			}
 		}
-		
-		IEnumerator TransformSelected(TransformType type)
+
+        void TransformSelected2()
+        {
+            if (mainTargetRoot != null)
+            {
+                if (Manager.Instance.GET_COLLIDER_GO.layer == 8 && InputDown)
+                {
+                    //print("here");
+                    StartCoroutine(PRTransform());
+                    InputDown = false;
+                }
+            }
+        }
+
+        IEnumerator PRTransform()
+        {
+            // Define what axis to project on
+            Vector3 savedProjectedOnAxis = Vector3.Project(_savedHitLoc, GizmoGo.transform.right);
+            string transformType = Manager.Instance.GET_COLLIDER_TAG;
+            Vector3 translateAxis = GetTranslateAxis();
+            while (!InputUp)
+            {
+                if (transformType == "GizmoMove")
+                {
+                    print("Move");
+                    // Project
+                    Vector3 projectedOnAxis =
+                        Vector3.Project(Manager.Instance.GET_HIT_LOCATION, translateAxis);
+                    float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, translateAxis) *
+                                       moveSpeedMultiplier;
+                    for (int i = 0; i < targetRootsOrdered.Count; i++)
+                    {
+                        Transform target = targetRootsOrdered[i];
+                        // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
+                        Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
+                        target.position = targetSavedPos + translateAxis * moveAmount;
+                    }
+                }
+
+                yield return null;
+            }
+
+            //yield return null;
+        }
+
+        Vector3 GetTranslateAxis()
+        {
+            if (Manager.Instance.GET_COLLIDER_NAME == "translate_x")
+            {
+                return GizmoGo.transform.right;
+            }
+            else if (Manager.Instance.GET_COLLIDER_NAME == "translate_z")
+            {
+                return GizmoGo.transform.forward;
+            }
+            else if (Manager.Instance.GET_COLLIDER_NAME == "translate_y")
+            {
+                return GizmoGo.transform.up;
+            }
+            else
+            {
+                return Vector3.zero;
+            }
+            
+        }
+
+        IEnumerator TransformSelected2(TransformType type)
+        {
+            //Debug.Log();
+
+            isTransforming = true;
+            totalScaleAmount = 0;
+            totalRotationAmount = Quaternion.identity;
+
+            Vector3 originalPivot = pivotPoint;
+
+            Vector3 planeNormal = (transform.position - originalPivot).normalized;
+            Vector3 axis = GetNearAxisDirection();
+            //Debug.Log("Axis: " + GizmoGo.transform.forward);
+            Vector3 projectedAxis = Vector3.ProjectOnPlane(axis, planeNormal).normalized;
+            Vector3 previousMousePosition = Vector3.zero;
+
+            List<ICommand> transformCommands = new List<ICommand>();
+            for (int i = 0; i < targetRootsOrdered.Count; i++)
+            {
+                transformCommands.Add(new TransformCommand(this, targetRootsOrdered[i]));
+            }
+
+            while (!InputUp)
+            {
+                RaycastHit _hit;
+                Ray _ray = GazeManager.Instance.Rays[0];
+                Vector3 mousePosition = Geometry.LinePlaneIntersect(_ray.origin, _ray.direction, originalPivot, planeNormal);
+                if (previousMousePosition != Vector3.zero && mousePosition != Vector3.zero)
+                {
+                    if (type == TransformType.Move)
+                    {
+                        float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projectedAxis) * moveSpeedMultiplier;
+                        Vector3 movement = axis * moveAmount;
+                        for (int i = 0; i < targetRootsOrdered.Count; i++)
+                        {
+                            Transform target = targetRootsOrdered[i];
+                            // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
+                            Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
+                            target.position = targetSavedPos + movement;
+                        }
+                        UpdatePivotPositionHL(movement);
+                    }
+                    else if (type == TransformType.Scale)
+                    {
+                        // Axix.Any is the whole model scale.
+                        Vector3 projected = (nearAxis == Axis.Any) ? transform.right : projectedAxis;
+                        // Calculate the projected magnitute of the vector on the projectedAxis.
+                        float scaleAmount = ExtVector3.MagnitudeInDirection(manipulationVec, projected) * scaleSpeedMultiplier;
+                        //WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
+                        Vector3 localAxis = (space == TransformSpace.Local && nearAxis != Axis.Any) ? mainTargetRoot.InverseTransformDirection(axis) : axis;
+
+                        for (int i = 0; i < targetRootsOrdered.Count; i++)
+                        {
+                            Transform target = targetRootsOrdered[i];
+                            Vector3 targetScale = _savedScale + (localAxis * scaleAmount);
+
+                            if (pivot == TransformPivot.Pivot)
+                            {
+                                target.localScale = targetScale;
+                            }
+                            else if (pivot == TransformPivot.Center)
+                            {
+                                if (scaleType == ScaleType.FromPoint)
+                                {
+                                    target.SetScaleFrom(originalPivot, targetScale);
+                                }
+                                else if (scaleType == ScaleType.FromPointOffset)
+                                {
+                                    target.SetScaleFromOffset(originalPivot, targetScale);
+                                }
+                            }
+                        }
+
+                        totalScaleAmount = scaleAmount;
+                    }
+                    else if (type == TransformType.Rotate)
+                    {
+                        float rotateAmount = 0;
+                        Vector3 rotationAxis = axis;
+
+                        if (nearAxis == Axis.Any)
+                        {
+                            Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
+                            Quaternion.Euler(rotation).ToAngleAxis(out rotateAmount, out rotationAxis);
+                            rotateAmount *= allRotateSpeedMultiplier;
+                        }
+                        else
+                        {
+                            Vector3 projected = (nearAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
+                            //rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
+                            rotateAmount = (ExtVector3.MagnitudeInDirection(manipulationVec, projected) * rotateSpeedMultiplier);
+                        }
+                        // Soleve the problem with continuous rotation.
+                        for (int i = 0; i < targetRootsOrdered.Count; i++)
+                        {
+                            Transform target = targetRootsOrdered[i];
+                            if (pivot == TransformPivot.Pivot)
+                            {
+                                if (nearAxis == Axis.X)
+                                {
+                                    // Add the change of angle to the saved angle on X
+                                    float xAmount = _savedRotation.eulerAngles.x + rotateAmount;
+                                    target.localRotation = Quaternion.Euler(xAmount, _savedRotation.eulerAngles.y,
+                                        _savedRotation.eulerAngles.z);
+                                }
+                                else if (nearAxis == Axis.Y)
+                                {
+                                    // Add the change of angle to the saved angle on Y
+                                    float xAmount = _savedRotation.eulerAngles.y + rotateAmount;
+                                    target.localRotation = Quaternion.Euler(_savedRotation.eulerAngles.x, xAmount,
+                                        _savedRotation.eulerAngles.z);
+                                }
+                                else if (nearAxis == Axis.Z)
+                                {
+                                    // Add the change of angle to the saved angle on Z
+                                    float xAmount = _savedRotation.eulerAngles.z + rotateAmount;
+                                    target.localRotation = Quaternion.Euler(_savedRotation.eulerAngles.x,
+                                        _savedRotation.eulerAngles.y, xAmount);
+                                }
+                            }
+                            // I don't use this.
+                            else if (pivot == TransformPivot.Center)
+                            {
+                                target.RotateAround(originalPivot, rotationAxis, rotateAmount);
+                            }
+
+                        }
+
+                        totalRotationAmount *= Quaternion.Euler(rotationAxis * rotateAmount);
+                    }
+                }
+
+                previousMousePosition = mousePosition;
+
+                yield return null;
+            }
+
+            for (int i = 0; i < transformCommands.Count; i++)
+            {
+                ((TransformCommand)transformCommands[i]).StoreNewTransformValues();
+            }
+            CommandGroup commandGroup = new CommandGroup();
+            commandGroup.Set(transformCommands);
+            UndoRedoManager.Insert(commandGroup);
+
+            totalRotationAmount = Quaternion.identity;
+            totalScaleAmount = 0;
+            isTransforming = false;
+
+            SetPivotPoint();
+        }
+
+        IEnumerator TransformSelected(TransformType type)
 		{
 			isTransforming = true;
 			totalScaleAmount = 0;

@@ -18,6 +18,9 @@ TagManager:
   - MainMenu
   - PropertiesPanel
   - SceneScaler
+  - GizmoMove
+  - GizmoRotate
+  - GizmoPlaneMove
   layers:
   - Default
   - TransparentFX
@@ -27,8 +30,8 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
+  - Gizmo
+  - Geometry
   - 
   - 
   - 

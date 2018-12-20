@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33647224440682612}
   - component: {fileID: 23730852355655082}
   - component: {fileID: 114078891717292432}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FacePrefab
   m_TagString: PRFace
   m_Icon: {fileID: 0}

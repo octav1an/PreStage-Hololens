@@ -16,71 +16,47 @@ public class Manager : MonoBehaviour
         get { return GetComponent<EventManager>(); }
     }
     public GameObject SpatialMappingGo;
+
+    private RaycastHit HIT
+    {
+        get
+        {
+            _ray = GazeManager.Instance.Rays[0];
+            if (Physics.Raycast(_ray, out _hit, 20.0f, maskGizmo))
+            {
+                return _hit;
+            }
+            else if (Physics.Raycast(_ray, out _hit, 20.0f, maskGeo))
+            {
+                return _hit;
+            }
+            else
+            {
+                return new RaycastHit();
+            }
+        }
+    }
     /// <summary>
     /// Get the name for the collider hit by the ray.
     /// </summary>
     public string GET_COLLIDER_NAME
     {
-        get
-        {
-            _ray = GazeManager.Instance.Rays[0];
-            if (Physics.Raycast(_ray, out _hit))
-            {
-                return _hit.collider.name;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        get { return HIT.collider.name; }
     }
     public string GET_COLLIDER_TAG
     {
-        get
-        {
-            _ray = GazeManager.Instance.Rays[0];
-            if (Physics.Raycast(_ray, out _hit))
-            {
-                return _hit.collider.tag;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        get { return HIT.collider.tag; }
     }
     public GameObject GET_COLLIDER_GO
     {
-        get
-        {
-            _ray = GazeManager.Instance.Rays[0];
-            if (Physics.Raycast(_ray, out _hit))
-            {
-                return _hit.collider.gameObject;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        get { return HIT.collider.gameObject; }
     }
     /// <summary>
     /// Location where the hit point is, world space.
     /// </summary>
     public Vector3 GET_HIT_LOCATION
     {
-        get
-        {
-            _ray = GazeManager.Instance.Rays[0];
-            if (Physics.Raycast(_ray, out _hit))
-            {
-                return _hit.point;
-            }
-            else
-            {
-                return Vector3.zero;
-            }
-        }
+        get { return HIT.point; }
     }
 
     // TODO Change the SelectedGeo to be a regular gameObject. - better for the future.
@@ -126,17 +102,16 @@ public class Manager : MonoBehaviour
             return GameObject.FindGameObjectWithTag("Ground");
         }
     }
-    /// <summary>
-    /// Block prefab used to instanciate new blocks.
-    /// </summary>
-    public GameObject BlockPrefab;
     //--------------------------------------------
     private static Ray _ray;
     public static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
-    public bool FirstTime = true;
+    // TODO: remove if everything ok
+    //public bool FirstTime = true;
 
+    private LayerMask maskGizmo;
+    private LayerMask maskGeo;
 
 
     #region Unity
@@ -154,7 +129,8 @@ public class Manager : MonoBehaviour
     }
 
     void Start () {
-
+        maskGizmo = LayerMask.GetMask("Gizmo");
+        maskGeo = LayerMask.GetMask("Geometry");
     }
 	
 	void Update () {
@@ -172,9 +148,7 @@ public class Manager : MonoBehaviour
 	    {
             print("NumberOfObjects: " + CollGeoObjects.Count);
 	    }
-        //
-        //Debug.Log(SpatialMappingManager.Instance.GetMeshes());
-	    //Debug.Log("MeshCounts: " + SpatialMappingManager.Instance.GetMeshes().Count);
+
 	}
 
     void OnEnable()
@@ -201,37 +175,6 @@ public class Manager : MonoBehaviour
     }
     #endregion //Unity
 
-    //---------------------------------------------MOUSE UP-------------------------------------------------------
-    /// <summary>
-    /// Method that is activated once when the mouse right click is released and the block is Active.
-    /// </summary>
-    private void OnMouseUpGlobal()
-    {
-        if (Input.GetMouseButtonUp(0))
-        {
-
-        }
-    }
-
-    //---------------------------------------------MOUSE DOWN------------------------------------------------------
-    /// <summary>
-    /// Method that is activated once when the mouse right click is pressed and the block is Active.
-    /// </summary>
-    private void OnMouseDownGlobal()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            //-------------------------------------------------------
-            // Update the colliderName when MouseDown.
-            _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(_ray, out _hit))
-            {
-                UpdateSelection(_hit);
-            }
-
-        }
-    }
-
     #region Events
    
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
@@ -242,9 +185,25 @@ public class Manager : MonoBehaviour
         //-------------------------------------------------------
         // Update the colliderName when MouseDown.
         _ray = GazeManager.Instance.Rays[0];
-        if (Physics.Raycast(_ray, out _hit))
+
+        //if (Physics.Raycast(_ray, out _hit, maskGizmo))
+        //{
+        //    print("Gizmo");
+        //}
+        //else if (Physics.Raycast(_ray, out _hit, maskGeo))
+        //{
+        //    print("Geo");
+        //    PRGeo geo = UpdateSelection(_hit);
+        //}
+
+        if (Physics.Raycast(_ray, out _hit, 20.0f, maskGizmo))
         {
-            PRGeo block = UpdateSelection(_hit);
+            //Debug.Log(_hit.transform.gameObject.layer);
+        }
+        else if (Physics.Raycast(_ray, out _hit, 20.0f, maskGeo))
+        {
+            Debug.Log(_hit.collider.transform.name);
+            PRGeo geo = UpdateSelection(_hit);
         }
     }
 
@@ -268,7 +227,6 @@ public class Manager : MonoBehaviour
 
     #endregion //Events
 
-
     //---------------------------------------------------------------------------------------------------
     /// <summary>
     /// Select the block I am hitting.
@@ -276,8 +234,8 @@ public class Manager : MonoBehaviour
     /// <param name="hit">Raycast hit.</param>
     private PRGeo UpdateSelection(RaycastHit hit)
     {
-        //Debug.Log("HitTag: " + hit.collider.tag);
-        //Debug.Log("HitName: " + hit.collider.name);
+        Debug.Log("HitTag: " + hit.collider.tag);
+        Debug.Log("HitName: " + hit.collider.name);
         //print(hit.collider.tag);
         if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
         {
