@@ -36,20 +36,47 @@ public class Manager : MonoBehaviour
             }
         }
     }
-    /// <summary>
-    /// Get the name for the collider hit by the ray.
-    /// </summary>
     public string GET_COLLIDER_NAME
     {
-        get { return HIT.collider.name; }
+        get
+        {
+            if (HIT.collider)
+            {
+                return HIT.collider.name;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     public string GET_COLLIDER_TAG
     {
-        get { return HIT.collider.tag; }
+        get
+        {
+            if (HIT.collider)
+            {
+                return HIT.collider.tag;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     public GameObject GET_COLLIDER_GO
     {
-        get { return HIT.collider.gameObject; }
+        get
+        {
+            if (HIT.collider)
+            {
+                return HIT.collider.gameObject;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
     /// <summary>
     /// Location where the hit point is, world space.
