@@ -27,4 +27,16 @@ public class GizmoAxis : MonoBehaviour
 	void Update () {
 		
 	}
+
+    void Draw(bool drawOn)
+    {
+        if (drawOn)
+        {
+            float lineLength = 0.1f;
+            Vector3 center = transform.position;
+            Debug.DrawLine(center, center + (transform.right * lineLength), Color.cyan);
+            Debug.DrawLine(center, center + (transform.up * lineLength), Color.magenta);
+            Debug.DrawLine(center, center + (-transform.forward * lineLength), Color.yellow);
+        }
+    }
 }

@@ -112,7 +112,9 @@ namespace RuntimeGizmos
         public GameObject GizmoGo;
         //======================================
         private Vector3 _savedHitLoc;
+        private Plane _translatePlane;
         public GameObject geoProgected;
+
         
 
         #region Unity
@@ -160,7 +162,7 @@ namespace RuntimeGizmos
 		    TransformSelected2();
 		    Vector3 prjLoc = Vector3.Project(Manager.Instance.GET_HIT_LOCATION, GizmoGo.transform.right);
 
-            geoProgected.transform.position = GizmoGo.transform.position + prjLoc;
+            //geoProgected.transform.position = GizmoGo.transform.position + prjLoc;
         }
 
         void LateUpdate()
@@ -405,14 +407,16 @@ namespace RuntimeGizmos
             Vector3 savedProjectedOnAxis = Vector3.Project(_savedHitLoc, GizmoGo.transform.right);
             string transformType = Manager.Instance.GET_COLLIDER_TAG;
             Vector3 translateAxis = GetTranslateAxis();
+            Plane translatePlane = GetTranslatePlane();
+            //Vector3 savedProjectedOnPlane = Vector3.ProjectOnPlane(_savedHitLoc, translatePlane.normal);
+            Vector3 savedProjectedOnPlane = translatePlane.ClosestPointOnPlane(_savedHitLoc);
+
             while (!InputUp)
             {
                 if (transformType == "GizmoMove")
                 {
-                    print("Move");
+                    Debug.Log("Move");
                     // Project
-                    Vector3 projectedOnAxis =
-                        Vector3.Project(Manager.Instance.GET_HIT_LOCATION, translateAxis);
                     float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, translateAxis) *
                                        moveSpeedMultiplier;
                     for (int i = 0; i < targetRootsOrdered.Count; i++)
@@ -423,11 +427,69 @@ namespace RuntimeGizmos
                         target.position = targetSavedPos + translateAxis * moveAmount;
                     }
                 }
+                else if (transformType == "GizmoPlaneMove")
+                {
+                    Debug.Log("PlaneMove");
+                    // Project the Manipulation vector onto the plane.
+                    Vector3 projectedOnPlane = Vector3.ProjectOnPlane(manipulationVec, translatePlane.normal);
+                    // Apply the projected manipulation vector for movement.
+                    for (int i = 0; i < targetRootsOrdered.Count; i++)
+                    {
+                        Transform target = targetRootsOrdered[i];
+                        // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
+                        Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
+                        target.position = targetSavedPos + projectedOnPlane * moveSpeedMultiplier;
+                    }
+                }
+                else if (transformType == "GizmoRotate")
+                {
+                    Debug.Log("Rotate");
+                    // Get the world location of the manipolation in respect to the savedHit location.
+                    Vector3 worldManip = savedProjectedOnPlane + manipulationVec;
+                    // Project the worlManip to the translatePlane which has Gizmo coordinates.
+                    Vector3 projectedOnPlane = translatePlane.ClosestPointOnPlane(worldManip);
+                    // Get the quaterion with rotation between the savedHit and the actualHit that have the origin as the 0,0,0 coordinate, and not the gizmo.
+                    Quaternion quaRotation = Quaternion.FromToRotation(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position);
+                    // Apply quaternion.
+                    for (int i = 0; i < targetRootsOrdered.Count; i++)
+                    {
+                        Transform target = targetRootsOrdered[i];
+                        // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
+                        Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
+                        target.rotation = quaRotation;
+                    }
+                    // TODO: remove later when rotation is proven to be ok.
+                    //Debug.DrawLine(Vector3.zero, savedProjectedOnPlane - GizmoGo.transform.position, Color.cyan);
+                    //Debug.DrawLine(Vector3.zero, projectedOnPlane - GizmoGo.transform.position, Color.red);
+                    //Debug.DrawLine(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position, Color.yellow);
+                    //geoProgected.transform.position = projectedOnPlane;
+                }
 
                 yield return null;
             }
+        }
 
-            //yield return null;
+        Plane GetTranslatePlane()
+        {
+            if (Manager.Instance.GET_COLLIDER_NAME == "plane_translate_xy" ||
+                Manager.Instance.GET_COLLIDER_NAME == "rotate_z")
+            {
+                return new Plane(GizmoGo.transform.forward, GizmoGo.transform.position);
+            }
+            else if (Manager.Instance.GET_COLLIDER_NAME == "plane_translate_yz" ||
+                     Manager.Instance.GET_COLLIDER_NAME == "rotate_x")
+            {
+                return new Plane(GizmoGo.transform.right, GizmoGo.transform.position);
+            }
+            else if (Manager.Instance.GET_COLLIDER_NAME == "plane_translate_xz" ||
+                     Manager.Instance.GET_COLLIDER_NAME == "rotate_y")
+            {
+                return new Plane(GizmoGo.transform.up, GizmoGo.transform.position);
+            }
+            else
+            {
+                return new Plane();
+            }
         }
 
         Vector3 GetTranslateAxis()
