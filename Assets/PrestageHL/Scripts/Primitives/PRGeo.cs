@@ -511,7 +511,6 @@ public class PRGeo : MonoBehaviour {
     {
         Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
 
-
         //Drawing.DrawLabel(transform.TransformPoint(vColl[0]), "V0");
         //Drawing.DrawLabel(transform.TransformPoint(vColl[1]), "V1");
         //Drawing.DrawLabel(transform.TransformPoint(vColl[2]), "V2");

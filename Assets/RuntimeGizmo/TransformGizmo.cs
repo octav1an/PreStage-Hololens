@@ -155,7 +155,7 @@ namespace RuntimeGizmos
 			HandleUndoRedo();
 			SetSpaceAndType();
 			SetNearAxis();
-		    UpdateGizmoStatus();
+	        UpdateGizmoStatus();
 
             if (mainTargetRoot == null) return;
 			
@@ -308,7 +308,14 @@ namespace RuntimeGizmos
                 return;
             }
 
-            GizmoGo.SetActive(true);
+            if (DisableGizmo || ContexMenu.Instance.IsActive)
+            {
+                GizmoGo.SetActive(false);
+            }
+            else
+            {
+                GizmoGo.SetActive(true);
+            }
         }
 
         /// <summary>
@@ -712,34 +719,59 @@ namespace RuntimeGizmos
 			}
 			return Vector3.zero;
 		}
-        
+
         /// <summary>
         /// Modified vertion of GetTarget to work with specific tag1 or object.
         /// </summary>
         /// <param name="tag1">Tag name of the targeted object.</param>
         void GetTarget(string tag1, string tag2)
         {
-            if (nearAxis == Axis.None)
+            //if (nearAxis == Axis.None)
+            if (Manager.Instance.GET_COLLIDER_LAYER != "Gizmo")
             {
                 RaycastHit hit;
                 Ray ray = GazeManager.Instance.Rays[0];
 
-                if (Physics.Raycast(ray, out hit))
+                if (Manager.Instance.IS_HIT)
                 {
-                    Transform target = hit.transform;
-                    if (hit.collider.tag == tag1 || hit.collider.tag == tag2)
+                    Transform target = Manager.Instance.GET_COLLIDER_GO.transform;
+                    if (Manager.Instance.GET_COLLIDER_TAG == tag1 || Manager.Instance.GET_COLLIDER_TAG == tag2)
                     {
                         ClearAndAddTarget(target);
                         return;
                     }
-                    //ClearTargets();
-                }
-                else
-                {
-                    //ClearTargets();
                 }
             }
         }
+
+        // TODO: remove later if everything works ok.
+        ///// <summary>
+        ///// Modified vertion of GetTarget to work with specific tag1 or object.
+        ///// </summary>
+        ///// <param name="tag1">Tag name of the targeted object.</param>
+        //void GetTarget(string tag1, string tag2)
+        //{
+        //    if (nearAxis == Axis.None)
+        //    {
+        //        RaycastHit hit;
+        //        Ray ray = GazeManager.Instance.Rays[0];
+
+        //        if (Physics.Raycast(ray, out hit))
+        //        {
+        //            Transform target = hit.transform;
+        //            if (hit.collider.tag == tag1 || hit.collider.tag == tag2)
+        //            {
+        //                ClearAndAddTarget(target);
+        //                return;
+        //            }
+        //            //ClearTargets();
+        //        }
+        //        else
+        //        {
+        //            //ClearTargets();
+        //        }
+        //    }
+        //}
 
         void GetTarget(Ray ray)
 		{

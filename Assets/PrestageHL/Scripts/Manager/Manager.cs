@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using HoloToolkit.Unity;
 using HoloToolkit.Unity.InputModule;
 using HoloToolkit.Unity.SpatialMapping;
 using UnityEngine;
@@ -22,16 +24,24 @@ public class Manager : MonoBehaviour
         get
         {
             _ray = GazeManager.Instance.Rays[0];
-            if (Physics.Raycast(_ray, out _hit, 20.0f, maskGizmo))
+            if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGizmo))
             {
+                _isHit = true;
                 return _hit;
             }
-            else if (Physics.Raycast(_ray, out _hit, 20.0f, maskGeo))
+            else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskDefault))
             {
+                _isHit = true;
+                return _hit;
+            }
+            else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGeo))
+            {
+                _isHit = true;
                 return _hit;
             }
             else
             {
+                _isHit = false;
                 return new RaycastHit();
             }
         }
@@ -78,12 +88,38 @@ public class Manager : MonoBehaviour
             }
         }
     }
+    public string GET_COLLIDER_LAYER
+    {
+        get
+        {
+            if (HIT.collider)
+            {
+                return LayerMask.LayerToName(HIT.collider.gameObject.layer);
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
     /// <summary>
     /// Location where the hit point is, world space.
     /// </summary>
     public Vector3 GET_HIT_LOCATION
     {
         get { return HIT.point; }
+    }
+    private bool _isHit;
+    /// <summary>
+    /// Checks if something is hit.
+    /// </summary>
+    public bool IS_HIT
+    {
+        get
+        {
+            RaycastHit updateHit = HIT;
+            return _isHit;
+        }
     }
 
     // TODO Change the SelectedGeo to be a regular gameObject. - better for the future.
@@ -131,14 +167,15 @@ public class Manager : MonoBehaviour
     }
     //--------------------------------------------
     private static Ray _ray;
-    public static RaycastHit _hit;
+    private static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
     // TODO: remove if everything ok
     //public bool FirstTime = true;
 
-    private LayerMask maskGizmo;
-    private LayerMask maskGeo;
+    private LayerMask _maskGizmo;
+    private LayerMask _maskGeo;
+    private LayerMask _maskDefault;
 
 
     #region Unity
@@ -156,26 +193,19 @@ public class Manager : MonoBehaviour
     }
 
     void Start () {
-        maskGizmo = LayerMask.GetMask("Gizmo");
-        maskGeo = LayerMask.GetMask("Geometry");
+        _maskGizmo = LayerMask.GetMask("Gizmo");
+        _maskGeo = LayerMask.GetMask("Geometry");
+        _maskDefault = LayerMask.GetMask("Default");
     }
 	
 	void Update () {
         //--------------------------------------------
         // Run all the time.
         //--------------------------------------------
-	    _ray = GazeManager.Instance.Rays[0];
-	    if (Physics.Raycast(_ray, out _hit))
-	    {
-	        //PRCube block = UpdateSelection(_hit);
-	        //Debug.Log(_hit.collider.tag);
-        }
-
 	    if (Input.GetKeyDown(KeyCode.G))
 	    {
             print("NumberOfObjects: " + CollGeoObjects.Count);
 	    }
-
 	}
 
     void OnEnable()
@@ -212,26 +242,19 @@ public class Manager : MonoBehaviour
         //-------------------------------------------------------
         // Update the colliderName when MouseDown.
         _ray = GazeManager.Instance.Rays[0];
-
-        //if (Physics.Raycast(_ray, out _hit, maskGizmo))
-        //{
-        //    print("Gizmo");
-        //}
-        //else if (Physics.Raycast(_ray, out _hit, maskGeo))
-        //{
-        //    print("Geo");
-        //    PRGeo geo = UpdateSelection(_hit);
-        //}
-
-        if (Physics.Raycast(_ray, out _hit, 20.0f, maskGizmo))
+        if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGizmo))
         {
             //Debug.Log(_hit.transform.gameObject.layer);
         }
-        else if (Physics.Raycast(_ray, out _hit, 20.0f, maskGeo))
+        else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskDefault))
         {
-            Debug.Log(_hit.collider.transform.name);
             PRGeo geo = UpdateSelection(_hit);
         }
+        else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGeo))
+        {
+            PRGeo geo = UpdateSelection(_hit);
+        }
+
     }
 
     public void OnInputUpLocal()

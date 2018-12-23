@@ -37,27 +37,14 @@ public class PRFace : MonoBehaviour, IFocusable
 
     protected virtual void Start()
     {
-        Debug.Log("MSTopo: " + FaceHolder.MeshTopo);
+        _savedThisMat = GetComponent<MeshRenderer>().material;
+        //Debug.Log("MSTopo: " + FaceHolder.MeshTopo);
     }
 
     protected virtual void Update()
     {
         MoveFace();
-        if (Active)
-        {
-            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
-        }
-        else if (!Active && _savedThisMat && !FocusActive)
-        {
-            GetComponent<MeshRenderer>().material = _savedThisMat;
-        }
-
-        if (gameObject.name == "Face0")
-        {
-            //Debug.Log("Offset: " + OffsetFromFace);
-            //Debug.Log("Index: " + FaceHolder.SameV3Index.Count);
-        }
-
+        UpdateHighlightStatus();
     }
 
     void OnEnable()
@@ -79,7 +66,6 @@ public class PRFace : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = true;
-            HighlightFace();
         }
     }
 
@@ -88,7 +74,6 @@ public class PRFace : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = false;
-            UnhighlightFace();
         }
     }
 
@@ -128,9 +113,6 @@ public class PRFace : MonoBehaviour, IFocusable
 
     private void HighlightFace()
     {
-        // Store this object material.
-        _savedThisMat = GetComponent<MeshRenderer>().material;
-
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
         GetComponent<MeshRenderer>().material = highlight;
     }
@@ -256,6 +238,32 @@ public class PRFace : MonoBehaviour, IFocusable
         {
             Active = false;
             return false;
+        }
+    }
+
+    private void UpdateHighlightStatus()
+    {
+        // Change Edge material to activeMaterial.
+        if (Active)
+        {
+            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+        }
+
+        // Unhighlight all faces when they are inactive and Gizmo.nearAxis is not None.
+        if (!Active && Manager.Instance.GET_COLLIDER_LAYER == "Gizmo")
+        {
+            UnhighlightFace();
+        }
+        if (FocusActive)
+        {
+            if (Manager.Instance.GET_COLLIDER_LAYER != "Gizmo")
+            {
+                HighlightFace();
+            }
+        }
+        else if (!Active)
+        {
+            UnhighlightFace();
         }
     }
     #endregion //UpdateElements

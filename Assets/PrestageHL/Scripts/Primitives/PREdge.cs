@@ -71,14 +71,12 @@ public class PREdge : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = false;
-            //UnhighlightEdge();
         }
     }
 
     private void OnInputDownLocal()
     {
-        UpdateActiveStatus();
-        if (Active)
+        if (UpdateActiveStatus())
         {
             _savePos = transform.localPosition;
             // Save the edge holder.
@@ -113,9 +111,6 @@ public class PREdge : MonoBehaviour, IFocusable
 
     private void HighlightEdge()
     {
-        // Store this object material.
-        //_savedThisMat = GetComponent<MeshRenderer>().material;
-
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
         GetComponent<MeshRenderer>().material = highlight;
     }
@@ -185,22 +180,25 @@ public class PREdge : MonoBehaviour, IFocusable
     /// <summary>
     /// Get the selected object form gizmo and check if it is this.
     /// </summary>
-    private void UpdateActiveStatus()
+    private bool UpdateActiveStatus()
     {
         if (Manager.Instance.GIZMO.targetRootsOrdered.Count > 0)
         {
             if (Manager.Instance.GIZMO.targetRootsOrdered[0].name == this.name)
             {
                 Active = true;
+                return true;
             }
             else
             {
                 Active = false;
+                return true;
             }
         }
         else
         {
             Active = false;
+            return false;
         }
     }
 
@@ -213,13 +211,13 @@ public class PREdge : MonoBehaviour, IFocusable
         }
 
         // Unhighlight all edges when they are inactive and Gizmo.nearAxis is not None.
-        if (!Active && Manager.Instance.GIZMO.NEAR_AXIS != Axis.None)
+        if (!Active && Manager.Instance.GET_COLLIDER_LAYER == "Gizmo")
         {
             UnhighlightEdge();
         }
         if (FocusActive)
         {
-            if (Manager.Instance.GIZMO.NEAR_AXIS == Axis.None)
+            if (Manager.Instance.GET_COLLIDER_LAYER != "Gizmo")
             {
                 HighlightEdge();
             }

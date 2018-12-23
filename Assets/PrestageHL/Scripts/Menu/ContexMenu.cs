@@ -159,7 +159,7 @@ public class ContexMenu : MonoBehaviour
     {
         if (noColliderCheck)
         {
-            if(!IsActive) return;
+            if (!IsActive) return;
             // Deactivate the submenu first.
             if (CMSubmenu.Instance.IsAnySubmenuActive)
             {
@@ -182,8 +182,6 @@ public class ContexMenu : MonoBehaviour
     #region Selection Modes
     public void SetVertexMode()
     {
-        // Set the Space to Global.
-        Manager.Instance.GIZMO.space = TransformSpace.Local;
         // First deactivate all modes.
         StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -200,8 +198,6 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
-            // Set the Space to Global.
-            Manager.Instance.GIZMO.space = TransformSpace.Local;
             // First deactivate all modes.
             StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -220,9 +216,6 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
-            // Set the Space to Global.
-            Manager.Instance.GIZMO.space = TransformSpace.Local;
-
             // First deactivate all modes.
             StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -241,9 +234,6 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
-            // Set the Space to Global only if the transform mode is Move.
-            if (Manager.Instance.GIZMO.type == TransformType.Move) Manager.Instance.GIZMO.space = TransformSpace.Global;
-
             GeometryModeActive = true;
             ActiveteVertex(false);
             ActivateEdge(false);
@@ -304,9 +294,6 @@ public class ContexMenu : MonoBehaviour
 
     public void SetMoveTransformationType()
     {
-        // Set the Space to Global.
-        if(GeometryModeActive) Manager.Instance.GIZMO.space = TransformSpace.Global;
-
         Manager.Instance.GIZMO.type = TransformType.Move;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
@@ -318,9 +305,6 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetRotateTransformationType()
     {
-        // Set the Space to Local.
-        Manager.Instance.GIZMO.space = TransformSpace.Local;
-
         Manager.Instance.GIZMO.type = TransformType.Rotate;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
@@ -332,9 +316,6 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetScaleTransformationType()
     {
-        // Set the Space to Local.
-        Manager.Instance.GIZMO.space = TransformSpace.Local;
-
         Manager.Instance.GIZMO.type = TransformType.Scale;
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
