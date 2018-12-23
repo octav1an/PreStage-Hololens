@@ -112,9 +112,8 @@ namespace RuntimeGizmos
         public GameObject GizmoGo;
         //======================================
         private Vector3 _savedHitLoc;
+        public bool _isTransforming2;
         public GameObject geoProgected;
-        public GameObject RotationHolderPrefab;
-        private GameObject _holder;
 
 
 
@@ -156,14 +155,11 @@ namespace RuntimeGizmos
 			HandleUndoRedo();
 			SetSpaceAndType();
 			SetNearAxis();
+		    UpdateGizmoStatus();
 
-			if(mainTargetRoot == null) return;
+            if (mainTargetRoot == null) return;
 			
-			//TransformSelected();
 		    TransformSelected2();
-		    Vector3 prjLoc = Vector3.Project(Manager.Instance.GET_HIT_LOCATION, GizmoGo.transform.right);
-
-            //geoProgected.transform.position = GizmoGo.transform.position + prjLoc;
         }
 
         void LateUpdate()
@@ -174,9 +170,10 @@ namespace RuntimeGizmos
             if (!ContexMenu.Instance.IsActive && !DisableGizmo)
             {
                 //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
+                // TODO: remove when done with new Gizmo
                 //SetAxisInfo();
                 //SetLines();
-                //GizmoGo.transform.position = mainTargetRoot.transform.position;
+
                 UpdateGizmoGameObject();
             }
             else
@@ -254,11 +251,6 @@ namespace RuntimeGizmos
                 _savedRotation = targetRootsOrdered[0].localRotation;
             }
 
-            //_holder = Instantiate(RotationHolderPrefab, mainTargetRoot.transform.position,
-                //Quaternion.identity);
-            // Parent the selected object.
-            //mainTargetRoot.gameObject.transform.parent = _holder.transform;
-
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
         }
@@ -271,9 +263,6 @@ namespace RuntimeGizmos
             handleTriangles.Clear();
             handleSquares.Clear();
             circlesLines.Clear();
-
-            //mainTargetRoot.transform.parent = null;
-            //Destroy(_holder);
         }
 
         private void OnManipulationUpdatedLocal()
@@ -310,6 +299,17 @@ namespace RuntimeGizmos
             }
         }
         #endregion //Unity
+
+        private void UpdateGizmoStatus()
+        {
+            if (mainTargetRoot == null)
+            {
+                GizmoGo.SetActive(false);
+                return;
+            }
+
+            GizmoGo.SetActive(true);
+        }
 
         /// <summary>
         /// Save position of the traget, used to get the difference for maniputations.
@@ -386,17 +386,7 @@ namespace RuntimeGizmos
             }
         }
 
-        void TransformSelected()
-		{
-			if(mainTargetRoot != null)
-			{
-				if(nearAxis != Axis.None && InputDown)
-				{
-					StartCoroutine(TransformSelected(type));
-				    InputDown = false;
-				}
-			}
-		}
+        #region TransformMethods
 
         void TransformSelected2()
         {
@@ -404,7 +394,6 @@ namespace RuntimeGizmos
             {
                 if (Manager.Instance.GET_COLLIDER_GO && Manager.Instance.GET_COLLIDER_GO.layer == 8 && InputDown)
                 {
-                    //print("here");
                     StartCoroutine(PRTransform());
                     InputDown = false;
                 }
@@ -413,18 +402,18 @@ namespace RuntimeGizmos
 
         IEnumerator PRTransform()
         {
+            _isTransforming2 = true;
             // Define what axis to project on
             string transformType = Manager.Instance.GET_COLLIDER_TAG;
             Vector3 translateAxis = GetTranslateAxis();
             Plane translatePlane = GetTranslatePlane();
             Vector3 savedProjectedOnPlane = translatePlane.ClosestPointOnPlane(_savedHitLoc);
             Quaternion quaSavedRotation = mainTargetRoot.localRotation;
-            //Quaternion quaSavedRotationGlobal = _holder.transform.rotation;
             while (!InputUp)
             {
                 if (transformType == "GizmoMove")
                 {
-                    Debug.Log("Move");
+                    //Debug.Log("Move");
                     // Project
                     float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, translateAxis) *
                                        moveSpeedMultiplier;
@@ -438,7 +427,7 @@ namespace RuntimeGizmos
                 }
                 else if (transformType == "GizmoPlaneMove")
                 {
-                    Debug.Log("PlaneMove");
+                    //Debug.Log("PlaneMove");
                     // Project the Manipulation vector onto the plane.
                     Vector3 projectedOnPlane = Vector3.ProjectOnPlane(manipulationVec, translatePlane.normal);
                     // Apply the projected manipulation vector for movement.
@@ -459,21 +448,15 @@ namespace RuntimeGizmos
                     Vector3 projectedOnPlane = translatePlane.ClosestPointOnPlane(worldManip);
                     // Get the quaterion with rotation between the savedHit and the actualHit that have the origin as the 0,0,0 coordinate, and not the gizmo.
                     Quaternion quaRotation = Quaternion.FromToRotation(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position);
-                    float angle = Vector3.Angle(savedProjectedOnPlane - GizmoGo.transform.position,
-                        projectedOnPlane - GizmoGo.transform.position);
-                    Quaternion qua = Quaternion.AngleAxis(angle, translatePlane.normal);
-                    Debug.Log("angle: " + angle);
-                    Debug.Log("eulerAngles: " + qua.eulerAngles);
                     // Apply quaternion.
                     for (int i = 0; i < targetRootsOrdered.Count; i++)
                     {
                         Transform target = targetRootsOrdered[i];
-                        // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
-                        Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
                         if (space == TransformSpace.Global)
                         {
-                            //_holder.transform.rotation = quaRotation;
                             target.rotation = quaRotation * quaSavedRotation;
+                            // Update the Gizmo rotation while doing the global rotation.
+                            GizmoGo.transform.rotation = quaRotation;
                         }
                         else if (space == TransformSpace.Local)
                         {
@@ -481,14 +464,17 @@ namespace RuntimeGizmos
                         }  
                     }
                     // TODO: remove later when rotation is proven to be ok.
-                    Debug.DrawLine(Vector3.zero, savedProjectedOnPlane - GizmoGo.transform.position, Color.cyan);
-                    Debug.DrawLine(Vector3.zero, projectedOnPlane - GizmoGo.transform.position, Color.red);
-                    Debug.DrawLine(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position, Color.yellow);
-                    geoProgected.transform.position = projectedOnPlane;
+                    //Debug.DrawLine(Vector3.zero, savedProjectedOnPlane - GizmoGo.transform.position, Color.cyan);
+                    //Debug.DrawLine(Vector3.zero, projectedOnPlane - GizmoGo.transform.position, Color.red);
+                    //Debug.DrawLine(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position, Color.yellow);
+                    //geoProgected.transform.position = projectedOnPlane;
                 }
+                // Update the Gizmo location while doing the global rotation.
+                GizmoGo.transform.position = mainTargetRoot.transform.position;
 
                 yield return null;
             }
+            _isTransforming2 = false;
         }
 
         Plane GetTranslatePlane()
@@ -534,12 +520,13 @@ namespace RuntimeGizmos
             }
             
         }
+        #endregion // TransformMethods
 
         private void UpdateGizmoGameObject()
         {
             if (mainTargetRoot != null)
             {
-                if (space == TransformSpace.Global)
+                if (space == TransformSpace.Global && !_isTransforming2)
                 {
                     GizmoGo.transform.position = mainTargetRoot.transform.position;
                     GizmoGo.transform.rotation = Quaternion.identity;
@@ -552,6 +539,20 @@ namespace RuntimeGizmos
             }
         }
 
+        // TODO: remove when done with all new transformation methods
+        void TransformSelected()
+        {
+            if (mainTargetRoot != null)
+            {
+                if (nearAxis != Axis.None && InputDown)
+                {
+                    StartCoroutine(TransformSelected(type));
+                    InputDown = false;
+                }
+            }
+        }
+
+        // TODO: remove when done with all new transformation methods
         IEnumerator TransformSelected(TransformType type)
 		{
 			isTransforming = true;
