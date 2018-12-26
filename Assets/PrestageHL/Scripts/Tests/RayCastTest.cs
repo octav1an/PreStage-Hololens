@@ -14,7 +14,8 @@ public class RayCastTest : MonoBehaviour
 	// Update is called once per frame
     void Update()
     {
-        Transform transform = Camera.main.transform;
+        float mag = (Camera.main.transform.position - this.transform.position).magnitude;
+        //transform.localScale = new Vector3(mag/80, mag / 80, mag / 80);
 
         // Check for a Wall.
         LayerMask mask = LayerMask.GetMask("Gizmo");
@@ -24,7 +25,6 @@ public class RayCastTest : MonoBehaviour
         {
             //Debug.Log(hit.collider.transform.parent.name);
         }
-
-        //print("Test: " + Manager.Instance.GET_HIT_LOCATION);
+    
     }
 }

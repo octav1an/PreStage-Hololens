@@ -19,6 +19,7 @@ public class ContexMenu : MonoBehaviour
     /// State of selection mode for the whole geomery
     /// </summary>
     public bool GeometryModeActive;
+    public float scaleMagnitude = 0.01f;
 
     private GameObject SELECTED_GO
     {
@@ -66,6 +67,7 @@ public class ContexMenu : MonoBehaviour
 	    {
 	        _tapCount = 0;
 	    }
+        Manager.Instance.ScaleToDistance(gameObject, scaleMagnitude);
     }
 
     void OnEnable()

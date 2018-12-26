@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
+    public float scaleMagnitude = 0.001f;
     public GameObject SceneMoverPrefab;
     public GameObject SceneScalerPrefab;
     public GameObject SceneRotatorPrefab;
@@ -65,7 +66,9 @@ public class MainMenu : MonoBehaviour
 
         if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
 	    _sceneCenter = GetColliderBoundsNew().center;
-        //SceneCenter.transform.position = _sceneCenterOffseted;
+
+        // Scane Main menu in relation to distance from camera.
+        Manager.Instance.ScaleToDistance(gameObject, scaleMagnitude);
     }
     #endregion //Unity
 

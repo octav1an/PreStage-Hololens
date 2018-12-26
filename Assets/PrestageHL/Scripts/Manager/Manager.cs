@@ -277,7 +277,7 @@ public class Manager : MonoBehaviour
 
     #endregion //Events
 
-    //---------------------------------------------------------------------------------------------------
+    #region UpdateElements
     /// <summary>
     /// Select the block I am hitting.
     /// </summary>
@@ -326,21 +326,18 @@ public class Manager : MonoBehaviour
         }
     }
 
-    // TODO: remove the Mehtod
-    private void DeselectBlock(PRGeo selected)
+    /// <summary>
+    /// Scales the object according to the distance from the camera, this way object will have the same size.
+    /// </summary>
+    /// <param name="objectPos"> Object to scale. </param>
+    /// <param name="mag"> Multiplier to scale with. </param>
+    public void ScaleToDistance(GameObject objectPos, float mag)
     {
-        if (selected != null)
-        {
-            Material[] unselectedMats = new Material[selected.GetComponent<MeshRenderer>().materials.Length];
-            for (int i = 0; i < selected.GetComponent<MeshRenderer>().materials.Length; i++)
-            {
-                unselectedMats[i] = UnselectedMaterial;
-            }
-            selected.GetComponent<MeshRenderer>().materials = unselectedMats;
-            selected.Selected = false;
-            selected = null;
-        }
+        Vector3 camPos = Camera.main.transform.position;
+        float dist = (camPos - objectPos.transform.position).magnitude;
+        objectPos.transform.localScale = new Vector3(dist * mag, dist * mag, dist * mag);
     }
+    #endregion //UpdateElements
 
     //---------------------------------------------------------------------------------------------------
     /// <summary>
