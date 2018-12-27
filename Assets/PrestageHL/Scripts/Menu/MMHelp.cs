@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class MMHelp : MonoBehaviour {
 
-	// Use this for initialization
 	void Start () {
 		
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		
 	}
+
+    public void SwitchSubButtons()
+    {
+        GameObject obj = transform.Find("SubButtons").gameObject;
+        obj.SetActive(!obj.activeInHierarchy);
+    }
 }

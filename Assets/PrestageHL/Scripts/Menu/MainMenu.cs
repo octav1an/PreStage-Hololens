@@ -285,4 +285,15 @@ public class MainMenu : MonoBehaviour
         mesh.vertices = verts;
         mesh.RecalculateBounds();
     }
+
+    #region Other
+
+    public void CloseAllSubmenus()
+    {
+        transform.Find("B_File").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Settings").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Help").transform.Find("SubButtons").gameObject.SetActive(false);
+    }
+
+    #endregion // Other
 }
