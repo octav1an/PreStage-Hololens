@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: z
+  m_Name: Center
   m_Shader: {fileID: 4800000, guid: 0625599a2f48aaa4da365cb239e9bbbf, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -74,4 +74,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainColor: {r: 0.42463234, g: 0.6327333, b: 0.875, a: 0.37254903}
+    - _MainColor: {r: 0.9705882, g: 0.94647115, b: 0.620891, a: 0.627451}

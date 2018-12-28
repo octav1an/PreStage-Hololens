@@ -296,7 +296,7 @@ public class ContexMenu : MonoBehaviour
 
     public void SetMoveTransformationType()
     {
-        Manager.Instance.GIZMO.type = TransformType.Move;
+        Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateDefaultGizmo();
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
@@ -307,7 +307,7 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetRotateTransformationType()
     {
-        Manager.Instance.GIZMO.type = TransformType.Rotate;
+        Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateDefaultGizmo();
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
@@ -318,7 +318,7 @@ public class ContexMenu : MonoBehaviour
     }
     public void SetScaleTransformationType()
     {
-        Manager.Instance.GIZMO.type = TransformType.Scale;
+        Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateScaleGizmo();
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.

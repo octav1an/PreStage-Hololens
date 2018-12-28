@@ -21,6 +21,8 @@ TagManager:
   - GizmoMove
   - GizmoRotate
   - GizmoPlaneMove
+  - GizmoScale
+  - GizmoScaleCenter
   layers:
   - Default
   - TransparentFX

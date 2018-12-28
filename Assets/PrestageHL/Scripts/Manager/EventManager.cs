@@ -79,12 +79,11 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
 
     public void OnManipulationStarted(ManipulationEventData eventData)
     {
+        EventDataManipulation = eventData;
         if (ManipulationStarted != null)
         {
             ManipulationStarted();
         }
-
-        EventDataManipulation = eventData;
     }
 
     public void OnManipulationUpdated(ManipulationEventData eventData)
