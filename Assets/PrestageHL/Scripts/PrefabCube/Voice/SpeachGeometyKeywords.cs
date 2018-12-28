@@ -34,7 +34,7 @@ public class SpeachGeometyKeywords : MonoBehaviour
         {
             case "move":
                 // Set move mode
-                ContexMenu.Instance.SetMoveTransformationType();
+                ContexMenu.Instance.SetDefaultTransformationType();
                 break;
             case "scale":
                 // Set Scale mode
@@ -42,7 +42,7 @@ public class SpeachGeometyKeywords : MonoBehaviour
                 break;
             case "rotate":
                 // Set Rotate mode
-                ContexMenu.Instance.SetRotateTransformationType();
+                ContexMenu.Instance.SetDefaultTransformationType();
                 break;
             case "grab":
                 // Set Gran mode

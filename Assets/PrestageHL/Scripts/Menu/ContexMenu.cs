@@ -294,7 +294,7 @@ public class ContexMenu : MonoBehaviour
         }
     }
 
-    public void SetMoveTransformationType()
+    public void SetDefaultTransformationType()
     {
         Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateDefaultGizmo();
         // Disply the gizmo arrows.
@@ -303,17 +303,6 @@ public class ContexMenu : MonoBehaviour
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
         if(SELECTED_PRCUBE.CubeModeActive)StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
-        DeactivateContexMenu(true);
-    }
-    public void SetRotateTransformationType()
-    {
-        Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateDefaultGizmo();
-        // Disply the gizmo arrows.
-        Manager.Instance.GIZMO.DisableGizmo = false;
-        // Disble Grab script in selected primitive.
-        SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
-        // Reactivate the Cube mode, in order to have the gizmo displyed.
-        if (SELECTED_PRCUBE.CubeModeActive) StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetScaleTransformationType()
