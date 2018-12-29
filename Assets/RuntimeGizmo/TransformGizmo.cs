@@ -23,10 +23,11 @@ namespace RuntimeGizmos
 		public ScaleType scaleType = ScaleType.FromPoint;
 
 		//These are the same as the unity editor hotkeys
-		public KeyCode SetMoveType = KeyCode.W;
-		public KeyCode SetRotateType = KeyCode.E;
-		public KeyCode SetScaleType = KeyCode.R;
-        public KeyCode SetSpaceToggle = KeyCode.X;
+        // TODO: remove later
+		//public KeyCode SetMoveType = KeyCode.W;
+		//public KeyCode SetRotateType = KeyCode.E;
+		//public KeyCode SetScaleType = KeyCode.R;
+        //public KeyCode SetSpaceToggle = KeyCode.X;
         public KeyCode SetPivotModeToggle = KeyCode.Z;
         public KeyCode SetCenterTypeToggle = KeyCode.C;
         public KeyCode SetScaleTypeToggle = KeyCode.S;
@@ -35,13 +36,6 @@ namespace RuntimeGizmos
         public KeyCode ActionKey = KeyCode.LeftShift; //Its set to shift instead of control so that while in the editor we dont accidentally undo editor changes =/
         public KeyCode UndoAction = KeyCode.Z;
         public KeyCode RedoAction = KeyCode.Y;
-
-        public Color xColor = new Color(1, 0, 0, 0.8f);
-		public Color yColor = new Color(0, 1, 0, 0.8f);
-		public Color zColor = new Color(0, 0, 1, 0.8f);
-		public Color allColor = new Color(.7f, .7f, .7f, 0.8f);
-		public Color selectedColor = new Color(1, 1, 0, 0.8f);
-		public Color hoverColor = new Color(1, .75f, 0, 0.8f);
 
 		public float moveSpeedMultiplier = 1f;
 		public float scaleSpeedMultiplier = 1f;
@@ -59,9 +53,9 @@ namespace RuntimeGizmos
         public bool FirstTime = false;
 
         public int maxUndoStored = 100;
-		
-		bool isTransforming;
-		float totalScaleAmount;
+
+        public bool _isTransforming;
+        float totalScaleAmount;
 		Quaternion totalRotationAmount;
 		Axis nearAxis = Axis.None;
         public Axis NEAR_AXIS
@@ -81,35 +75,25 @@ namespace RuntimeGizmos
 		public List<Transform> targetRootsOrdered = new List<Transform>();
         private Vector3[] targetRootsOrderedSavedPos;
 		Dictionary<Transform, TargetInfo> targetRoots = new Dictionary<Transform, TargetInfo>();
-		HashSet<Renderer> highlightedRenderers = new HashSet<Renderer>();
 		HashSet<Transform> children = new HashSet<Transform>();
-
 		List<Transform> childrenBuffer = new List<Transform>();
-		List<Renderer> renderersBuffer = new List<Renderer>();
-		List<Material> materialsBuffer = new List<Material>();
 
 		WaitForEndOfFrame waitForEndOFFrame = new WaitForEndOfFrame();
 		Coroutine forceUpdatePivotCoroutine;
 
-        // Saved at airtap down.
-        private Vector3 _savedScale;
-
-        static Material lineMaterial;
-		static Material outlineMaterial;
         public GameObject GizmoGo;
         //======================================
         private Vector3 _savedHitLoc;
-        public bool _isTransforming2;
-        private bool startedManipulation = false;
-        private Vector3 savedStartedManipulation;
-        private Plane scale3DPlane;
+        private bool _startedManipulation = false;
+        private Vector3 _savedStartedManipulation;
+        private Plane _scale3DPlane;
+        public string TransformationHandleName;
 
 
         #region Unity
         void Awake()
 		{
-			SetMaterial();
-		    InputManager.Instance.AddGlobalListener(gameObject);
+
         }
 
 		void OnEnable()
@@ -137,7 +121,6 @@ namespace RuntimeGizmos
 		void Update()
 		{
 			HandleUndoRedo();
-			SetSpaceAndType();
 	        UpdateGizmoStatus();
 
             if (mainTargetRoot == null) return;
@@ -162,17 +145,15 @@ namespace RuntimeGizmos
         {
             InputDown = true;
             InputUp = false;
-            startedManipulation = false;
+            _startedManipulation = false;
             // Reset manipulation Vector that is responisble for move transformation.
             manipulationVec = Vector3.zero;
             GetTarget("PREdge", "PRFace");
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
-                //============================================
                 _savedHitLoc = Manager.Instance.GET_HIT_LOCATION;
-                //============================================
-                SavePrevPosition();
+                SaveTargetPrevPosition();
             }
             pivotPointSaeved = pivotPoint;
             totalCenterPivotPointSaved = totalCenterPivotPoint;
@@ -182,19 +163,16 @@ namespace RuntimeGizmos
         {
             InputUp = true;
             InputDown = false;
+            TransformationHandleName = null;
         }
 
         private void OnManipulationUpdatedLocal()
         {
             manipulationVec = Manager.Instance.EVENT_MANAGER.EventDataManipulation.CumulativeDelta;
-            //Manager.Instance.EVENT_MANAGER.EventDataManipulation.
         }
 
         private void OnManipulationCompletedLocal()
         {
-            // Reset highlighted handle.
-            // TODO: Make sure I solve the bug of reseting the gizmo when the manipulation is cancelted or completed
-            //nearAxis = Axis.None;
 
         }
 
@@ -202,6 +180,7 @@ namespace RuntimeGizmos
         {
             Debug.Log("Navigation Canceled!!!");
             // Reset highlighted handle.
+            // TODO: make sure that the cancel work ok on Hololens.
             nearAxis = Axis.None;
             OnInputUpLocal();
         }
@@ -236,7 +215,7 @@ namespace RuntimeGizmos
         /// <summary>
         /// Save position of the traget, used to get the difference for maniputations.
         /// </summary>
-        public void SavePrevPosition()
+        public void SaveTargetPrevPosition()
         {
             targetRootsOrderedSavedPos = new Vector3[targetRootsOrdered.Count];
 
@@ -265,48 +244,49 @@ namespace RuntimeGizmos
             }
         }
 
-        void SetSpaceAndType()
-        {
-            if (Input.GetKey(ActionKey)) return;
+        // TODO: remove later
+        //void SetSpaceAndType()
+        //{
+        //    if (Input.GetKey(ActionKey)) return;
 
-            if (Input.GetKeyDown(SetMoveType)) type = TransformType.Move;
-            else if (Input.GetKeyDown(SetRotateType)) type = TransformType.Rotate;
-            else if (Input.GetKeyDown(SetScaleType)) type = TransformType.Scale;
+        //    if (Input.GetKeyDown(SetMoveType)) type = TransformType.Move;
+        //    else if (Input.GetKeyDown(SetRotateType)) type = TransformType.Rotate;
+        //    else if (Input.GetKeyDown(SetScaleType)) type = TransformType.Scale;
 
-            if (Input.GetKeyDown(SetPivotModeToggle))
-            {
-                if (pivot == TransformPivot.Pivot) pivot = TransformPivot.Center;
-                else if (pivot == TransformPivot.Center) pivot = TransformPivot.Pivot;
+        //    if (Input.GetKeyDown(SetPivotModeToggle))
+        //    {
+        //        if (pivot == TransformPivot.Pivot) pivot = TransformPivot.Center;
+        //        else if (pivot == TransformPivot.Center) pivot = TransformPivot.Pivot;
 
-                SetPivotPoint();
-            }
+        //        SetPivotPoint();
+        //    }
 
-            if (Input.GetKeyDown(SetCenterTypeToggle))
-            {
-                if (centerType == CenterType.All) centerType = CenterType.Solo;
-                else if (centerType == CenterType.Solo) centerType = CenterType.All;
+        //    if (Input.GetKeyDown(SetCenterTypeToggle))
+        //    {
+        //        if (centerType == CenterType.All) centerType = CenterType.Solo;
+        //        else if (centerType == CenterType.Solo) centerType = CenterType.All;
 
-                SetPivotPoint();
-            }
+        //        SetPivotPoint();
+        //    }
 
-            if (Input.GetKeyDown(SetSpaceToggle))
-            {
-                if (space == TransformSpace.Global) space = TransformSpace.Local;
-                else if (space == TransformSpace.Local) space = TransformSpace.Global;
-            }
+        //    if (Input.GetKeyDown(SetSpaceToggle))
+        //    {
+        //        if (space == TransformSpace.Global) space = TransformSpace.Local;
+        //        else if (space == TransformSpace.Local) space = TransformSpace.Global;
+        //    }
 
-            if (Input.GetKeyDown(SetScaleTypeToggle))
-            {
-                if (scaleType == ScaleType.FromPoint) scaleType = ScaleType.FromPointOffset;
-                else if (scaleType == ScaleType.FromPointOffset) scaleType = ScaleType.FromPoint;
-            }
+        //    if (Input.GetKeyDown(SetScaleTypeToggle))
+        //    {
+        //        if (scaleType == ScaleType.FromPoint) scaleType = ScaleType.FromPointOffset;
+        //        else if (scaleType == ScaleType.FromPointOffset) scaleType = ScaleType.FromPoint;
+        //    }
 
-            if (type == TransformType.Scale)
-            {
-                //space = TransformSpace.Local; //Only support local scale
-                if (pivot == TransformPivot.Pivot) scaleType = ScaleType.FromPoint; //FromPointOffset can be inaccurate and should only really be used in Center mode if desired.
-            }
-        }
+        //    if (type == TransformType.Scale)
+        //    {
+        //        //space = TransformSpace.Local; //Only support local scale
+        //        if (pivot == TransformPivot.Pivot) scaleType = ScaleType.FromPoint; //FromPointOffset can be inaccurate and should only really be used in Center mode if desired.
+        //    }
+        //}
 
         #region TransformMethods
 
@@ -324,7 +304,8 @@ namespace RuntimeGizmos
 
         IEnumerator PRTransform()
         {
-            _isTransforming2 = true;
+            _isTransforming = true;
+            TransformationHandleName = Manager.Instance.GET_COLLIDER_NAME;
             // Define what axis to project on
             string transformType = Manager.Instance.GET_COLLIDER_TAG;
             Vector3 translateAxis = GetTranslateAxis();
@@ -400,11 +381,6 @@ namespace RuntimeGizmos
                             target.localRotation = quaRotation * quaSavedRotation;
                         }  
                     }
-                    // TODO: remove later when rotation is proven to be ok.
-                    //Debug.DrawLine(Vector3.zero, savedProjectedOnPlane - GizmoGo.transform.position, Color.cyan);
-                    //Debug.DrawLine(Vector3.zero, projectedOnPlane - GizmoGo.transform.position, Color.red);
-                    //Debug.DrawLine(savedProjectedOnPlane - GizmoGo.transform.position, projectedOnPlane - GizmoGo.transform.position, Color.yellow);
-                    //geoProgected.transform.position = projectedOnPlane;
                 }
                 else if (transformType == "GizmoScale")
                 {
@@ -422,10 +398,10 @@ namespace RuntimeGizmos
                 else if (transformType == "GizmoScaleCenter")
                 {
                     // Get the porjection of the manipulation vector on the predifined plane during manipulation start.
-                    Vector3 closest = scale3DPlane.ClosestPointOnPlane(GizmoGo.transform.position + manipulationVec);
+                    Vector3 closest = _scale3DPlane.ClosestPointOnPlane(GizmoGo.transform.position + manipulationVec);
                     float magScale = 0;
                     // To have the scale go both ways (larger and smaller) check the angle between manipulation vector and plane normal.
-                    if (Vector3.Angle(scale3DPlane.normal, manipulationVec) < 90)
+                    if (Vector3.Angle(_scale3DPlane.normal, manipulationVec) < 90)
                     {
                         magScale = (closest - (GizmoGo.transform.position + manipulationVec)).magnitude;
                     }
@@ -452,7 +428,7 @@ namespace RuntimeGizmos
                 scaleCube.transform.localScale = scaleCubeScale;
             }
 
-            _isTransforming2 = false;
+            _isTransforming = false;
         }
 
         Plane GetTranslatePlane()
@@ -551,11 +527,11 @@ namespace RuntimeGizmos
         /// </summary>
         private void SetManipulatioPlane()
         {
-            if (manipulationVec != Vector3.zero && !startedManipulation)
+            if (manipulationVec != Vector3.zero && !_startedManipulation)
             {
-                startedManipulation = true;
-                savedStartedManipulation = manipulationVec;
-                scale3DPlane = new Plane(savedStartedManipulation, GizmoGo.transform.position);
+                _startedManipulation = true;
+                _savedStartedManipulation = manipulationVec;
+                _scale3DPlane = new Plane(_savedStartedManipulation, GizmoGo.transform.position);
             }
         }
         #endregion // TransformMethods
@@ -569,7 +545,7 @@ namespace RuntimeGizmos
                     GizmoGo.transform.position = mainTargetRoot.transform.position;
                     GizmoGo.transform.rotation = mainTargetRoot.transform.localRotation;
                 }
-                else if (space == TransformSpace.Global && !_isTransforming2)
+                else if (space == TransformSpace.Global && !_isTransforming)
                 {
                     GizmoGo.transform.position = mainTargetRoot.transform.position;
                     GizmoGo.transform.rotation = Quaternion.identity;
@@ -663,7 +639,6 @@ namespace RuntimeGizmos
 
 				if(addCommand) UndoRedoManager.Insert(new RemoveTargetCommand(this, target));
 
-				RemoveTargetHighlightedRenderers(target);
 				RemoveTargetRoot(target);
 
 				SetPivotPoint();
@@ -688,45 +663,6 @@ namespace RuntimeGizmos
             ClearTargets(false);
 			AddTarget(target, false);
 		}
-
-        void GetTargetRenderers(Transform target, List<Renderer> renderers)
-		{
-			renderers.Clear();
-			if(target != null)
-			{
-				target.GetComponentsInChildren<Renderer>(true, renderers);
-			}
-		}
-
-		void RemoveTargetHighlightedRenderers(Transform target)
-		{
-			GetTargetRenderers(target, renderersBuffer);
-
-		    RemoveHighlightedRenderersHL(renderersBuffer);
-		}
-
-        void RemoveHighlightedRenderersHL(List<Renderer> renderers)
-        {
-            for (int i = 0; i < renderersBuffer.Count; i++)
-            {
-                Renderer render = renderersBuffer[i];
-                if (render != null)
-                {
-                    materialsBuffer.Clear();
-                    materialsBuffer.AddRange(render.sharedMaterials);
-
-                    if (materialsBuffer.Contains(outlineMaterial))
-                    {
-                        materialsBuffer.Remove(outlineMaterial);
-                        render.materials = materialsBuffer.ToArray();
-                    }
-                }
-
-                highlightedRenderers.Remove(render);
-            }
-
-            renderersBuffer.Clear();
-        }
 
 		void AddTargetRoot(Transform targetRoot)
 		{
@@ -821,7 +757,6 @@ namespace RuntimeGizmos
             totalCenterPivotPoint = totalCenterPivotPointSaved + movement;
         }
 
-
 		IEnumerator ForceUpdatePivotPointAtEndOfFrame()
 		{
 			while(this.enabled)
@@ -835,7 +770,7 @@ namespace RuntimeGizmos
 		{
 			if(forceUpdatePivotPointOnChange)
 			{
-				if(mainTargetRoot != null && !isTransforming)
+				if(mainTargetRoot != null && !_isTransforming)
 				{
 					bool hasSet = false;
 					Dictionary<Transform, TargetInfo>.Enumerator targets = targetRoots.GetEnumerator();
@@ -853,15 +788,6 @@ namespace RuntimeGizmos
 						targets.Current.Value.previousPosition = targets.Current.Key.position;
 					}
 				}
-			}
-		}
-
-		void SetMaterial()
-		{
-			if(lineMaterial == null)
-			{
-				lineMaterial = new Material(Shader.Find("Custom/Lines"));
-				//outlineMaterial = new Material(Shader.Find("Custom/Outline"));
 			}
 		}
 

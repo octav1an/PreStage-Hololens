@@ -188,7 +188,7 @@ public class PRGeo : MonoBehaviour {
         // Add the whole geometry to Gizmo array.
         Manager.Instance.GIZMO.ClearAndAddTarget(this.transform);
         // Save the position, used during movement transformation.
-        Manager.Instance.GIZMO.SavePrevPosition();
+        Manager.Instance.GIZMO.SaveTargetPrevPosition();
 
         yield return null;
     }

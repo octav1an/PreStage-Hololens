@@ -3,7 +3,7 @@
     Shader "Mobile/GUI (Colored)" {
         Properties {
             _MainTex ("Base", 2D) = "white" {}
-            _MainColor ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
+            _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         }
        
         CGINCLUDE
@@ -11,7 +11,7 @@
             #include "UnityCG.cginc"
      
             sampler2D _MainTex;
-            fixed4 _MainColor;
+            fixed4 _Color;
            
             half4 _MainTex_ST;
                            
@@ -26,7 +26,7 @@
                
                 o.pos = UnityObjectToClipPos (v.vertex);  
                 o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex);
-                o.vertexColor = v.color * _MainColor;
+                o.vertexColor = v.color * _Color;
                        
                 return o;
             }
