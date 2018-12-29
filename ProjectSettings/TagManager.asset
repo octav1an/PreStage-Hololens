@@ -23,6 +23,7 @@ TagManager:
   - GizmoPlaneMove
   - GizmoScale
   - GizmoScaleCenter
+  - SceneRotator
   layers:
   - Default
   - TransparentFX

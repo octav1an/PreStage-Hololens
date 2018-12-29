@@ -170,8 +170,6 @@ public class Manager : MonoBehaviour
     private static RaycastHit _hit;
     //--------------------------------------------
     public static bool InputDown;
-    // TODO: remove if everything ok
-    //public bool FirstTime = true;
 
     private LayerMask _maskGizmo;
     private LayerMask _maskGeo;
@@ -287,7 +285,8 @@ public class Manager : MonoBehaviour
         Debug.Log("HitTag: " + hit.collider.tag);
         Debug.Log("HitName: " + hit.collider.name);
         //print(hit.collider.tag);
-        if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
+        //if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
+        if (hit.collider.tag == "PRCube")
         {
             //Debug.Log("PRCube hit");
             PRGeo geo = hit.collider.gameObject.GetComponent<PRGeo>();
@@ -307,7 +306,7 @@ public class Manager : MonoBehaviour
             return geo;
         }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
-                  hit.collider.tag == "PRVertex" || GIZMO.NEAR_AXIS != Axis.None)
+                  hit.collider.tag == "PRVertex")
         {
             return SelectedGeo;
         }

@@ -220,6 +220,9 @@ public class MainMenu : MonoBehaviour
 
     public void ScaleModelOn()
     {
+        // First destroy immediatly the rotator object if it exists.
+        if (_sceneRotatorGo) DestroyImmediate(_sceneRotatorGo);
+
         Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;
@@ -244,10 +247,14 @@ public class MainMenu : MonoBehaviour
             GameObject geo = Manager.Instance.CollGeoObjects[i];
             geo.transform.parent = _sceneScalerGo.transform;
         }
+
     }
 
     public void RotateModelOn()
     {
+        // First destroy immediatly the scaler object if it exists.
+        if(_sceneScalerGo)DestroyImmediate(_sceneScalerGo);
+
         Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;

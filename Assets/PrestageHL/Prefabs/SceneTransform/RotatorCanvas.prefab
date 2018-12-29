@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 114829353244948396}
   m_Layer: 0
   m_Name: RotatorCanvas
-  m_TagString: SceneScaler
+  m_TagString: SceneRotator
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

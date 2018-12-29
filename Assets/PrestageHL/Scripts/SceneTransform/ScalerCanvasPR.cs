@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class ScalerCanvasPR : MonoBehaviour
 {
-
     public GameObject SceneScalerGo;
     private BoxCollider _boxCollider;
     private readonly Vector3 _offsetAddition = new Vector3(0, 0.1f, 0);

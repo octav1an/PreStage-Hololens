@@ -37,10 +37,8 @@ namespace RuntimeGizmos
         public KeyCode UndoAction = KeyCode.Z;
         public KeyCode RedoAction = KeyCode.Y;
 
-		public float moveSpeedMultiplier = 1f;
-		public float scaleSpeedMultiplier = 1f;
-        // TODO: Make a rotate multiplier.
-		public float rotateSpeedMultiplier = 200f;
+		public float MoveMultiplier = 1f;
+		public float ScaleMultiplier = 1f;
 
 		public bool useFirstSelectedAsMain = true;
 
@@ -55,14 +53,10 @@ namespace RuntimeGizmos
         public int maxUndoStored = 100;
 
         public bool _isTransforming;
-        float totalScaleAmount;
-		Quaternion totalRotationAmount;
-		Axis nearAxis = Axis.None;
-        public Axis NEAR_AXIS
-        {
-            get { return nearAxis;}
-        }
-		AxisInfo axisInfo;
+        //float totalScaleAmount;
+		//Quaternion totalRotationAmount;
+		//Axis nearAxis = Axis.None;
+		//AxisInfo axisInfo;
 
 		Vector3 pivotPoint;
         private Vector3 pivotPointSaeved;
@@ -76,7 +70,7 @@ namespace RuntimeGizmos
         private Vector3[] targetRootsOrderedSavedPos;
 		Dictionary<Transform, TargetInfo> targetRoots = new Dictionary<Transform, TargetInfo>();
 		HashSet<Transform> children = new HashSet<Transform>();
-		List<Transform> childrenBuffer = new List<Transform>();
+		//List<Transform> childrenBuffer = new List<Transform>();
 
 		WaitForEndOfFrame waitForEndOFFrame = new WaitForEndOfFrame();
 		Coroutine forceUpdatePivotCoroutine;
@@ -181,7 +175,7 @@ namespace RuntimeGizmos
             Debug.Log("Navigation Canceled!!!");
             // Reset highlighted handle.
             // TODO: make sure that the cancel work ok on Hololens.
-            nearAxis = Axis.None;
+            //nearAxis = Axis.None;
             OnInputUpLocal();
         }
 
@@ -334,7 +328,7 @@ namespace RuntimeGizmos
                     //Debug.Log("Move");
                     // Project
                     float moveAmount = ExtVector3.MagnitudeInDirection(manipulationVec, translateAxis) *
-                                       moveSpeedMultiplier;
+                                       MoveMultiplier;
                     for (int i = 0; i < targetRootsOrdered.Count; i++)
                     {
                         Transform target = targetRootsOrdered[i];
@@ -354,7 +348,7 @@ namespace RuntimeGizmos
                         Transform target = targetRootsOrdered[i];
                         // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
                         Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
-                        target.position = targetSavedPos + projectedOnPlane * moveSpeedMultiplier;
+                        target.position = targetSavedPos + projectedOnPlane * MoveMultiplier;
                     }
                 }
                 else if (transformType == "GizmoRotate")
@@ -386,7 +380,7 @@ namespace RuntimeGizmos
                 {
                     //Debug.Log("Scale");
                     float scaleAmount = ExtVector3.MagnitudeInDirection(manipulationVec, scaleAxis) *
-                                       scaleSpeedMultiplier;
+                                       ScaleMultiplier;
                     for (int i = 0; i < targetRootsOrdered.Count; i++)
                     {
                         Transform target = targetRootsOrdered[i];
@@ -403,11 +397,11 @@ namespace RuntimeGizmos
                     // To have the scale go both ways (larger and smaller) check the angle between manipulation vector and plane normal.
                     if (Vector3.Angle(_scale3DPlane.normal, manipulationVec) < 90)
                     {
-                        magScale = (closest - (GizmoGo.transform.position + manipulationVec)).magnitude;
+                        magScale = (closest - (GizmoGo.transform.position + manipulationVec)).magnitude * ScaleMultiplier;
                     }
                     else
                     {
-                        magScale = -(closest - (GizmoGo.transform.position + manipulationVec)).magnitude;
+                        magScale = -(closest - (GizmoGo.transform.position + manipulationVec)).magnitude * ScaleMultiplier;
                     }
                     for (int i = 0; i < targetRootsOrdered.Count; i++)
                     {
@@ -582,38 +576,39 @@ namespace RuntimeGizmos
             }
         }
 
-        void GetTarget(Ray ray)
-		{
-			if(nearAxis == Axis.None)
-			{
-				bool isAdding = Input.GetKey(AddSelection);
-				bool isRemoving = Input.GetKey(RemoveSelection);
+        // TODO: remove later after implementing the Undo/Redo.
+  //      void GetTarget(Ray ray)
+		//{
+		//	if(nearAxis == Axis.None)
+		//	{
+		//		bool isAdding = Input.GetKey(AddSelection);
+		//		bool isRemoving = Input.GetKey(RemoveSelection);
 
-				RaycastHit hitInfo; 
-				if(Physics.Raycast(ray, out hitInfo))
-				{
-					Transform target = hitInfo.transform;
+		//		RaycastHit hitInfo; 
+		//		if(Physics.Raycast(ray, out hitInfo))
+		//		{
+		//			Transform target = hitInfo.transform;
 
-					if(isAdding)
-					{
-						AddTarget(target);
-					}
-					else if(isRemoving)
-					{
-						RemoveTarget(target);
-					}
-					else if(!isAdding && !isRemoving)
-					{
-						ClearAndAddTarget(target);
-					}
-				}else{
-					if(!isAdding && !isRemoving)
-					{
-						ClearTargets();
-					}
-				}
-			}
-		}
+		//			if(isAdding)
+		//			{
+		//				AddTarget(target);
+		//			}
+		//			else if(isRemoving)
+		//			{
+		//				RemoveTarget(target);
+		//			}
+		//			else if(!isAdding && !isRemoving)
+		//			{
+		//				ClearAndAddTarget(target);
+		//			}
+		//		}else{
+		//			if(!isAdding && !isRemoving)
+		//			{
+		//				ClearTargets();
+		//			}
+		//		}
+		//	}
+		//}
 
 		public void AddTarget(Transform target, bool addCommand = true)
 		{
@@ -668,46 +663,13 @@ namespace RuntimeGizmos
 		{
 			targetRoots.Add(targetRoot, new TargetInfo());
 			targetRootsOrdered.Add(targetRoot);
-
-			AddAllChildren(targetRoot);
 		}
 		void RemoveTargetRoot(Transform targetRoot)
 		{
 			if(targetRoots.Remove(targetRoot))
 			{
 				targetRootsOrdered.Remove(targetRoot);
-
-				RemoveAllChildren(targetRoot);
 			}
-		}
-
-		void AddAllChildren(Transform target)
-		{
-			childrenBuffer.Clear();
-			target.GetComponentsInChildren<Transform>(true, childrenBuffer);
-			childrenBuffer.Remove(target);
-
-			for(int i = 0; i < childrenBuffer.Count; i++)
-			{
-				Transform child = childrenBuffer[i];
-				children.Add(child);
-				RemoveTargetRoot(child); //We do this in case we Active child first and then the parent.
-			}
-
-			childrenBuffer.Clear();
-		}
-		void RemoveAllChildren(Transform target)
-		{
-			childrenBuffer.Clear();
-			target.GetComponentsInChildren<Transform>(true, childrenBuffer);
-			childrenBuffer.Remove(target);
-
-			for(int i = 0; i < childrenBuffer.Count; i++)
-			{
-				children.Remove(childrenBuffer[i]);
-			}
-
-			childrenBuffer.Clear();
 		}
 
 		public void SetPivotPoint()
