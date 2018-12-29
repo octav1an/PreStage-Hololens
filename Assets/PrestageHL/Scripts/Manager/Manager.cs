@@ -237,20 +237,9 @@ public class Manager : MonoBehaviour
     {
         
         InputDown = true;
-        //-------------------------------------------------------
-        // Update the colliderName when MouseDown.
-        _ray = GazeManager.Instance.Rays[0];
-        if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGizmo))
+        if (IS_HIT)
         {
-            //Debug.Log(_hit.transform.gameObject.layer);
-        }
-        else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskDefault))
-        {
-            PRGeo geo = UpdateSelection(_hit);
-        }
-        else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGeo))
-        {
-            PRGeo geo = UpdateSelection(_hit);
+            PRGeo geo = UpdateSelection(HIT);
         }
 
     }
@@ -284,27 +273,40 @@ public class Manager : MonoBehaviour
     {
         Debug.Log("HitTag: " + hit.collider.tag);
         Debug.Log("HitName: " + hit.collider.name);
-        //print(hit.collider.tag);
-        //if (hit.collider.tag == "PRCube" && GIZMO.NEAR_AXIS == Axis.None)
+        // Check if Gizmo is hit.
+        if (IsGizmoHit()) return SelectedGeo;
+
         if (hit.collider.tag == "PRCube")
         {
-            //Debug.Log("PRCube hit");
             PRGeo geo = hit.collider.gameObject.GetComponent<PRGeo>();
             // If there is a Active block and user selects another one, deselect the already Active one.
-            if (SelectedGeo && geo.GetInstanceID() != SelectedGeo.GetInstanceID())
+            if (!SelectedGeo)
             {
-                SelectedGeo.DeselectCube(UnselectedMaterial);
                 geo.SelectCube(SelectedMaterial);
                 StartCoroutine(SelectedGeo.TurnOnCube());
-                //Debug.Log("Select hit");
+                return SelectedGeo;
             }
             else
             {
-                geo.SelectCube(SelectedMaterial);
-                StartCoroutine(SelectedGeo.TurnOnCube());
+                // Select the new geometry if the selected is not the same as the hit object.
+                if (geo.GetInstanceID() != SelectedGeo.GetInstanceID())
+                {
+                    SelectedGeo.DeselectCube(UnselectedMaterial);
+                    geo.SelectCube(SelectedMaterial);
+                    StartCoroutine(SelectedGeo.TurnOnCube());
+                    return SelectedGeo;
+                }
+                // If any of the transform mode exept GeometryMode is active, do nothing.
+                else if(SelectedGeo.VertexModeActive ||
+                        SelectedGeo.EdgeModeActive ||
+                        SelectedGeo.VertexModeActive)
+                {
+                    return SelectedGeo;
+                }
             }
             return geo;
-        }else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
+        }
+        else if (hit.collider.tag == "ContexMenu" || hit.collider.tag == "CMSubmenu" ||
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
                   hit.collider.tag == "PRVertex")
         {
@@ -322,6 +324,26 @@ public class Manager : MonoBehaviour
             }
                 
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Checks if any of Gizmo handles was hit.
+    /// </summary>
+    /// <returns> Returns true if any of Gizmo handles were hit.</returns>
+    public bool IsGizmoHit()
+    {
+        if (GET_COLLIDER_TAG == "GizmoMove" ||
+            GET_COLLIDER_TAG == "GizmoPlaneMove" ||
+            GET_COLLIDER_TAG == "GizmoRotate" ||
+            GET_COLLIDER_TAG == "GizmoScale" ||
+            GET_COLLIDER_TAG == "GizmoScaleCenter")
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

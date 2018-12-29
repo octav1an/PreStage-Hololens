@@ -57,6 +57,11 @@ public class PRFace : MonoBehaviour, IFocusable
     {
         EventManager.AirTapDown -= OnInputDownLocal;
         EventManager.AirTapUp -= OnInputUpLocal;
+
+        FaceMeshDisplay(true);
+        // Unhighlight the faces, so they are not highlighted next time they are turned on.
+        Active = false;
+        UnhighlightFace();
     }
     #endregion //Unity
 
@@ -89,6 +94,8 @@ public class PRFace : MonoBehaviour, IFocusable
         else
         {
             FaceHolder.UpdateInactiveFaceInfo(FaceHolder.Mesh);
+            if (Manager.Instance.GET_COLLIDER_TAG == "PRFace" ||
+                Manager.Instance.IsGizmoHit()) FaceMeshDisplay(false);
         }
     }
 
@@ -108,7 +115,8 @@ public class PRFace : MonoBehaviour, IFocusable
             UpdateCollider();
         }
         UpdateActiveStatus();
-
+        // Display all the faces.
+        FaceMeshDisplay(true);
     }
 
     private void HighlightFace()
@@ -120,6 +128,12 @@ public class PRFace : MonoBehaviour, IFocusable
     private void UnhighlightFace()
     {
         GetComponent<MeshRenderer>().material = _savedThisMat;
+    }
+
+    protected void FaceMeshDisplay(bool state)
+    {
+        GetComponent<MeshRenderer>().enabled = state;
+        GetComponent<Collider>().enabled = state;
     }
     #endregion //Events
 

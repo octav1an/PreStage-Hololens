@@ -51,6 +51,12 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         EventManager.AirTapDown -= OnInputDownLocal;
         EventManager.AirTapUp -= OnInputUpLocal;
+
+        // Turn on all MeshRenderer components if the edges are closed.
+        EdgeMeshDisplay(true);
+        // Unhighlight the edges, so they are not highlighted next time they are turned on.
+        Active = false;
+        UnhighlightEdge();
     }
 
     #endregion //Unity
@@ -62,7 +68,6 @@ public class PREdge : MonoBehaviour, IFocusable
         if (!Active)
         {
             FocusActive = true;
-
         }
     }
 
@@ -86,7 +91,9 @@ public class PREdge : MonoBehaviour, IFocusable
         else
         {
             EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
-            EdgeMeshDisplay(false);
+            // Deactivate other edge only when 
+            if(Manager.Instance.GET_COLLIDER_TAG == "PREdge" ||
+               Manager.Instance.IsGizmoHit()) EdgeMeshDisplay(false);
         }
     }
 
@@ -192,7 +199,7 @@ public class PREdge : MonoBehaviour, IFocusable
             else
             {
                 Active = false;
-                return true;
+                return false;
             }
         }
         else
