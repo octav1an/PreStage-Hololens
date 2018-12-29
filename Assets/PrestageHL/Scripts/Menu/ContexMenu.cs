@@ -273,7 +273,6 @@ public class ContexMenu : MonoBehaviour
             edge.UpdateCollider();
         }
     }
-
     private void UpdateFace(GameObject paretn)
     {
         PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
@@ -330,6 +329,17 @@ public class ContexMenu : MonoBehaviour
         DeactivateContexMenu(true);
     }
 
+    public void SetGlobalSpace()
+    {
+        Manager.Instance.GIZMO.space = TransformSpace.Global;
+        DeactivateContexMenu(true);
+    }
+
+    public void SetLocalSpace()
+    {
+        Manager.Instance.GIZMO.space = TransformSpace.Local;
+        DeactivateContexMenu(true);
+    }
     #endregion //MenuCallFunctions
 
     #region UpdateElements
