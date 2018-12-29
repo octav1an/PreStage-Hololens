@@ -23,6 +23,7 @@ public class SceneRotator : MonoBehaviour {
 
     void OnDestroy()
     {
+        RotatorCanvasGo.GetComponent<RotatorCanvasPR>().RotatorTurnOff();
         Destroy(RotatorCanvasGo);
     }
 }

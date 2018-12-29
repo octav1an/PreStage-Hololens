@@ -32,11 +32,6 @@ public class CMSubmenu : MonoBehaviour
 	}
     #endregion // Unity
 
-    public void Print()
-    {
-        Debug.Log("DoubleCkickShit");
-    }
-
     public void ActivateSubmenu(string buttonName)
     {
         Transform subMenuHolder = transform.Find(buttonName).Find("Submenu");

@@ -14,7 +14,10 @@ public class SceneScaler : MonoBehaviour
 	}
 	
 	void Update () {
-
+	    if (Input.GetKeyDown(KeyCode.L))
+	    {
+	        Destroy(gameObject);
+	    }
     }
 
     void OnEnable()
@@ -25,6 +28,7 @@ public class SceneScaler : MonoBehaviour
 
     void OnDestroy()
     {
+        ScalerCanvasGo.GetComponent<ScalerCanvasPR>().ScalerTurnOff();
         Destroy(ScalerCanvasGo);
     }
 

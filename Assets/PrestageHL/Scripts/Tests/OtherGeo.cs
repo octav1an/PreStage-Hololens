@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OtherGeo : PRCube
+public class OtherGeo : PRGeo
 {
 
     void Awake()

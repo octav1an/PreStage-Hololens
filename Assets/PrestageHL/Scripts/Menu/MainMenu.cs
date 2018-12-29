@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
+    public float scaleMagnitude = 0.001f;
     public GameObject SceneMoverPrefab;
     public GameObject SceneScalerPrefab;
     public GameObject SceneRotatorPrefab;
@@ -65,7 +66,9 @@ public class MainMenu : MonoBehaviour
 
         if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
 	    _sceneCenter = GetColliderBoundsNew().center;
-        //SceneCenter.transform.position = _sceneCenterOffseted;
+
+        // Scane Main menu in relation to distance from camera.
+        Manager.Instance.ScaleToDistance(gameObject, scaleMagnitude);
     }
     #endregion //Unity
 
@@ -217,6 +220,9 @@ public class MainMenu : MonoBehaviour
 
     public void ScaleModelOn()
     {
+        // First destroy immediatly the rotator object if it exists.
+        if (_sceneRotatorGo) DestroyImmediate(_sceneRotatorGo);
+
         Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;
@@ -241,10 +247,14 @@ public class MainMenu : MonoBehaviour
             GameObject geo = Manager.Instance.CollGeoObjects[i];
             geo.transform.parent = _sceneScalerGo.transform;
         }
+
     }
 
     public void RotateModelOn()
     {
+        // First destroy immediatly the scaler object if it exists.
+        if(_sceneScalerGo)DestroyImmediate(_sceneScalerGo);
+
         Bounds sceneBounds = GetColliderBoundsNew();
         Vector3 center = sceneBounds.center;
         Vector3 extents = sceneBounds.extents;
@@ -282,4 +292,15 @@ public class MainMenu : MonoBehaviour
         mesh.vertices = verts;
         mesh.RecalculateBounds();
     }
+
+    #region Other
+
+    public void CloseAllSubmenus()
+    {
+        transform.Find("B_File").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Settings").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Help").transform.Find("SubButtons").gameObject.SetActive(false);
+    }
+
+    #endregion // Other
 }
