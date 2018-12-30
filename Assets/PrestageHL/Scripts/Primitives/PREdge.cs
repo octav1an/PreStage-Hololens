@@ -16,6 +16,8 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return PARENT_CUBE.CubeMesh; }
     }
+    //private PRGeo PARENT_CUBE;
+    //private Mesh CUBE_MESH;
     /// <summary>
     /// GIZMO used for getting the selected object.
     /// </summary>
@@ -28,6 +30,12 @@ public class PREdge : MonoBehaviour, IFocusable
     public bool FocusActive = false;
 
     #region Unity
+
+    protected virtual void Awake()
+    {
+        //PARENT_CUBE = transform.parent.parent.GetComponent<PRGeo>();
+        //CUBE_MESH = PARENT_CUBE.CubeMesh;
+    }
 
     protected virtual void Start()
     {
@@ -108,7 +116,7 @@ public class PREdge : MonoBehaviour, IFocusable
         }
         else
         {
-            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            if(Manager.Instance.GET_COLLIDER_TAG != "GizmoScale") EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
         }
         UpdateActiveStatus();
         UpdateCollider();

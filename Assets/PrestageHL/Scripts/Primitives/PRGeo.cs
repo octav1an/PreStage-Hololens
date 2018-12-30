@@ -33,10 +33,11 @@ public class PRGeo : MonoBehaviour {
         get { return transform.Find("Vertex").gameObject; }
     }
     private GameObject[] VertexCollGO;
-    public GameObject PR_EDGE_GO
-    {
-        get { return transform.Find("Edge").gameObject; }
-    }
+    //public GameObject PR_EDGE_GO
+    //{
+    //    get { return transform.Find("Edge").gameObject; }
+    //}
+    public GameObject PR_EDGE_GO;
     public GameObject PR_FACE_GO
     {
         get { return transform.Find("Face").gameObject; }
@@ -65,10 +66,12 @@ public class PRGeo : MonoBehaviour {
     #region Unity
     protected virtual void Awake()
     {
+        PR_EDGE_GO = transform.Find("Edge").gameObject;
+
         GetComponent<MeshFilter>().mesh = GenerateMesh();
         CubeMesh = GetComponent<MeshFilter>().mesh;
         GetComponent<MeshCollider>().sharedMesh = CubeMesh;
-        // Generate Cue elements.
+        // Generate geometry elements.
         GenerateVertexHandles();
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         GenerateFacePrefabs();
@@ -396,7 +399,7 @@ public class PRGeo : MonoBehaviour {
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
     /// <returns>Array with overlaping EdgeHolders.</returns>
-    protected virtual PREdgeHolder[] GenerateEdgeHolders()
+    public virtual PREdgeHolder[] GenerateEdgeHolders()
     {
         PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
         for (int i = 0; i < CubeMesh.subMeshCount; i++)
@@ -464,7 +467,7 @@ public class PRGeo : MonoBehaviour {
     /// </summary>
     /// <param name="edgeColl">Dirty array with edges</param>
     /// <returns>Clean array of edges</returns>
-    protected PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
+    public PREdgeHolder[] CreateUniqEdgePrefabs(PREdgeHolder[] edgeColl)
     {
         // Group the edges according to the MidPos vector. For the cube I will have groups of 2 edges that overlap.
         var result = edgeColl.GroupBy(edge => edge.MidPos);

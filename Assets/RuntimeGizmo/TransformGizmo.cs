@@ -313,13 +313,16 @@ namespace RuntimeGizmos
             GameObject scaleCube = null;
             Vector3 scaleCubeLoc = Vector3.zero;
             Vector3 scaleCubeScale = Vector3.zero;
-
+            // Edges
+            PRGeo geo = mainTargetRoot.gameObject.GetComponent<PRGeo>();
             if (Manager.Instance.GET_COLLIDER_TAG == "GizmoScale" ||
                 Manager.Instance.GET_COLLIDER_TAG == "GizmoScaleCenter")
             {
                 scaleCube = Manager.Instance.GET_COLLIDER_GO;
                 scaleCubeLoc = scaleCube.transform.position;
                 scaleCubeScale = scaleCube.transform.localScale;
+                // Unparent the edge to avoid deforming the edges whne the geometry is scaled.
+                geo.PR_EDGE_GO.GetComponent<ParentEdge>().UnparentEdges();
             }
             while (!InputUp)
             {
@@ -418,6 +421,8 @@ namespace RuntimeGizmos
             // Reset scale elements.
             if (scaleCube)
             {
+                // Parent the edges back to the geometry, after the scale is finished.
+                geo.PR_EDGE_GO.GetComponent<ParentEdge>().ParentEdges();
                 scaleCube.transform.position = scaleCubeLoc;
                 scaleCube.transform.localScale = scaleCubeScale;
             }

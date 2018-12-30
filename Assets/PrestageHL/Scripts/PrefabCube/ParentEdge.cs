@@ -29,6 +29,8 @@ public class ParentEdge : MonoBehaviour {
         }
     }
 
+    public GameObject TempParentEdges;
+
     // Use this for initialization
     void Start () {
 		
@@ -38,4 +40,40 @@ public class ParentEdge : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void DetroyEdges()
+    {
+        foreach (GameObject edge in EDGE_COLL_GO)
+        {
+            DestroyImmediate(edge);
+        }
+    }
+
+    public void UnparentEdges()
+    {
+        // Create a tempParent
+        TempParentEdges = new GameObject("tempParentEdges");
+        TempParentEdges.SetActive(false);
+        // Change parent
+        foreach (GameObject edge in EDGE_COLL_GO)
+        {
+            edge.transform.parent = TempParentEdges.transform;
+        }
+    }
+
+    public void ParentEdges()
+    {
+        // Parent back
+        GameObject[] childColl = new GameObject[TempParentEdges.transform.childCount];
+        for (int i = 0; i < childColl.Length; i++)
+        {
+            childColl[i] = TempParentEdges.transform.GetChild(i).gameObject;
+        }
+        foreach (GameObject edge in childColl)
+        {
+            edge.transform.parent = this.transform;
+        }
+        // Destroy tempParent
+        Destroy(TempParentEdges);
+    }
 }
