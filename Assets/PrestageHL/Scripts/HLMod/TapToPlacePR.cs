@@ -104,6 +104,7 @@ public class TapToPlacePR : MonoBehaviour
         }
 
         // Use 1 to get the second child in SceneContainer, because the first one is MainMenu
+        // TODO: Check this 1 issue.
         Bounds bounds = transform.GetChild(0).GetComponent<Collider>().bounds;
         for (int i = 1; i < transform.childCount; i++)
         {

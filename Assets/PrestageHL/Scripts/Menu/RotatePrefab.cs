@@ -7,10 +7,12 @@ public class RotatePrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 {
     public bool IsHighlighted;
     public GameObject prefabGo;
+    private Quaternion savedInitialRotation;
 
 	// Use this for initialization
-	void Start () {
-		
+	void Start ()
+	{
+	    savedInitialRotation = prefabGo.transform.localRotation;
 	}
 	
 	// Update is called once per frame
@@ -29,6 +31,6 @@ public class RotatePrefab : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerExit(PointerEventData eventData)
     {
         IsHighlighted = false;
-        prefabGo.transform.localRotation = Quaternion.identity;
+        prefabGo.transform.localRotation = savedInitialRotation;
     }
 }

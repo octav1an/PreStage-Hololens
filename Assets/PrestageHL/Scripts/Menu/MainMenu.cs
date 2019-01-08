@@ -60,9 +60,10 @@ public class MainMenu : MonoBehaviour
 	void Update ()
 	{
 	    OrientCanvasToCamera();
-	    AlignToCenter(YOffset);
+	    AlignMenuPosition();
+        //AlignToCenter(YOffset);
 
-	    Text paretnText = parentTextGo.GetComponent<Text>();
+        Text paretnText = parentTextGo.GetComponent<Text>();
 
         if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
 	    _sceneCenter = GetColliderBoundsNew().center;
@@ -115,6 +116,11 @@ public class MainMenu : MonoBehaviour
         Vector3 canvasPos = transform.position;
         Vector3 cameraPos = Camera.main.transform.position;
         transform.rotation = Quaternion.LookRotation(canvasPos - cameraPos, Vector3.up);
+    }
+
+    private void AlignMenuPosition()
+    {
+        transform.position = BaseTable.Instance.MENU_POSITION;
     }
 
     /// <summary>
