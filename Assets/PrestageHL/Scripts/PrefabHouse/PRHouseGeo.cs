@@ -29,7 +29,7 @@ public class PRHouseGeo : PRGeo
     {
         base.LateUpdate();
     }
-    #endregion
+    #endregion // Unity
 
     #region Generate
     protected override Mesh GenerateMesh()

@@ -22,7 +22,6 @@ public class PRGeo : MonoBehaviour {
     /// Cube's mesh component.
     /// </summary>
     public Mesh CubeMesh;
-    //public Vector3 
     // Elements Prefabs.
     public GameObject VertexPref;
     public GameObject EdgePref;
@@ -49,7 +48,6 @@ public class PRGeo : MonoBehaviour {
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
-
     public Vector3 CENTER_GEOMETRICAL
     {
         get
@@ -118,6 +116,18 @@ public class PRGeo : MonoBehaviour {
         Manager.Instance.GIZMO.ClearTargets();
         Manager.Instance.CollGeoObjects.Remove(gameObject);
     }
+
+    protected void OnCollisionEnter(Collision collision)
+    {
+        print("ENterCol");
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            print("Enter");
+            Debug.DrawRay(contact.point, contact.normal, Color.white);
+        }
+        
+    }
+
     #endregion //Unity
 
     #region Events
@@ -356,45 +366,6 @@ public class PRGeo : MonoBehaviour {
 
     }
 
-    // TODO: Remove if everything is on with Edges
-    ///// <summary>
-    ///// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
-    ///// </summary>
-    ///// <returns>Array with overlaping EdgeHolders.</returns>
-    //protected virtual PREdgeHolder[] GenerateEdgeHolders()
-    //{
-    //    PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
-    //    for (int i = 0; i < CubeMesh.subMeshCount; i++)
-    //    {
-    //        // Keep track of the actual number of the edge that is being generated,
-    //        // If it is the last one - connect the vertex to first one.
-    //        int index = -1;
-    //        for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
-    //        {
-    //            index++;
-    //            if (index < 3)
-    //            {
-    //                Vector3 v0 = CubeMesh.vertices[j];
-    //                Vector3 v1 = CubeMesh.vertices[j + 1];
-    //                PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-    //                edge.V0Index = (int)j;
-    //                edge.V1Index = (int)j + 1;
-    //                edgeColl[j] = edge;
-    //            }
-    //            else
-    //            {
-    //                Vector3 v0 = CubeMesh.vertices[j];
-    //                Vector3 v1 = CubeMesh.vertices[j - 3];
-    //                PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
-    //                edge.V0Index = (int)j;
-    //                edge.V1Index = (int)j - 3;
-    //                edgeColl[j] = edge;
-    //            }
-    //        }
-    //    }
-    //    return edgeColl;
-    //}
-
     /// <summary>
     /// Generate the EdgeHolders for every Edge in every face. The array has overlaping EdgeHolders.
     /// </summary>
@@ -534,6 +505,16 @@ public class PRGeo : MonoBehaviour {
             //Debug.DrawLine(center, center + (transform.right * lineLength), Color.cyan);
             //Debug.DrawLine(center, center + (transform.up * lineLength), Color.magenta);
             //Debug.DrawLine(center, center + (-transform.forward * lineLength), Color.yellow);
+        }
+    }
+
+    public void ChangeObjectOpacity(float opacity)
+    {
+        for (int i = 0; i < GetComponent<MeshRenderer>().materials.Length; i++)
+        {
+            Material mat = GetComponent<MeshRenderer>().materials[i];
+            Color matColor = new Color(mat.color.r, mat.color.g, mat.color.b, opacity);
+            mat.color = matColor;
         }
     }
     #endregion //Draw Elements

@@ -29,12 +29,22 @@ public class Manager : MonoBehaviour
                 _isHit = true;
                 return _hit;
             }
+            else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskUI))
+            {
+                _isHit = true;
+                return _hit;
+            }
             else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskDefault))
             {
                 _isHit = true;
                 return _hit;
             }
             else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskGeo))
+            {
+                _isHit = true;
+                return _hit;
+            }
+            else if (Physics.Raycast(_ray, out _hit, 20.0f, _maskLast))
             {
                 _isHit = true;
                 return _hit;
@@ -109,6 +119,10 @@ public class Manager : MonoBehaviour
     {
         get { return HIT.point; }
     }
+    public Vector3 GET_HIT_NORMAL
+    {
+        get { return HIT.normal; }
+    }
     private bool _isHit;
     /// <summary>
     /// Checks if something is hit.
@@ -119,6 +133,23 @@ public class Manager : MonoBehaviour
         {
             RaycastHit updateHit = HIT;
             return _isHit;
+        }
+    }
+    /// <summary>
+    /// Checks if any GUI element like Gimzo or Menu is hit.
+    /// </summary>
+    public bool IS_GUI_HIT
+    {
+        get
+        {
+            if (IS_HIT && GET_COLLIDER_LAYER == "Gizmo" && GET_COLLIDER_LAYER == "PRGUI")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -172,9 +203,10 @@ public class Manager : MonoBehaviour
     public static bool InputDown;
 
     private LayerMask _maskGizmo;
+    private LayerMask _maskUI;
     private LayerMask _maskGeo;
     private LayerMask _maskDefault;
-
+    private LayerMask _maskLast;
 
     #region Unity
     private void Awake()
@@ -190,10 +222,13 @@ public class Manager : MonoBehaviour
         SelectedGeo = null;
     }
 
-    void Start () {
+    void Start ()
+    {
         _maskGizmo = LayerMask.GetMask("Gizmo");
+        _maskUI = LayerMask.GetMask("PRGUI");
         _maskGeo = LayerMask.GetMask("Geometry");
         _maskDefault = LayerMask.GetMask("Default");
+        _maskLast = LayerMask.GetMask("Last");
     }
 	
 	void Update () {
