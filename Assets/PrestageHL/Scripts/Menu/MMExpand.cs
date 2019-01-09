@@ -6,6 +6,7 @@ public class MMExpand : MonoBehaviour
 {
 
     public bool isExpanded;
+    public GameObject buttonMeshGO;
 
 	void Start ()
 	{

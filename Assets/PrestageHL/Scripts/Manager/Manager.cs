@@ -112,6 +112,20 @@ public class Manager : MonoBehaviour
             }
         }
     }
+    public int GET_COLLIDER_ID
+    {
+        get
+        {
+            if (IS_HIT)
+            {
+                return HIT.collider.GetInstanceID();
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
     /// <summary>
     /// Location where the hit point is, world space.
     /// </summary>
