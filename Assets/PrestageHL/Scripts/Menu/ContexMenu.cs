@@ -193,6 +193,8 @@ public class ContexMenu : MonoBehaviour
         ActivateEdge(false);
         ActivateFace(false);
         GeometryModeActive = false;
+        // Update Vertices when turned on so it fits the latest version of mesh vertices.
+        UpdateVertex(SELECTED_PRCUBE.PR_VERTEX_GO);
         // Deactivate ContexMenu to get it out of the way.
         DeactivateContexMenu(true);
     }
@@ -263,7 +265,16 @@ public class ContexMenu : MonoBehaviour
         SELECTED_PRCUBE.FaceModeActive = state;
         SELECTED_PRCUBE.PR_FACE_GO.SetActive(state);
     }
+
     // Update Elements when switching between modes.
+    private void UpdateVertex(GameObject parent)
+    {
+        PRVertex[] vertexColl = parent.GetComponentsInChildren<PRVertex>();
+        foreach (var vertex in vertexColl)
+        {
+            vertex.UpdateVertexPosition();
+        }
+    }
     private void UpdateEdges(GameObject parent)
     {
         PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
@@ -273,9 +284,9 @@ public class ContexMenu : MonoBehaviour
             edge.UpdateCollider();
         }
     }
-    private void UpdateFace(GameObject paretn)
+    private void UpdateFace(GameObject parent)
     {
-        PRFace[] faceColl = paretn.GetComponentsInChildren<PRFace>();
+        PRFace[] faceColl = parent.GetComponentsInChildren<PRFace>();
         foreach (var face in faceColl)
         {
             face.UpdateCollider();

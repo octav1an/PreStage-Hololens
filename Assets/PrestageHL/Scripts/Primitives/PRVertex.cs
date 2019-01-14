@@ -18,15 +18,17 @@ public class PRVertex : MonoBehaviour, IFocusable
     public PRVertexHolder VertexHolder;
     private Vector3 _savePos;
     private Material _savedThisMat;
+    public GameObject DisplayVertexGO;
 
     public bool Active;
     public bool FocusActive = false;
+
 
     #region Unity
     protected virtual void Start ()
     {
         _savePos = transform.localPosition;
-        _savedThisMat = GetComponent<MeshRenderer>().material;
+        _savedThisMat = DisplayVertexGO.GetComponent<MeshRenderer>().material;
     }
 
     protected virtual void Update ()
@@ -100,7 +102,7 @@ public class PRVertex : MonoBehaviour, IFocusable
         }
 
         UpdateActiveStatus();
-        //UpdateCollider();
+        UpdateVertexPosition();
         // Display all the edges.
         VertexMeshDisplay(true);
     }
@@ -108,17 +110,17 @@ public class PRVertex : MonoBehaviour, IFocusable
     private void HighlightVertex()
     {
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
-        GetComponent<MeshRenderer>().material = highlight;
+        DisplayVertexGO.GetComponent<MeshRenderer>().material = highlight;
     }
 
     private void UnhighlightVertex()
     {
-        GetComponent<MeshRenderer>().material = _savedThisMat;
+        DisplayVertexGO.GetComponent<MeshRenderer>().material = _savedThisMat;
     }
 
     protected void VertexMeshDisplay(bool state)
     {
-        GetComponent<MeshRenderer>().enabled = state;
+        DisplayVertexGO.GetComponent<MeshRenderer>().enabled = state;
         GetComponent<Collider>().enabled = state;
     }
     #endregion // Events
@@ -131,7 +133,7 @@ public class PRVertex : MonoBehaviour, IFocusable
         if (Active && _meshVertices != null)
         {
             // Move the vertex holder
-            VertexHolder.UpdateVertex(transform.localPosition - _savePos);
+            VertexHolder.MoveVertex(transform.localPosition - _savePos);
             // Move the overlaping verts as this edge.
             for (int i = 0; i < VertexHolder.SameVIndexColl.Count; i++)
             {
@@ -146,6 +148,15 @@ public class PRVertex : MonoBehaviour, IFocusable
 
 
     #region UpdateElements
+
+    /// <summary>
+    /// Updates the infor of the vertex holder as well as vertex prefab location.
+    /// </summary>
+    public void UpdateVertexPosition()
+    {
+        VertexHolder.V = CUBE_MESH.vertices[VertexHolder.VIndex];
+        transform.localPosition = VertexHolder.V;
+    }
 
     /// <summary>
     /// Get the selected object form gizmo and check if it is this.
@@ -177,7 +188,7 @@ public class PRVertex : MonoBehaviour, IFocusable
         // Change Vertex material to activeMaterial.
         if (Active)
         {
-            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+            DisplayVertexGO.GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
         }
 
         // Unhighlight all vertices when they are inactive and Gizmo.nearAxis is not None.

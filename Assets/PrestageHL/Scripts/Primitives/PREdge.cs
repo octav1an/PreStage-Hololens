@@ -23,6 +23,7 @@ public class PREdge : MonoBehaviour, IFocusable
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
     private Material _savedThisMat;
+    public GameObject DisplayEdgeGO;
 
     public bool Active;
     public bool FocusActive = false;
@@ -38,7 +39,7 @@ public class PREdge : MonoBehaviour, IFocusable
     protected virtual void Start()
     {
         _savePos = transform.localPosition;
-        _savedThisMat = GetComponent<MeshRenderer>().material;
+        _savedThisMat = DisplayEdgeGO.GetComponent<MeshRenderer>().material;
     }
 
     protected virtual void Update()
@@ -125,25 +126,17 @@ public class PREdge : MonoBehaviour, IFocusable
     private void HighlightEdge()
     {
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
-        GetComponent<MeshRenderer>().material = highlight;
+        DisplayEdgeGO.GetComponent<MeshRenderer>().material = highlight;
     }
 
     private void UnhighlightEdge()
     {
-        GetComponent<MeshRenderer>().material = _savedThisMat;
+        DisplayEdgeGO.GetComponent<MeshRenderer>().material = _savedThisMat;
     }
-
-    //protected void DeactivateInactiveEdgesDuringTransformation()
-    //{
-    //    if (!Active)
-    //    {
-    //        //DeactivateEdgeMesh
-    //    }
-    //}
 
     protected void EdgeMeshDisplay(bool state)
     {
-        GetComponent<MeshRenderer>().enabled = state;
+        DisplayEdgeGO.GetComponent<MeshRenderer>().enabled = state;
         GetComponent<Collider>().enabled = state;
     }
     #endregion //Events
@@ -220,7 +213,7 @@ public class PREdge : MonoBehaviour, IFocusable
         // Change Edge material to activeMaterial.
         if (Active)
         {
-            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+            DisplayEdgeGO.GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
         }
 
         // Unhighlight all edges when they are inactive and Gizmo.nearAxis is not None.

@@ -237,15 +237,15 @@ public class PRGeo : MonoBehaviour {
     }
 
     // Update Elements when switching between modes.
-    private void UpdateEdges(GameObject parent)
-    {
-        PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
-        foreach (var edge in edgeColl)
-        {
-            edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
-            edge.UpdateCollider();
-        }
-    }
+    //private void UpdateEdges(GameObject parent)
+    //{
+    //    PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
+    //    foreach (var edge in edgeColl)
+    //    {
+    //        edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
+    //        edge.UpdateCollider();
+    //    }
+    //}
 
     private void UpdateFace(GameObject paretn)
     {

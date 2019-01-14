@@ -406,11 +406,6 @@ namespace PRGeoClasses
             SameVIndexColl = pv.SameVIndexColl;
         }
 
-        public void UpdateVertex(Vector3 move)
-        {
-            MoveVertex(move);
-        }
-
         public void MoveVertex(Vector3 move)
         {
             if (SavedV != null)

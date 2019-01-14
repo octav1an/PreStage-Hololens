@@ -11479,6 +11479,18 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114420704109646936, guid: d5e365b37c650234cb5fe1eb9779be75,
+        type: 2}
+      propertyPath: EdgePref
+      value: 
+      objectReference: {fileID: 1664736181701512, guid: c0dcd269ae5428d4e9cb21f70ef95135,
+        type: 2}
+    - target: {fileID: 114420704109646936, guid: d5e365b37c650234cb5fe1eb9779be75,
+        type: 2}
+      propertyPath: VertexPref
+      value: 
+      objectReference: {fileID: 1769945838600188, guid: d0ff2d45040a4e749bb2b7fc58715576,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d5e365b37c650234cb5fe1eb9779be75, type: 2}
   m_IsPrefabParent: 0
@@ -15442,7 +15454,7 @@ Light:
   serializedVersion: 8
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10

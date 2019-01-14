@@ -9,7 +9,7 @@ Material:
   m_Name: ColliderInvis
   m_Shader: {fileID: 4800000, guid: d45c0efca53019e43891b0f610f8146e, type: 3}
   m_ShaderKeywords: _ALPHABLEND_ON _BORDER_LIGHT_USES_HOVER_COLOR _DIRECTIONAL_LIGHT
-    _DISABLE_ALBEDO_MAP _HOVER_LIGHT _SPECULAR_HIGHLIGHTS
+    _DISABLE_ALBEDO_MAP _EMISSION _HOVER_LIGHT _SPECULAR_HIGHLIGHTS
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -80,7 +80,7 @@ Material:
     - _DirectionalLight: 1
     - _DstBlend: 10
     - _EdgeSmoothingValue: 0.002
-    - _EnableEmission: 0
+    - _EnableEmission: 1
     - _EnableHoverColorOpaqueOverride: 0
     - _EnableHoverColorOverride: 0
     - _EnableNormalMap: 0
@@ -119,9 +119,9 @@ Material:
     m_Colors:
     - _ClipPlane: {r: 0, g: 1, b: 0, a: 0}
     - _ClippingPlaneBorderColor: {r: 1, g: 0.2, b: 0, a: 1}
-    - _Color: {r: 0.8745099, g: 0.8745099, b: 0.8745099, a: 0.078431375}
+    - _Color: {r: 0.8745099, g: 0.8745099, b: 0.8745099, a: 0.21568628}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissiveColor: {r: 1, g: 1, b: 1, a: 1}
     - _EnvironmentColorX: {r: 1, g: 0, b: 0, a: 1}
     - _EnvironmentColorY: {r: 0, g: 1, b: 0, a: 1}
     - _EnvironmentColorZ: {r: 0, g: 0, b: 1, a: 1}
