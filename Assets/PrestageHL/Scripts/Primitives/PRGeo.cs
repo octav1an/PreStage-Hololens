@@ -48,6 +48,7 @@ public class PRGeo : MonoBehaviour {
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
+    public PRVertexHolder[] PrVertexHolders;
     public Vector3 CENTER_GEOMETRICAL
     {
         get
@@ -70,18 +71,14 @@ public class PRGeo : MonoBehaviour {
         CubeMesh = GetComponent<MeshFilter>().mesh;
         GetComponent<MeshCollider>().sharedMesh = CubeMesh;
         // Generate geometry elements.
-        GenerateVertexHandles();
+        PrVertexHolders = CreateUniqVertexPrefabs(GenerateVertexHolders());
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         GenerateFacePrefabs();
     }
 
     protected virtual void Start()
     {
-        // Deactivate Cube menu
-        //foreach (PREdgeHolder eH in PrEdgeHolders)
-        //{
-            //print(eH.MidPos);
-        //}
+
     }
 
     protected virtual void Update()
@@ -351,19 +348,46 @@ public class PRGeo : MonoBehaviour {
         return mesh;
     }
 
-    protected void GenerateVertexHandles()
+    /// <summary>
+    /// Generate the VertexHolders for every Vertex in every face. The array has overlaping VertexHolders.
+    /// </summary>
+    /// <returns>Array with overlaping VertexHolders.</returns>
+    public virtual PRVertexHolder[] GenerateVertexHolders()
     {
-        Vector3[] vColl = VERTS_COLL.Distinct().ToArray();
-        VertexCollGO = new GameObject[vColl.Length];
-        for (int i = 0; i < vColl.Length; i++)
+        PRVertexHolder[] vertexColl = new PRVertexHolder[CubeMesh.vertexCount];
+        for (int i = 0; i < CubeMesh.vertexCount; i++)
         {
-            GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(vColl[i]),
+            PRVertexHolder vertexHolder = new PRVertexHolder(CubeMesh.vertices[i], i, this.gameObject);
+            vertexColl[i] = vertexHolder;
+        }
+        return vertexColl;
+    }
+
+    /// <summary>
+    /// Clean up the duplicate vertices that share the same coordinates and Instantiate the Vertex prefabs.
+    /// </summary>
+    /// <param name="vertexColl"> Dirty array with vertex holders. </param>
+    /// <returns> Clean array of Vertex holders. </returns>
+    public PRVertexHolder[] CreateUniqVertexPrefabs(PRVertexHolder[] vertexColl)
+    {
+        // Group the vertices according to the position. For the cube I will have groups of 4 overlaping vertices.
+        var result = vertexColl.GroupBy(vertex => vertex.V);
+        PRVertexHolder[] cleanVertexColl = new PRVertexHolder[result.Count()];
+        for (int i = 0; i < result.Count(); i++)
+        {
+            // Get only the first elemnt from each group and assign it to the clean array.
+            cleanVertexColl[i] = result.ToArray()[i].ToArray()[0];
+            // Create the objects.
+            GameObject obj = GameObject.Instantiate(VertexPref, transform.TransformPoint(cleanVertexColl[i].V),
                 Quaternion.identity, PR_VERTEX_GO.transform);
             obj.name = "Vertex" + i;
             obj.SetActive(true);
-            VertexCollGO[i] = obj;
+            // Setup the PRVertex file
+            PRVertex vertexCO = obj.GetComponent<PRVertex>();
+            vertexCO.VertexHolder = cleanVertexColl[i];
         }
 
+        return cleanVertexColl;
     }
 
     /// <summary>

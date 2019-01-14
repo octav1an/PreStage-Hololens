@@ -142,7 +142,7 @@ namespace RuntimeGizmos
             _startedManipulation = false;
             // Reset manipulation Vector that is responisble for move transformation.
             manipulationVec = Vector3.zero;
-            GetTarget("PREdge", "PRFace");
+            GetTarget("PREdge", "PRFace", "PRVertex");
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
@@ -561,7 +561,7 @@ namespace RuntimeGizmos
         /// Modified vertion of GetTarget to work with specific tag1 or object.
         /// </summary>
         /// <param name="tag1">Tag name of the targeted object.</param>
-        void GetTarget(string tag1, string tag2)
+        void GetTarget(string tag1, string tag2, string tag3)
         {
             //if (nearAxis == Axis.None)
             if (Manager.Instance.GET_COLLIDER_LAYER != "Gizmo")
@@ -572,7 +572,8 @@ namespace RuntimeGizmos
                 if (Manager.Instance.IS_HIT)
                 {
                     Transform target = Manager.Instance.GET_COLLIDER_GO.transform;
-                    if (Manager.Instance.GET_COLLIDER_TAG == tag1 || Manager.Instance.GET_COLLIDER_TAG == tag2)
+                    if (Manager.Instance.GET_COLLIDER_TAG == tag1 || Manager.Instance.GET_COLLIDER_TAG == tag2 ||
+                        Manager.Instance.GET_COLLIDER_TAG == tag3)
                     {
                         ClearAndAddTarget(target);
                         return;

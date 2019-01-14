@@ -28,7 +28,7 @@ GameObject:
   m_TagString: PRVertex
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 1
   m_IsActive: 1
 --- !u!4 &4754051526367106
 Transform:
@@ -57,7 +57,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 92dd2c1fa7bc2844ca19eb457202e858, type: 2}
+  - {fileID: 2100000, guid: 34b324e44890ee84595112c7e0d840c7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -95,6 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1a6e8ad3f27ebd4bb1c9abfaf105c29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Active: 0
+  FocusActive: 0
 --- !u!135 &135094969654186352
 SphereCollider:
   m_ObjectHideFlags: 1

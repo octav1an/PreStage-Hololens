@@ -16,8 +16,6 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return PARENT_CUBE.CubeMesh; }
     }
-    //private PRGeo PARENT_CUBE;
-    //private Mesh CUBE_MESH;
     /// <summary>
     /// GIZMO used for getting the selected object.
     /// </summary>
@@ -135,13 +133,13 @@ public class PREdge : MonoBehaviour, IFocusable
         GetComponent<MeshRenderer>().material = _savedThisMat;
     }
 
-    protected void DeactivateInactiveEdgesDuringTransformation()
-    {
-        if (!Active)
-        {
-            //DeactivateEdgeMesh
-        }
-    }
+    //protected void DeactivateInactiveEdgesDuringTransformation()
+    //{
+    //    if (!Active)
+    //    {
+    //        //DeactivateEdgeMesh
+    //    }
+    //}
 
     protected void EdgeMeshDisplay(bool state)
     {

@@ -30,6 +30,11 @@ public class BaseTable : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             Instance = this;
         }
+
+        // Turn on the elements of the table at Start.
+        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<MeshCollider>().enabled = true;
+        transform.GetChild(0).gameObject.SetActive(true);
     }
 
 	void Start () {

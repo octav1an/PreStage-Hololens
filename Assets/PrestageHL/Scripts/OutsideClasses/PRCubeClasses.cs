@@ -373,5 +373,72 @@ namespace PRGeoClasses
         }
         #endregion //SetUp
     }
+
+    public class PRVertexHolder
+    {
+        public Vector3 V;
+        public int VIndex;
+        public GameObject Parent;
+        private PRGeo PR_CO
+        {
+            get { return Parent.GetComponent<PRGeo>(); }
+        }
+        public List<int> SameVIndexColl;
+        public PRVertexHolder SavedV;
+
+        private float threshold = 0.01f;
+
+        // Constructor
+        // TODO: see if i can only have index and parent for constructor.
+        public PRVertexHolder(Vector3 vertex, int index, GameObject parent)
+        {
+            V = vertex;
+            VIndex = index;
+            Parent = parent;
+            SetupSameVertices();
+        }
+
+        public PRVertexHolder(PRVertexHolder pv)
+        {
+            V = pv.V;
+            VIndex = pv.VIndex;
+            Parent = pv.Parent;
+            SameVIndexColl = pv.SameVIndexColl;
+        }
+
+        public void UpdateVertex(Vector3 move)
+        {
+            MoveVertex(move);
+        }
+
+        public void MoveVertex(Vector3 move)
+        {
+            if (SavedV != null)
+            {
+                V = SavedV.V + move;
+            }
+        }
+
+        #region Setup
+        /// <summary>
+        /// Setup the same vertex indexes that share the same location for V0 and V1.
+        /// </summary>
+        public void SetupSameVertices()
+        {
+            SameVIndexColl = new List<int>();
+            for (int i = 0; i < PR_CO.CubeMesh.vertexCount; i++)
+            {
+                Vector3 v = PR_CO.CubeMesh.vertices[i];
+                if (Mathf.Abs(v.x - V.x) < threshold &&
+                    Mathf.Abs(v.y - V.y) < threshold &&
+                    Mathf.Abs(v.z - V.z) < threshold)
+                {
+                    SameVIndexColl.Add(i);
+                }
+            }
+        }
+        #endregion // Setup
+
+    }
 }
 
