@@ -9,11 +9,12 @@ public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
     public float ScaleMagnitude = 0.001f;
+    [Header("Scene Modifiers")]
     public GameObject SceneMoverPrefab;
     public GameObject SceneScalerPrefab;
     public GameObject SceneRotatorPrefab;
     public GameObject SceneCenter;
-
+    [Header("Primitives to be Instantiated")]
     public GameObject Prefab0;
     public GameObject Prefab1;
     public GameObject Prefab2;
@@ -23,12 +24,18 @@ public class MainMenu : MonoBehaviour
     // TODO: Remove if sceneMove works fine.
     private bool _spatialActive = true;
 
-    private GameObject _sceneMoverGo;
-    private GameObject _sceneScalerGo;
-    private GameObject _sceneRotatorGo;
+    [Header("Other")]
 
     // TODO: remove when the tool tip at cursor will be done.
     public GameObject ParentTextGo;
+    /// <summary>
+    /// GameObject that holds all elements of the Settings panel.
+    /// </summary>
+    public GameObject SettingsPanel;
+
+    private GameObject _sceneMoverGo;
+    private GameObject _sceneScalerGo;
+    private GameObject _sceneRotatorGo;
 
     public GameObject InstantiatedObject;
     public Bounds InstantiatedObjectBounds;
@@ -64,6 +71,7 @@ public class MainMenu : MonoBehaviour
         Manager.Instance.ScaleToDistance(gameObject, ScaleMagnitude);
     }
     #endregion //Unity
+
 
     #region InstanciatePrefabs
 
@@ -152,6 +160,7 @@ public class MainMenu : MonoBehaviour
     }
     #endregion //InstanciatePrefabs
 
+
     #region UpdateElements
 
     /// <summary>
@@ -226,6 +235,7 @@ public class MainMenu : MonoBehaviour
     }
 
     #endregion //UpdateElements
+
 
     #region MenuCallFunctions
 
@@ -326,6 +336,12 @@ public class MainMenu : MonoBehaviour
             GameObject geo = Manager.Instance.CollGeoObjects[i];
             geo.transform.parent = _sceneRotatorGo.transform;
         }
+    }
+
+    public void ActivateSettingsPanel()
+    {
+        SettingsPanel.GetComponent<MMPSettings>().TogglePanelElements();
+        //SettingsPanel.SetActive(!SettingsPanel.activeInHierarchy);
     }
 
     #endregion // MenuCallFunctions
