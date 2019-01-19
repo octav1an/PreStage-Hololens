@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using HoloToolkit.Unity.InputModule;
+using PRGeoClasses;
 using RuntimeGizmos;
 #if UNITY_EDITOR
     using UnityEditorInternal;
@@ -25,9 +26,9 @@ public class ContexMenu : MonoBehaviour
     {
         get
         {
-            if (Manager.Instance.SelectedGeo)
+            if (Manager.Instance.SelectedGeoCO)
             {
-                return Manager.Instance.SelectedGeo.gameObject;
+                return Manager.Instance.SelectedGeoCO.gameObject;
             }
 
             return null;
@@ -37,6 +38,8 @@ public class ContexMenu : MonoBehaviour
     {
         get { return SELECTED_GO.GetComponent<PRGeo>(); }
     }
+    private GameObject _duplicatedObject;
+    private bool _isPlacing;
 
     // Double click fields.
     private int _tapCount = 0;
@@ -63,6 +66,7 @@ public class ContexMenu : MonoBehaviour
 	void Update ()
 	{
 	    OrientCanvasToCamera();
+	    MainMenu.Instance.PlancingNewObject(_duplicatedObject, ref _isPlacing);
         if (_tapCount != 0 && (Time.time - _timer) > Delay)
 	    {
 	        _tapCount = 0;
@@ -280,7 +284,7 @@ public class ContexMenu : MonoBehaviour
         PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
         foreach (var edge in edgeColl)
         {
-            edge.EdgeHolder.UpdateInactiveEdgeInfo(SELECTED_PRCUBE.CubeMesh);
+            edge.EdgeHolder.UpdateInactiveEdgeInfo(SELECTED_PRCUBE.GeoMesh);
             edge.UpdateCollider();
         }
     }
@@ -300,7 +304,7 @@ public class ContexMenu : MonoBehaviour
         {
             DeactivateContexMenu(true);
             Destroy(SELECTED_GO);
-            Manager.Instance.SelectedGeo = null;
+            Manager.Instance.SelectedGeoCO = null;
         }
     }
 
@@ -351,6 +355,18 @@ public class ContexMenu : MonoBehaviour
         Manager.Instance.GIZMO.space = TransformSpace.Local;
         DeactivateContexMenu(true);
     }
+
+    public void DuplicateGeometry()
+    {
+        // Save the scale and vertexHolders of the object to be duplicated.
+        Vector3 existingScale = Manager.Instance.SelectedGeoCO.transform.localScale;
+        List<PRVertexHolder> vertexHolderColl = Manager.Instance.SelectedGeoCO.CopyAllGeoProperties();
+        // Do the copy and the placing. I instanciate the prefab of the object that is why it is important to store its modifications.
+        MainMenu.Instance.GeneralInstantiatePrefab(ref _duplicatedObject, ref _isPlacing, Manager.Instance.SelectedGeoCO.PrefabName);
+        // Apply the old properties to the new object.
+        _duplicatedObject.transform.localScale = existingScale;
+        _duplicatedObject.GetComponent<PRGeo>().PasteAllGeoProperties(vertexHolderColl);
+    }
     #endregion //MenuCallFunctions
 
     #region UpdateElements
@@ -372,15 +388,15 @@ public class ContexMenu : MonoBehaviour
     private bool IsSelectedTheSameAsHit()
     {
         // Check if there is a selected object.
-        if (!Manager.Instance.SelectedGeo) return false;
+        if (!Manager.Instance.SelectedGeoCO) return false;
         // Check if there is a hit object.
         if (!Manager.Instance.GET_COLLIDER_GO) return false;
         // Check if it has the same ID as the hit object.
         if (Manager.Instance.GET_COLLIDER_GO.GetInstanceID() ==
-            Manager.Instance.SelectedGeo.gameObject.GetInstanceID())
+            Manager.Instance.SelectedGeoCO.gameObject.GetInstanceID())
         {
             //Debug.Log("1: " + Manager.Instance.GET_COLLIDER_GO.GetInstanceID());
-            //Debug.Log("2: " + Manager.Instance.SelectedGeo.gameObject.GetInstanceID());
+            //Debug.Log("2: " + Manager.Instance.SelectedGeoCO.gameObject.GetInstanceID());
             return true;
         }
         // Activate the context menu when hitting faces or edges.

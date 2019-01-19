@@ -10,6 +10,7 @@ public class PRGeo : MonoBehaviour {
     /// Bool that is activated when the cube is Active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
+    public string PrefabName;
     //Vertex Array, use only geting the vertices. This property cannot rewrite them.
     public Vector3[] VERTS_COLL
     {
@@ -21,7 +22,7 @@ public class PRGeo : MonoBehaviour {
     /// <summary>
     /// Cube's mesh component.
     /// </summary>
-    public Mesh CubeMesh;
+    public Mesh GeoMesh;
     // Elements Prefabs.
     public GameObject VertexPref;
     public GameObject EdgePref;
@@ -31,7 +32,7 @@ public class PRGeo : MonoBehaviour {
     {
         get { return transform.Find("Vertex").gameObject; }
     }
-    private GameObject[] VertexCollGO;
+    //private GameObject[] VertexCollGO;
     //public GameObject PR_EDGE_GO
     //{
     //    get { return transform.Find("Edge").gameObject; }
@@ -68,8 +69,8 @@ public class PRGeo : MonoBehaviour {
         PR_EDGE_GO = transform.Find("Edge").gameObject;
 
         GetComponent<MeshFilter>().mesh = GenerateMesh();
-        CubeMesh = GetComponent<MeshFilter>().mesh;
-        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
+        GeoMesh = GetComponent<MeshFilter>().mesh;
+        GetComponent<MeshCollider>().sharedMesh = GeoMesh;
         // Generate geometry elements.
         PrVertexHolders = CreateUniqVertexPrefabs(GenerateVertexHolders());
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
@@ -78,13 +79,34 @@ public class PRGeo : MonoBehaviour {
 
     protected virtual void Start()
     {
-
+        // Defalt prefab name if there is no name.
+        if (PrefabName == "") PrefabName = "Prefab0";
     }
 
     protected virtual void Update()
     {
         DrawCubeAxis(true);
         //objCenter.transform.position = transform.position;
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            GameObject vert = PR_VERTEX_GO.GetComponent<ParentVertex>().VERTEX_COLL_GO[7];
+            PRVertex vertCO = PR_VERTEX_GO.GetComponent<ParentVertex>().GEO_VERTEX_COLL_CO[7];
+            PRVertexHolder vertHolder = vertCO.VertexHolder;
+            // Update the vertexHolder.
+            vertHolder.V = new Vector3(vertHolder.V.x, 1f, vertHolder.V.z);
+            Vector3[] _meshVertices = GeoMesh.vertices;
+            // Update Mesh vertices.
+            for (int i = 0; i < vertHolder.SameVIndexColl.Count; i++)
+            {
+                _meshVertices[vertHolder.SameVIndexColl[i]] = vertHolder.V;
+            }
+            GeoMesh.vertices = _meshVertices;
+            GeoMesh.RecalculateBounds();
+            // Update VertexGO position.
+            vertCO.UpdateVertexPosition();
+        }
+
     }
 
     protected virtual void LateUpdate()
@@ -127,6 +149,7 @@ public class PRGeo : MonoBehaviour {
 
     #endregion //Unity
 
+
     #region Events
     public void OnInputDownLocal()
     {
@@ -136,8 +159,7 @@ public class PRGeo : MonoBehaviour {
     {
         UpdateBlockCollider();
     }
-    #endregion // Events
-
+    
     public PRGeo SelectCube(Material selMat)
     {
 
@@ -149,10 +171,9 @@ public class PRGeo : MonoBehaviour {
         }
 
         GetComponent<MeshRenderer>().materials = selectedMats;
-        Manager.Instance.SelectedGeo = this;
+        Manager.Instance.SelectedGeoCO = this;
         return this;
     }
-
     public PRGeo DeselectCube(Material unselMat)
     {
         Selected = false;
@@ -162,13 +183,14 @@ public class PRGeo : MonoBehaviour {
             unselectedMats[i] = unselMat;
         }
         GetComponent<MeshRenderer>().materials = unselectedMats;
-        Manager.Instance.SelectedGeo = null;
+        Manager.Instance.SelectedGeoCO = null;
         // Turn off TransformElements
         ActiveteVertex(false);
         ActivateEdge(false);
         ActivateFace(false);
         return this;
     }
+    #endregion // Events
 
     #region Collider Work
     /// <summary>
@@ -176,9 +198,10 @@ public class PRGeo : MonoBehaviour {
     /// </summary>
     public void UpdateBlockCollider()
     {
-        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
+        GetComponent<MeshCollider>().sharedMesh = GeoMesh;
     }
     #endregion //Collider Work
+
 
     #region MenuMethodsCall
     /// <summary>
@@ -242,7 +265,7 @@ public class PRGeo : MonoBehaviour {
     //    PREdge[] edgeColl = parent.GetComponentsInChildren<PREdge>();
     //    foreach (var edge in edgeColl)
     //    {
-    //        edge.EdgeHolder.UpdateInactiveEdgeInfo(CubeMesh);
+    //        edge.EdgeHolder.UpdateInactiveEdgeInfo(GeoMesh);
     //        edge.UpdateCollider();
     //    }
     //}
@@ -256,6 +279,7 @@ public class PRGeo : MonoBehaviour {
         }
     }
     #endregion // MenuMethodsCall
+
 
     #region Generate
     protected virtual Mesh GenerateMesh()
@@ -354,10 +378,10 @@ public class PRGeo : MonoBehaviour {
     /// <returns>Array with overlaping VertexHolders.</returns>
     public virtual PRVertexHolder[] GenerateVertexHolders()
     {
-        PRVertexHolder[] vertexColl = new PRVertexHolder[CubeMesh.vertexCount];
-        for (int i = 0; i < CubeMesh.vertexCount; i++)
+        PRVertexHolder[] vertexColl = new PRVertexHolder[GeoMesh.vertexCount];
+        for (int i = 0; i < GeoMesh.vertexCount; i++)
         {
-            PRVertexHolder vertexHolder = new PRVertexHolder(CubeMesh.vertices[i], i, this.gameObject);
+            PRVertexHolder vertexHolder = new PRVertexHolder(GeoMesh.vertices[i], i, this.gameObject);
             vertexColl[i] = vertexHolder;
         }
         return vertexColl;
@@ -396,21 +420,21 @@ public class PRGeo : MonoBehaviour {
     /// <returns>Array with overlaping EdgeHolders.</returns>
     public virtual PREdgeHolder[] GenerateEdgeHolders()
     {
-        PREdgeHolder[] edgeColl = new PREdgeHolder[CubeMesh.vertexCount];
-        for (int i = 0; i < CubeMesh.subMeshCount; i++)
+        PREdgeHolder[] edgeColl = new PREdgeHolder[GeoMesh.vertexCount];
+        for (int i = 0; i < GeoMesh.subMeshCount; i++)
         {
             // Keep track of the actual number of the edge that is being generated,
             // If it is the last one - connect the vertex to first one.
-            if (CubeMesh.GetTopology(i) == MeshTopology.Quads)
+            if (GeoMesh.GetTopology(i) == MeshTopology.Quads)
             {
                 int index = -1;
-                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
+                for (uint j = GeoMesh.GetIndexStart(i); j < GeoMesh.GetIndexStart(i) + GeoMesh.GetIndexCount(i); j++)
                 {
                     index++;
                     if (index < 3)
                     {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j + 1];
+                        Vector3 v0 = GeoMesh.vertices[j];
+                        Vector3 v1 = GeoMesh.vertices[j + 1];
                         PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
                         edge.V0Index = (int)j;
                         edge.V1Index = (int)j + 1;
@@ -418,8 +442,8 @@ public class PRGeo : MonoBehaviour {
                     }
                     else
                     {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j - 3];
+                        Vector3 v0 = GeoMesh.vertices[j];
+                        Vector3 v1 = GeoMesh.vertices[j - 3];
                         PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
                         edge.V0Index = (int)j;
                         edge.V1Index = (int)j - 3;
@@ -427,16 +451,16 @@ public class PRGeo : MonoBehaviour {
                     }
                 }
             }
-            else if (CubeMesh.GetTopology(i) == MeshTopology.Triangles)
+            else if (GeoMesh.GetTopology(i) == MeshTopology.Triangles)
             {
                 int index = -1;
-                for (uint j = CubeMesh.GetIndexStart(i); j < CubeMesh.GetIndexStart(i) + CubeMesh.GetIndexCount(i); j++)
+                for (uint j = GeoMesh.GetIndexStart(i); j < GeoMesh.GetIndexStart(i) + GeoMesh.GetIndexCount(i); j++)
                 {
                     index++;
                     if (index < 2)
                     {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j + 1];
+                        Vector3 v0 = GeoMesh.vertices[j];
+                        Vector3 v1 = GeoMesh.vertices[j + 1];
                         PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
                         edge.V0Index = (int)j;
                         edge.V1Index = (int)j + 1;
@@ -444,8 +468,8 @@ public class PRGeo : MonoBehaviour {
                     }
                     else
                     {
-                        Vector3 v0 = CubeMesh.vertices[j];
-                        Vector3 v1 = CubeMesh.vertices[j - 2];
+                        Vector3 v0 = GeoMesh.vertices[j];
+                        Vector3 v1 = GeoMesh.vertices[j - 2];
                         PREdgeHolder edge = new PREdgeHolder(v0, v1, this.gameObject);
                         edge.V0Index = (int)j;
                         edge.V1Index = (int)j - 2;
@@ -486,10 +510,10 @@ public class PRGeo : MonoBehaviour {
 
     protected virtual void GenerateFacePrefabs()
     {
-        PRFaceHolder[] faceColl = new PRFaceHolder[CubeMesh.subMeshCount];
+        PRFaceHolder[] faceColl = new PRFaceHolder[GeoMesh.subMeshCount];
         for (int i = 0; i < faceColl.Length; i++)
         {
-            PRFaceHolder face = new PRFaceHolder(CubeMesh, i, this.gameObject);
+            PRFaceHolder face = new PRFaceHolder(GeoMesh, i, this.gameObject);
             // 1. Position
             // 2. Quaterion
             GameObject obj = GameObject.Instantiate(FacePref, transform.TransformPoint(face.CENTER),
@@ -503,6 +527,7 @@ public class PRGeo : MonoBehaviour {
         }
     }
     #endregion //Generate
+
 
     #region Draw Elements
     void OnGUI()
@@ -542,4 +567,54 @@ public class PRGeo : MonoBehaviour {
         }
     }
     #endregion //Draw Elements
+
+
+    #region Other
+    /// <summary>
+    /// Returns the list of this object's vertexHolders, to be used for duplication.
+    /// </summary>
+    /// <returns> List with VertexHolders. </returns>
+    public List<PRVertexHolder> CopyAllGeoProperties()
+    {
+        // Mesh modifications
+        List<PRVertexHolder> vertexHolderColl = new List<PRVertexHolder>();
+        PRVertex[] vertexCoColl =  PR_VERTEX_GO.GetComponent<ParentVertex>().GEO_VERTEX_COLL_CO;
+        foreach (PRVertex prV in vertexCoColl)
+        {
+            // First update the vertexHolder in case last modification was made in other than vertex mode.
+            prV.UpdateVertexPosition();
+            // Store the vertexHolder of the original object for duplication process.
+            vertexHolderColl.Add(prV.VertexHolder);
+        }
+
+        return vertexHolderColl;
+    }
+
+    /// <summary>
+    /// Paste the transformations on the original object to the this duplicated object.
+    /// </summary>
+    /// <param name="vertexHolderColl"> The list of the original object vertexHolders. </param>
+    public void PasteAllGeoProperties(List<PRVertexHolder> vertexHolderColl)
+    {
+        for (int j = 0; j < vertexHolderColl.Count; j++)
+        {
+            PRVertexHolder vertHolder = vertexHolderColl[j];
+            PRVertex vertCO = PR_VERTEX_GO.GetComponent<ParentVertex>().GEO_VERTEX_COLL_CO[j];
+            // Update the vertexHolder.
+            vertCO.VertexHolder = vertHolder;
+            Vector3[] meshVertices = GeoMesh.vertices;
+            // Update Mesh vertices.
+            for (int i = 0; i < vertHolder.SameVIndexColl.Count; i++)
+            {
+                meshVertices[vertHolder.SameVIndexColl[i]] = vertHolder.V;
+            }
+            GeoMesh.vertices = meshVertices;
+            GeoMesh.RecalculateBounds();
+
+            // Update VertexGO position.
+            vertCO.UpdateVertexPosition();
+        }
+    }
+
+    #endregion // Other
 }

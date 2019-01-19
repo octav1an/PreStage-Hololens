@@ -229,6 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8208748f64b43f47baeff15426d134f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TempParentEdges: {fileID: 0}
 --- !u!114 &114420704109646936
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -242,9 +243,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Selected: 0
   CubeMesh: {fileID: 0}
-  VertexPref: {fileID: 1753866274470134, guid: d0ff2d45040a4e749bb2b7fc58715576, type: 2}
-  EdgePref: {fileID: 1231059584844668, guid: c0dcd269ae5428d4e9cb21f70ef95135, type: 2}
+  VertexPref: {fileID: 1769945838600188, guid: d0ff2d45040a4e749bb2b7fc58715576, type: 2}
+  EdgePref: {fileID: 1664736181701512, guid: c0dcd269ae5428d4e9cb21f70ef95135, type: 2}
   FacePref: {fileID: 1476159415698410, guid: 41ee63e4c32e1a440973357b6137c70a, type: 2}
+  PR_EDGE_GO: {fileID: 0}
   VertexModeActive: 0
   EdgeModeActive: 0
   FaceModeActive: 0

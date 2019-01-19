@@ -12,7 +12,7 @@ public class PRVertex : MonoBehaviour, IFocusable
     }
     private Mesh CUBE_MESH
     {
-        get { return PARENT_CUBE.CubeMesh; }
+        get { return PARENT_CUBE.GeoMesh; }
     }
     private Vector3[] _meshVertices;
     public PRVertexHolder VertexHolder;

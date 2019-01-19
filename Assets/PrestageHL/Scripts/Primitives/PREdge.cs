@@ -12,9 +12,9 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return transform.parent.parent.GetComponent<PRGeo>(); }
     }
-    private Mesh CUBE_MESH
+    private Mesh GEO_MESH
     {
-        get { return PARENT_CUBE.CubeMesh; }
+        get { return PARENT_CUBE.GeoMesh; }
     }
     /// <summary>
     /// GIZMO used for getting the selected object.
@@ -33,7 +33,7 @@ public class PREdge : MonoBehaviour, IFocusable
     protected virtual void Awake()
     {
         //PARENT_CUBE = transform.parent.parent.GetComponent<PRGeo>();
-        //CUBE_MESH = PARENT_CUBE.CubeMesh;
+        //GEO_MESH = PARENT_CUBE.GeoMesh;
     }
 
     protected virtual void Start()
@@ -93,11 +93,11 @@ public class PREdge : MonoBehaviour, IFocusable
             _savePos = transform.localPosition;
             // Save the edge holder.
             EdgeHolder.savedEH = new PREdgeHolder(EdgeHolder);
-            _meshVertices = CUBE_MESH.vertices;
+            _meshVertices = GEO_MESH.vertices;
         }
         else
         {
-            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            EdgeHolder.UpdateInactiveEdgeInfo(GEO_MESH);
             // Deactivate other edge only when 
             if(Manager.Instance.GET_COLLIDER_TAG == "PREdge" ||
                Manager.Instance.IsGizmoHit()) EdgeMeshDisplay(false);
@@ -115,7 +115,7 @@ public class PREdge : MonoBehaviour, IFocusable
         }
         else
         {
-            if(Manager.Instance.GET_COLLIDER_TAG != "GizmoScale") EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            if(Manager.Instance.GET_COLLIDER_TAG != "GizmoScale") EdgeHolder.UpdateInactiveEdgeInfo(GEO_MESH);
         }
         UpdateActiveStatus();
         UpdateCollider();
@@ -158,8 +158,8 @@ public class PREdge : MonoBehaviour, IFocusable
             {
                 _meshVertices[EdgeHolder.SameV1Index[i]] = EdgeHolder.V1;
             }
-            CUBE_MESH.vertices = _meshVertices;
-            CUBE_MESH.RecalculateBounds();
+            GEO_MESH.vertices = _meshVertices;
+            GEO_MESH.RecalculateBounds();
         }
     }
 

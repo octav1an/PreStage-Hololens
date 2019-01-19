@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using HoloToolkit.Unity;
 using HoloToolkit.Unity.InputModule;
 using HoloToolkit.Unity.SpatialMapping;
@@ -167,10 +168,12 @@ public class Manager : MonoBehaviour
         }
     }
 
-    // TODO Change the SelectedGeo to be a regular gameObject. - better for the future.
+    // TODO Change the SelectedGeoCO to be a regular gameObject. - better for the future.
     public GameObject SelectedGo;
-    public PRGeo SelectedGeo;
-    
+    public PRGeo SelectedGeoCO;
+    public GameObject GeneralVertex;
+
+    [Header("Materials used.")]
     /// <summary>
     /// Highlight Material when the block is Active.
     /// </summary>
@@ -233,7 +236,7 @@ public class Manager : MonoBehaviour
             Instance = this;
         }
         CountAndStoreBlocks();
-        SelectedGeo = null;
+        SelectedGeoCO = null;
     }
 
     void Start ()
@@ -252,6 +255,8 @@ public class Manager : MonoBehaviour
 	    if (Input.GetKeyDown(KeyCode.G))
 	    {
             print("NumberOfObjects: " + CollGeoObjects.Count);
+	        Ruler();
+
 	    }
 	}
 
@@ -280,7 +285,6 @@ public class Manager : MonoBehaviour
     #endregion //Unity
 
     #region Events
-   
     //---------------------------------------------HOLOLENS INPUTS------------------------------------------------------
     public void OnInputDownLocal()
     {
@@ -307,11 +311,11 @@ public class Manager : MonoBehaviour
             GET_COLLIDER_TAG == "PREdge" || GET_COLLIDER_TAG == "PRFace")
         {
             Debug.Log("speech: " + EVENT_MANAGER.EventDataSpeech.RecognizedText);
-            //SelectedGeo.gameObject.GetComponent<SpeachGeometyKeywords>().OnSpeechKeywordRecognizedLocal();
+            //SelectedGeoCO.gameObject.GetComponent<SpeachGeometyKeywords>().OnSpeechKeywordRecognizedLocal();
         }
     }
-
     #endregion //Events
+
 
     #region UpdateElements
     /// <summary>
@@ -323,34 +327,34 @@ public class Manager : MonoBehaviour
         Debug.Log("HitTag: " + hit.collider.tag);
         Debug.Log("HitName: " + hit.collider.name);
         // Check if Gizmo is hit.
-        if (IsGizmoHit()) return SelectedGeo;
+        if (IsGizmoHit()) return SelectedGeoCO;
 
         if (hit.collider.tag == "PRCube")
         {
             PRGeo geo = hit.collider.gameObject.GetComponent<PRGeo>();
             // If there is a Active block and user selects another one, deselect the already Active one.
-            if (!SelectedGeo)
+            if (!SelectedGeoCO)
             {
                 geo.SelectCube(SelectedMaterial);
-                StartCoroutine(SelectedGeo.TurnOnCube());
-                return SelectedGeo;
+                StartCoroutine(SelectedGeoCO.TurnOnCube());
+                return SelectedGeoCO;
             }
             else
             {
                 // Select the new geometry if the selected is not the same as the hit object.
-                if (geo.GetInstanceID() != SelectedGeo.GetInstanceID())
+                if (geo.GetInstanceID() != SelectedGeoCO.GetInstanceID())
                 {
-                    SelectedGeo.DeselectCube(UnselectedMaterial);
+                    SelectedGeoCO.DeselectCube(UnselectedMaterial);
                     geo.SelectCube(SelectedMaterial);
-                    StartCoroutine(SelectedGeo.TurnOnCube());
-                    return SelectedGeo;
+                    StartCoroutine(SelectedGeoCO.TurnOnCube());
+                    return SelectedGeoCO;
                 }
                 // If any of the transform mode exept GeometryMode is active, do nothing.
-                else if(SelectedGeo.VertexModeActive ||
-                        SelectedGeo.EdgeModeActive ||
-                        SelectedGeo.VertexModeActive)
+                else if(SelectedGeoCO.VertexModeActive ||
+                        SelectedGeoCO.EdgeModeActive ||
+                        SelectedGeoCO.VertexModeActive)
                 {
-                    return SelectedGeo;
+                    return SelectedGeoCO;
                 }
             }
             return geo;
@@ -359,17 +363,17 @@ public class Manager : MonoBehaviour
                   hit.collider.tag == "PREdge" || hit.collider.tag == "PRFace" || 
                   hit.collider.tag == "PRVertex")
         {
-            return SelectedGeo;
+            return SelectedGeoCO;
         }
         else
         {
             Debug.Log("I don't know what are u hitting.");
-            if (SelectedGeo)
+            if (SelectedGeoCO)
             {
                 // Make sure all the all transformation modes are off.
-                StartCoroutine(SelectedGeo.TurnOffAllModes());
+                StartCoroutine(SelectedGeoCO.TurnOffAllModes());
                 // Deselect cube.
-                SelectedGeo.DeselectCube(UnselectedMaterial);
+                SelectedGeoCO.DeselectCube(UnselectedMaterial);
             }
                 
             return null;
@@ -409,7 +413,13 @@ public class Manager : MonoBehaviour
     }
     #endregion //UpdateElements
 
-    //---------------------------------------------------------------------------------------------------
+
+    #region Draw
+
+    #endregion //Draw
+
+
+    #region Other
     /// <summary>
     /// Searches and store the blocks that are already drawn in COLL_BLOCKS_OBJECTS list.
     /// It should be used only once at scene starup, later objects shoud be dynamicaly added and removed. 
@@ -424,14 +434,34 @@ public class Manager : MonoBehaviour
 
     }
 
-    #region Draw
+    private void Ruler()
+    {
+        // Get all the vertices
+        List<Vector3> cleanList = new List<Vector3>();
 
-    #endregion //Draw
-
-    #region Other
-
-
-
+        for (int i = 0; i < CollGeoObjects.Count; i++)
+        {
+            GameObject[] vertexColl = CollGeoObjects[i].GetComponent<PRGeo>().PR_VERTEX_GO.GetComponent<ParentVertex>()
+                .VERTEX_COLL_GO;
+            foreach (GameObject v in vertexColl)
+            {
+                cleanList.Add(v.transform.position);
+            }
+        }
+        // TODO: can be improved!!! remove the same vertex that share the same coordinates.
+        // Remove the duplicates
+        print("CleanColl: " + cleanList.Count);
+        // Create a parent object of general vertices.
+        GameObject rulerParent = new GameObject("RulerParen");
+        // Instantiate the generalVertex prefab for each vertex location.
+        for (int i = 0; i < cleanList.Count; i++)
+        {
+            Vector3 vertexPos = cleanList[i];
+            GameObject freshObj = (GameObject)Instantiate(GeneralVertex, vertexPos, Quaternion.identity, rulerParent.transform);
+        }
+        // TODO: make the rest of the funtion
+        
+    }
     #endregion //Other
 
 }

@@ -62,7 +62,7 @@ public class MainMenu : MonoBehaviour
 	{
 	    OrientCanvasToCamera();
 	    AlignMenuPosition();
-	    PlancingNewObject();
+	    PlancingNewObject(InstantiatedObject, ref _isPlacing);
 
         Text paretnText = ParentTextGo.GetComponent<Text>();
         if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
@@ -75,55 +75,51 @@ public class MainMenu : MonoBehaviour
 
     #region InstanciatePrefabs
 
-    public void PlancingNewObject()
+    public void PlancingNewObject(GameObject instaObj, ref bool isPlacing)
     {
-        if (_isPlacing)
+        if (isPlacing)
         {
             // Change object opacity while placing.
-            InstantiatedObject.GetComponent<PRGeo>().ChangeObjectOpacity(0.5f);
+            instaObj.GetComponent<PRGeo>().ChangeObjectOpacity(0.5f);
             // Change Object layer to IgnoreRayCast
-            InstantiatedObject.layer = 2;
+            instaObj.layer = 2;
             // Do the position updates
             if (!Manager.Instance.IS_HIT || Manager.Instance.IS_GUI_HIT)
             {
                 Vector3 dir = Camera.main.transform.forward;
-                InstantiatedObject.transform.position = Camera.main.transform.position + (dir * 4);
+                instaObj.transform.position = Camera.main.transform.position + (dir * 4);
             }
             else
             {
                 //InstantiatedObject.transform.position = Manager.Instance.GET_HIT_LOCATION;
-                InstantiatedObject.transform.position = Manager.Instance.GET_HIT_LOCATION + GetPlacementOffset();
+                instaObj.transform.position = Manager.Instance.GET_HIT_LOCATION + GetPlacementOffset(instaObj);
             }
             // If input down then place
             if (Manager.Instance.GIZMO.InputDown)
             {
                 // Place obj.
-                Manager.Instance.CollGeoObjects.Add(InstantiatedObject);
-                InstantiatedObject.GetComponent<PRGeo>().ChangeObjectOpacity(1f);
+                Manager.Instance.CollGeoObjects.Add(instaObj);
+                instaObj.GetComponent<PRGeo>().ChangeObjectOpacity(1f);
                 // Change object layer to Geometry.
-                InstantiatedObject.layer = 9;
-                InstantiatedObject = null;
-                _isPlacing = false;
+                instaObj.layer = 9;
+                instaObj = null;
+                isPlacing = false;
             }
         }
     }
+
     /// <summary>
     /// Calculates the offset vector of a geometry to aboid intersection when placing the geometry.
     /// </summary>
     /// <returns></returns>
-    private Vector3 GetPlacementOffset()
+    private Vector3 GetPlacementOffset(GameObject instaObj)
     {
-        if (_isPlacing)
-        {
-            Bounds bounds = InstantiatedObject.GetComponent<Collider>().bounds;
-            Vector3 projected = Vector3.Project(bounds.extents, Manager.Instance.GET_HIT_NORMAL);
-            Vector3 offset = Manager.Instance.GET_HIT_NORMAL * projected.magnitude;
-            return offset;
-        }
-        else
-        {
-            return Vector3.zero;
-        }
+
+        Bounds bounds = instaObj.GetComponent<Collider>().bounds;
+        Vector3 projected = Vector3.Project(bounds.extents, Manager.Instance.GET_HIT_NORMAL);
+        Vector3 offset = Manager.Instance.GET_HIT_NORMAL * projected.magnitude;
+        return offset;
+
     }
 
     /// <summary>
@@ -134,8 +130,16 @@ public class MainMenu : MonoBehaviour
     {
         GameObject freshObj = (GameObject)Instantiate(FindPrefabByName(str), Vector3.zero, Quaternion.identity);
         InstantiatedObject = freshObj;
-        InstantiatedObjectBounds = freshObj.GetComponent<Collider>().bounds;
+        //InstantiatedObjectBounds = freshObj.GetComponent<Collider>().bounds;
+        InstantiatedObject.GetComponent<PRGeo>().PrefabName = str;
         _isPlacing = true;
+    }
+    public void GeneralInstantiatePrefab(ref GameObject instaObj, ref bool isPlacing, string str)
+    {
+        GameObject freshObj = (GameObject)Instantiate(FindPrefabByName(str), Vector3.zero, Quaternion.identity);
+        instaObj = freshObj;
+        instaObj.GetComponent<PRGeo>().PrefabName = str;
+        isPlacing = true;
     }
 
     private GameObject FindPrefabByName(string prefabName)

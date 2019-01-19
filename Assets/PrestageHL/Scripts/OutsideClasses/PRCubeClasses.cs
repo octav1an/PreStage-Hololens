@@ -83,9 +83,9 @@ namespace PRGeoClasses
         {
             SameV0Index = new List<int>();
             SameV1Index = new List<int>();
-            for (int i = 0; i < PR_CO.CubeMesh.vertexCount; i++)
+            for (int i = 0; i < PR_CO.GeoMesh.vertexCount; i++)
             {
-                Vector3 v = PR_CO.CubeMesh.vertices[i];
+                Vector3 v = PR_CO.GeoMesh.vertices[i];
                 if (Mathf.Abs(v.x - V0.x) < threshold &&
                     Mathf.Abs(v.y - V0.y) < threshold &&
                     Mathf.Abs(v.z - V0.z) < threshold)
@@ -421,9 +421,9 @@ namespace PRGeoClasses
         public void SetupSameVertices()
         {
             SameVIndexColl = new List<int>();
-            for (int i = 0; i < PR_CO.CubeMesh.vertexCount; i++)
+            for (int i = 0; i < PR_CO.GeoMesh.vertexCount; i++)
             {
-                Vector3 v = PR_CO.CubeMesh.vertices[i];
+                Vector3 v = PR_CO.GeoMesh.vertices[i];
                 if (Mathf.Abs(v.x - V.x) < threshold &&
                     Mathf.Abs(v.y - V.y) < threshold &&
                     Mathf.Abs(v.z - V.z) < threshold)

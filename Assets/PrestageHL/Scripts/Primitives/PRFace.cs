@@ -13,7 +13,7 @@ public class PRFace : MonoBehaviour, IFocusable
     }
     private Mesh CUBE_MESH
     {
-        get { return PARENT_CUBE.CubeMesh; }
+        get { return PARENT_CUBE.GeoMesh; }
     }
     public PRFaceHolder FaceHolder;
     private Vector3 _savePos;
