@@ -87,7 +87,7 @@ public class MMPSettings : MonoBehaviour
         transform.Find(_otherD).gameObject.SetActive(IsActive);
     }
 
-    private void DeactivatePanelElements()
+    public void DeactivatePanelElements()
     {
         for (int i = 0; i < transform.childCount; i++)
         {

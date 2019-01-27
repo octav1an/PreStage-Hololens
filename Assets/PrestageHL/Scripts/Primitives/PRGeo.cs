@@ -45,7 +45,7 @@ public class PRGeo : MonoBehaviour {
     public bool VertexModeActive;
     public bool EdgeModeActive;
     public bool FaceModeActive;
-    public bool CubeModeActive;
+    public bool GeoModeActive;
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
@@ -75,6 +75,9 @@ public class PRGeo : MonoBehaviour {
         PrVertexHolders = CreateUniqVertexPrefabs(GenerateVertexHolders());
         PrEdgeHolders = CreateUniqEdgePrefabs(GenerateEdgeHolders());
         GenerateFacePrefabs();
+        // Make the dafault scale of the object to be 0.2.
+        float defScale = 0.2f;
+        transform.localScale = new Vector3(defScale, defScale, defScale);
     }
 
     protected virtual void Start()
@@ -87,26 +90,6 @@ public class PRGeo : MonoBehaviour {
     {
         DrawCubeAxis(true);
         //objCenter.transform.position = transform.position;
-
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            GameObject vert = PR_VERTEX_GO.GetComponent<ParentVertex>().VERTEX_COLL_GO[7];
-            PRVertex vertCO = PR_VERTEX_GO.GetComponent<ParentVertex>().GEO_VERTEX_COLL_CO[7];
-            PRVertexHolder vertHolder = vertCO.VertexHolder;
-            // Update the vertexHolder.
-            vertHolder.V = new Vector3(vertHolder.V.x, 1f, vertHolder.V.z);
-            Vector3[] _meshVertices = GeoMesh.vertices;
-            // Update Mesh vertices.
-            for (int i = 0; i < vertHolder.SameVIndexColl.Count; i++)
-            {
-                _meshVertices[vertHolder.SameVIndexColl[i]] = vertHolder.V;
-            }
-            GeoMesh.vertices = _meshVertices;
-            GeoMesh.RecalculateBounds();
-            // Update VertexGO position.
-            vertCO.UpdateVertexPosition();
-        }
-
     }
 
     protected virtual void LateUpdate()
@@ -210,7 +193,7 @@ public class PRGeo : MonoBehaviour {
     /// <returns></returns>
     public IEnumerator TurnOnCube()
     {
-        CubeModeActive = true;
+        GeoModeActive = true;
         ContexMenu.Instance.GeometryModeActive = true;
         VertexModeActive = false;
         EdgeModeActive = false;
@@ -228,7 +211,7 @@ public class PRGeo : MonoBehaviour {
 
     public IEnumerator TurnOffAllModes()
     {
-        CubeModeActive = false;
+        GeoModeActive = false;
         ContexMenu.Instance.GeometryModeActive = false;
         VertexModeActive = false;
         EdgeModeActive = false;

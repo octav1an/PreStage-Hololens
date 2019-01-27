@@ -188,6 +188,8 @@ public class ContexMenu : MonoBehaviour
     #region Selection Modes
     public void SetVertexMode()
     {
+        // Set the transformation to be move, to avoid Scale.
+        SetDefaultTransformationType();
         // First deactivate all modes.
         StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -206,6 +208,9 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
+            // Set the transformation to be move, to avoid Scale.
+            SetDefaultTransformationType();
+
             // First deactivate all modes.
             StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -224,6 +229,8 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
+            // Set the transformation to be move, to avoid Scale.
+            SetDefaultTransformationType();
             // First deactivate all modes.
             StartCoroutine(SELECTED_PRCUBE.TurnOffAllModes());
 
@@ -316,18 +323,23 @@ public class ContexMenu : MonoBehaviour
         // Disble Grab script in selected primitive.
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
-        if(SELECTED_PRCUBE.CubeModeActive)StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        if(SELECTED_PRCUBE.GeoModeActive)StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetScaleTransformationType()
     {
+        if (!Manager.Instance.SelectedGeoCO.GeoModeActive)
+        {
+            SetDefaultTransformationType();
+            return;
+        }
         Manager.Instance.GIZMO.GizmoGo.GetComponent<GizmoObject>().ActivateScaleGizmo();
         // Disply the gizmo arrows.
         Manager.Instance.GIZMO.DisableGizmo = false;
         // Disble Grab script in selected primitive.
         SELECTED_GO.GetComponent<HandDraggable>().enabled = false;
         // Reactivate the Cube mode, in order to have the gizmo displyed.
-        if (SELECTED_PRCUBE.CubeModeActive) StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
+        if (SELECTED_PRCUBE.GeoModeActive) StartCoroutine(SELECTED_PRCUBE.TurnOnCube());
         DeactivateContexMenu(true);
     }
     public void SetGrabTransformationType()

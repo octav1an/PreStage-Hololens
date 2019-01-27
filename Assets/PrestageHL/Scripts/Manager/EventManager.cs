@@ -35,6 +35,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
 
     // Variables
     public ManipulationEventData EventDataManipulation;
+    public NavigationEventData EventDataNavigation;
     public SpeechEventData EventDataSpeech;
 
     #region Unity
@@ -127,7 +128,7 @@ public class EventManager : MonoBehaviour, IInputHandler, IInputClickHandler, IM
 
     public void OnNavigationStarted(NavigationEventData eventData)
     {
-
+        EventDataNavigation = eventData;
     }
 
     public void OnNavigationUpdated(NavigationEventData eventData)

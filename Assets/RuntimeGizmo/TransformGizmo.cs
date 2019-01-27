@@ -313,7 +313,7 @@ namespace RuntimeGizmos
             GameObject scaleCube = null;
             Vector3 scaleCubeLoc = Vector3.zero;
             Vector3 scaleCubeScale = Vector3.zero;
-            // Edges
+            // Edges and Vertices.
             PRGeo geo = mainTargetRoot.gameObject.GetComponent<PRGeo>();
             if (Manager.Instance.GET_COLLIDER_TAG == "GizmoScale" ||
                 Manager.Instance.GET_COLLIDER_TAG == "GizmoScaleCenter")
@@ -321,8 +321,10 @@ namespace RuntimeGizmos
                 scaleCube = Manager.Instance.GET_COLLIDER_GO;
                 scaleCubeLoc = scaleCube.transform.position;
                 scaleCubeScale = scaleCube.transform.localScale;
-                // Unparent the edge to avoid deforming the edges whne the geometry is scaled.
+                // Unparent the edges to avoid deforming the edges whne the geometry is scaled.
                 geo.PR_EDGE_GO.GetComponent<ParentEdge>().UnparentEdges();
+                // Unparent vertices
+                geo.PR_VERTEX_GO.GetComponent<ParentVertex>().UnparentVertices();
             }
             while (!InputUp)
             {
@@ -354,8 +356,11 @@ namespace RuntimeGizmos
                         target.position = targetSavedPos + projectedOnPlane * MoveMultiplier;
                     }
                 }
-                else if (transformType == "GizmoRotate")
+                else if (transformType == "GizmoRotate" && 
+                         Manager.Instance.SelectedGeoCO.GeoModeActive)
                 {
+                    // Don't allow any rotation if I am not in the GeoMode.
+
                     //Debug.Log("Rotate");
                     // Get the world location of the manipolation in respect to the savedHit location.
                     Vector3 worldManip = savedProjectedOnPlane + manipulationVec;
@@ -421,8 +426,9 @@ namespace RuntimeGizmos
             // Reset scale elements.
             if (scaleCube)
             {
-                // Parent the edges back to the geometry, after the scale is finished.
+                // Parent the edges and vertices back to the geometry, after the scale is finished.
                 geo.PR_EDGE_GO.GetComponent<ParentEdge>().ParentEdges();
+                geo.PR_VERTEX_GO.GetComponent<ParentVertex>().ParentVertices();
                 scaleCube.transform.position = scaleCubeLoc;
                 scaleCube.transform.localScale = scaleCubeScale;
             }

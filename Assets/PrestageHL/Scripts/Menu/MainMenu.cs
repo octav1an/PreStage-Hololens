@@ -270,21 +270,6 @@ public class MainMenu : MonoBehaviour
         Manager.Instance.SpatialMappingGo.SetActive(false);
     }
 
-    // TODO: Remove is scene move works fine.
-    //public void TurnOffSpacialMapping()
-    //{
-    //    if (_spatialActive)
-    //    {
-    //        _spatialActive = false;
-    //        Manager.Instance.SpatialMappingGo.SetActive(false);
-    //    }
-    //    else
-    //    {
-    //        _spatialActive = true;
-    //        Manager.Instance.SpatialMappingGo.SetActive(true);
-    //    }
-    //}
-
     public void ScaleModelOn()
     {
         // First destroy immediatly the rotator object if it exists.
@@ -371,8 +356,10 @@ public class MainMenu : MonoBehaviour
     public void CloseAllSubmenus()
     {
         transform.Find("B_File").transform.Find("SubButtons").gameObject.SetActive(false);
-        transform.Find("B_Settings").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_File").GetComponent<MMFile>().IsActive = false;
+        SettingsPanel.GetComponent<MMPSettings>().DeactivatePanelElements();
         transform.Find("B_Help").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Help").GetComponent<MMHelp>().IsActive = false;
     }
 
     #endregion // Other
