@@ -1,16 +1,15 @@
 fileFormatVersion: 2
-guid: a499b03cd9c43d54f83e5799d9610464
+guid: 9f480b72ac5e9914c9a76c257bd87c1b
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
-    2100000: MainPrefab
-    2100002: Edges
+    2100000: Edges
+    2100002: MainPrefab
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Prefab1
-    4300002: Prefab1.002
+    4300000: Prefab0.004
   externalObjects: {}
   materials:
     importMaterials: 1

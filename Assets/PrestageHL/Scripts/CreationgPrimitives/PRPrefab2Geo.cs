@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PRGeoClasses;
 using UnityEngine;
 
-public class PRHouseGeo : PRGeo
+public class PRPrefab2Geo : PRGeo
 {
 
     #region Unity

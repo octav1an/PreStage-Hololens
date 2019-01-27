@@ -21,6 +21,7 @@ public class MainMenu : MonoBehaviour
     public GameObject Prefab3;
     public GameObject Prefab4;
     public GameObject Prefab5;
+    public GameObject Prefab6;
     // TODO: Remove if sceneMove works fine.
     private bool _spatialActive = true;
 
@@ -158,6 +159,8 @@ public class MainMenu : MonoBehaviour
                 return Prefab4;
             case "prefab5":
                 return Prefab5;
+            case "prefab6":
+                return Prefab6;
             default:
                 return null;
         }

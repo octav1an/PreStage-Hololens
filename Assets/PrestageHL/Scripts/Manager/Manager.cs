@@ -181,6 +181,7 @@ public class Manager : MonoBehaviour
     public Material UnselectedMaterial;
     public Material HighlightColliderMat;
     public Material ActiveColliderMat;
+    public Material GeoHighlightMat;
     /// <summary>
     /// List with all the objects that are drawn on the canvas.
     /// </summary>

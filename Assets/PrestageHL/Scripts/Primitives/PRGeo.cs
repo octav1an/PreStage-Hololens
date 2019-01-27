@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using HoloToolkit.Unity.InputModule;
 using PRGeoClasses;
 using UnityEngine;
 
-public class PRGeo : MonoBehaviour {
+public class PRGeo : MonoBehaviour, IFocusable
+{
 
     /// <summary>
     /// Bool that is activated when the cube is Active. Now works when the cube is moved.
@@ -142,7 +144,34 @@ public class PRGeo : MonoBehaviour {
     {
         UpdateBlockCollider();
     }
-    
+
+    public void OnFocusEnter()
+    {
+        // Change material to highlighGeo when the gaze is on the geometry.
+        if (!Selected)
+        {
+            Material[] mats = GetComponent<MeshRenderer>().materials;
+            for (int i = 0; i < mats.Length; i++)
+            {
+                mats[i] = Manager.Instance.GeoHighlightMat;
+            }
+            GetComponent<Renderer>().materials = mats;
+        }
+    }
+    public void OnFocusExit()
+    {
+        // Change material back.
+        if (!Selected)
+        {
+            Material[] mats = GetComponent<MeshRenderer>().materials;
+            for (int i = 0; i < mats.Length; i++)
+            {
+                mats[i] = Manager.Instance.UnselectedMaterial;
+            }
+            GetComponent<Renderer>().materials = mats;
+        }
+    }
+
     public PRGeo SelectCube(Material selMat)
     {
 
@@ -600,4 +629,5 @@ public class PRGeo : MonoBehaviour {
     }
 
     #endregion // Other
+
 }
