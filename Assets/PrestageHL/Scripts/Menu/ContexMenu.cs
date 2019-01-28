@@ -198,7 +198,7 @@ public class ContexMenu : MonoBehaviour
         // Turn off other things
         ActivateEdge(false);
         ActivateFace(false);
-        GeometryModeActive = false;
+        ActivateGeometry(false);
         // Update Vertices when turned on so it fits the latest version of mesh vertices.
         UpdateVertex(SELECTED_PRCUBE.PR_VERTEX_GO);
         // Deactivate ContexMenu to get it out of the way.
@@ -218,7 +218,7 @@ public class ContexMenu : MonoBehaviour
             // Turn off other things
             ActiveteVertex(false);
             ActivateFace(false);
-            GeometryModeActive = false;
+            ActivateGeometry(false);
             // Update Edges when turned on so it fits the latest version of mesh.
             UpdateEdges(SELECTED_PRCUBE.PR_EDGE_GO);
             // Deactivate ContexMenu to get it out of the way.
@@ -238,7 +238,7 @@ public class ContexMenu : MonoBehaviour
             // Turn off other things
             ActiveteVertex(false);
             ActivateEdge(false);
-            GeometryModeActive = false;
+            ActivateGeometry(false);
             // Update face locations when turning it on, so it matches the actual mesh.
             UpdateFace(SELECTED_PRCUBE.PR_FACE_GO);
             // Deactivate ContexMenu to get it out of the way.
@@ -249,7 +249,7 @@ public class ContexMenu : MonoBehaviour
     {
         if (SELECTED_GO != null)
         {
-            GeometryModeActive = true;
+            ActivateGeometry(true);
             ActiveteVertex(false);
             ActivateEdge(false);
             ActivateFace(false);
@@ -275,6 +275,10 @@ public class ContexMenu : MonoBehaviour
     {
         SELECTED_PRCUBE.FaceModeActive = state;
         SELECTED_PRCUBE.PR_FACE_GO.SetActive(state);
+    }
+    private void ActivateGeometry(bool state)
+    {
+        SELECTED_PRCUBE.GeoModeActive = state;
     }
 
     // Update Elements when switching between modes.

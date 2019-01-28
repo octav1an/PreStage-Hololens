@@ -33,16 +33,10 @@ public class ParentVertex : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-	    foreach (var vert in VERTEX_COLL_GO)
-	    {
-	        //print(vert.name);
-	    }
-	    //print(VERTEX_COLL_GO.Length);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	    //print(VERTEX_COLL_GO.Length);
     }
 
     public void UnparentVertices()

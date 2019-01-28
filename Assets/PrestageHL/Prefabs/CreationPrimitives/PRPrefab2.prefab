@@ -372,15 +372,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Selected: 0
-  CubeMesh: {fileID: 0}
+  IsEdgeDims: 0
+  PrefabName: 
+  GeoMesh: {fileID: 0}
   VertexPref: {fileID: 1769945838600188, guid: d0ff2d45040a4e749bb2b7fc58715576, type: 2}
   EdgePref: {fileID: 1664736181701512, guid: c0dcd269ae5428d4e9cb21f70ef95135, type: 2}
   FacePref: {fileID: 1476159415698410, guid: 41ee63e4c32e1a440973357b6137c70a, type: 2}
+  EdgeDimPref: {fileID: 1097581248892956, guid: 4d2dc6f5f7c695c4c835484acb2e0c4b,
+    type: 2}
   PR_EDGE_GO: {fileID: 0}
   VertexModeActive: 0
   EdgeModeActive: 0
   FaceModeActive: 0
-  CubeModeActive: 0
+  GeoModeActive: 0
 --- !u!114 &114538865897369684
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -415,6 +419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99a8aa7b7e2cda849ba02e8d571c89c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TempParentVertices: {fileID: 0}
 --- !u!114 &114918548459773682
 MonoBehaviour:
   m_ObjectHideFlags: 1

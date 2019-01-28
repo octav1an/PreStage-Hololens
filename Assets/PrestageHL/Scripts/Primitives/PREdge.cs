@@ -16,9 +16,6 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return PARENT_CUBE.GeoMesh; }
     }
-    /// <summary>
-    /// GIZMO used for getting the selected object.
-    /// </summary>
     public PREdgeHolder EdgeHolder;
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
@@ -32,14 +29,14 @@ public class PREdge : MonoBehaviour, IFocusable
 
     protected virtual void Awake()
     {
-        //PARENT_CUBE = transform.parent.parent.GetComponent<PRGeo>();
-        //GEO_MESH = PARENT_CUBE.GeoMesh;
+
     }
 
     protected virtual void Start()
     {
         _savePos = transform.localPosition;
         _savedThisMat = DisplayEdgeGO.GetComponent<MeshRenderer>().material;
+
     }
 
     protected virtual void Update()
@@ -233,5 +230,16 @@ public class PREdge : MonoBehaviour, IFocusable
             UnhighlightEdge();
         }
     }
+
+    private void ShowDistance()
+    {
+        GameObject textGO = transform.Find("EdgeText").gameObject;
+        TextMesh text = textGO.GetComponent<TextMesh>();
+        text.text = (EdgeHolder.V0 - EdgeHolder.V1).magnitude.ToString();
+    }
+
     #endregion //UpdateElements
+
+    #region Other
+    #endregion // Other
 }

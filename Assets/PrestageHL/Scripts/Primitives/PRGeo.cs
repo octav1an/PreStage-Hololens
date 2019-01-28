@@ -12,6 +12,7 @@ public class PRGeo : MonoBehaviour, IFocusable
     /// Bool that is activated when the cube is Active. Now works when the cube is moved.
     /// </summary>
     public bool Selected = false;
+    public bool IsEdgeDims = false;
     public string PrefabName;
     //Vertex Array, use only geting the vertices. This property cannot rewrite them.
     public Vector3[] VERTS_COLL
@@ -29,6 +30,7 @@ public class PRGeo : MonoBehaviour, IFocusable
     public GameObject VertexPref;
     public GameObject EdgePref;
     public GameObject FacePref;
+    public GameObject EdgeDimPref;
 
     public GameObject PR_VERTEX_GO
     {
@@ -44,10 +46,17 @@ public class PRGeo : MonoBehaviour, IFocusable
     {
         get { return transform.Find("Face").gameObject; }
     }
+    public GameObject PR_EDGE_DIM_GO
+    {
+        get { return transform.Find("EdgeDims").gameObject; }
+    }
+
+    [Header("Geometry Selection State")]
     public bool VertexModeActive;
     public bool EdgeModeActive;
     public bool FaceModeActive;
     public bool GeoModeActive;
+
 
     // Remove later
     public PREdgeHolder[] PrEdgeHolders;
@@ -64,6 +73,7 @@ public class PRGeo : MonoBehaviour, IFocusable
             return center / 24;
         }
     }
+    public GameObject EdgeDimTempParet;
 
     #region Unity
     protected virtual void Awake()
@@ -98,7 +108,21 @@ public class PRGeo : MonoBehaviour, IFocusable
     {
         if (Selected)
         {
-
+            if (!IsEdgeDims)
+            {
+                // Create the edge dims
+                CreateTempEdgeDimPrefabs();
+                IsEdgeDims = true;
+            }
+        }
+        else
+        {
+            if (IsEdgeDims)
+            {
+                // Destroy edge dims
+                DestroyTempEdgeDimPrefabs();
+                IsEdgeDims = false;
+            }
         }
     }
 
@@ -537,6 +561,34 @@ public class PRGeo : MonoBehaviour, IFocusable
             //print(obj.GetComponent<PRFace>().FaceHolder.MeshTopo);
             obj.GetComponent<MeshFilter>().mesh = obj.GetComponent<PRFace>().GenerateMeshCollider();
         }
+    }
+
+    /// <summary>
+    /// Creates the temporaty edge dimentions prebas inside a tempGameObject that doesn't have a parent.
+    /// </summary>
+    private void CreateTempEdgeDimPrefabs()
+    {
+        // Create a temp parent
+        EdgeDimTempParet = new GameObject("TempEdgeDimParent");
+        // By defalt turn all dimentions off, so they are only active at scale and transformations.
+        EdgeDimTempParet.SetActive(false);
+        // Create the individual edge dim
+        ParentEdge edgeParent = PR_EDGE_GO.GetComponent<ParentEdge>();
+        for (int i = 0; i < edgeParent.EDGE_COLL_GO.Length; i++)
+        {
+            PREdge edgeCO = edgeParent.EDGE_COLL_COMP[i];
+            GameObject EdgeDimObj = (GameObject) Instantiate(EdgeDimPref,
+                transform.TransformPoint(edgeCO.EdgeHolder.MidPos),
+                Quaternion.identity, EdgeDimTempParet.transform);
+            // Assign the variable to EdgeDim used to orient and position the text.
+            EdgeDimObj.GetComponent<EdgeDimText>().ParentGeo = this;
+            EdgeDimObj.GetComponent<EdgeDimText>().EdgeParent = edgeCO;
+        }
+        
+    }
+    private void DestroyTempEdgeDimPrefabs()
+    {
+        DestroyImmediate(EdgeDimTempParet);
     }
     #endregion //Generate
 

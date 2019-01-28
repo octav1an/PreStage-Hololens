@@ -19,6 +19,10 @@ public class Manager : MonoBehaviour
         get { return GetComponent<EventManager>(); }
     }
     public GameObject SpatialMappingGo;
+    public Vector3 DefaultScale = Vector3.one;
+    public float ScaleDiff = 0;
+    public float oldScaleR = 100;
+    public float newScaleR;
 
     private RaycastHit HIT
     {
@@ -172,6 +176,7 @@ public class Manager : MonoBehaviour
     public GameObject SelectedGo;
     public PRGeo SelectedGeoCO;
     public GameObject GeneralVertex;
+    public GameObject EdgeDimPrefab;
 
     [Header("Materials used.")]
     /// <summary>
@@ -259,7 +264,8 @@ public class Manager : MonoBehaviour
 	        Ruler();
 
 	    }
-	}
+
+    }
 
     void OnEnable()
     {
@@ -462,6 +468,12 @@ public class Manager : MonoBehaviour
         }
         // TODO: make the rest of the funtion
         
+    }
+
+    private void UpdateScaneRatio()
+    {
+        // 1/scaleDiff * scaleN = new scaleN
+        newScaleR = 1 / ScaleDiff * oldScaleR;
     }
     #endregion //Other
 

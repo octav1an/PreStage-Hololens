@@ -340,6 +340,11 @@ namespace RuntimeGizmos
                         // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
                         Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
                         target.position = targetSavedPos + translateAxis * moveAmount;
+                        if (target.tag == "PREdge" || target.tag == "PRFace" ||
+                            target.tag == "PRVertex")
+                        {
+                            target.transform.parent.parent.GetComponent<PRGeo>().EdgeDimTempParet.SetActive(true);
+                        }
                     }
                 }
                 else if (transformType == "GizmoPlaneMove")
@@ -381,7 +386,7 @@ namespace RuntimeGizmos
                         else if (space == TransformSpace.Local)
                         {
                             target.localRotation = quaRotation * quaSavedRotation;
-                        }  
+                        }
                     }
                 }
                 else if (transformType == "GizmoScale")
@@ -396,6 +401,8 @@ namespace RuntimeGizmos
                         // Update the Gizmo position for scale cubes and scale rects.
                         scaleCube.transform.position = scaleCubeLoc + (scaleAxisLocal * scaleAmount);
                     }
+                    // Turn ON edge dimentions
+                    geo.EdgeDimTempParet.SetActive(true);
                 }
                 else if (transformType == "GizmoScaleCenter")
                 {
@@ -418,6 +425,8 @@ namespace RuntimeGizmos
                         // Update the Gizmo position for scale cubes and scale rects.
                         scaleCube.transform.localScale = scaleCubeScale + new Vector3(magScale, magScale, magScale) * 2;
                     }
+                    // Turn ON edge dimentions
+                    geo.EdgeDimTempParet.SetActive(true);
                 }
                 // Update the Gizmo location while doing the global rotation.
                 GizmoGo.transform.position = mainTargetRoot.transform.position;
@@ -426,11 +435,18 @@ namespace RuntimeGizmos
             // Reset scale elements.
             if (scaleCube)
             {
+                // Turn ON edge dimentions
+                geo.EdgeDimTempParet.SetActive(false);
                 // Parent the edges and vertices back to the geometry, after the scale is finished.
                 geo.PR_EDGE_GO.GetComponent<ParentEdge>().ParentEdges();
                 geo.PR_VERTEX_GO.GetComponent<ParentVertex>().ParentVertices();
                 scaleCube.transform.position = scaleCubeLoc;
                 scaleCube.transform.localScale = scaleCubeScale;
+            }
+            if (mainTargetRoot.tag == "PREdge" || mainTargetRoot.tag == "PRFace" ||
+                mainTargetRoot.tag == "PRVertex")
+            {
+                mainTargetRoot.transform.parent.parent.GetComponent<PRGeo>().EdgeDimTempParet.SetActive(false);
             }
 
             _isTransforming = false;
