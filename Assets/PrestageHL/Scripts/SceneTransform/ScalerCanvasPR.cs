@@ -20,8 +20,9 @@ public class ScalerCanvasPR : MonoBehaviour
 	{
 	    OrientCanvasToCamera();
         UpdateButtonPosition();
-	    // Scane Main menu in relation to distance from camera.
-	    Manager.Instance.ScaleToDistance(gameObject, ScaleMagnitude);
+	    Test();
+        // Scane Main menu in relation to distance from camera.
+        Manager.Instance.ScaleToDistance(gameObject, ScaleMagnitude);
     }
     #endregion // Unity
 
@@ -36,6 +37,23 @@ public class ScalerCanvasPR : MonoBehaviour
             geo.transform.parent = null;
         }
         Destroy(SceneScalerGo);
+    }
+
+    private void Test()
+    {
+        // if the value scale is not equalt to manager one then reset drop down;
+        Dropdown dd = transform.Find("DD_Scale").GetComponent<Dropdown>();
+        if (dd.value != 8)
+        {
+            if (dd.value == 0 && Manager.Instance.ScaleRatio != 5) dd.value = 8;
+            else if(dd.value == 1 && Manager.Instance.ScaleRatio != 10) dd.value = 8;
+            else if (dd.value == 2 && Manager.Instance.ScaleRatio != 20) dd.value = 8;
+            else if (dd.value == 3 && Manager.Instance.ScaleRatio != 50) dd.value = 8;
+            else if (dd.value == 4 && Manager.Instance.ScaleRatio != 100) dd.value = 8;
+            else if (dd.value == 5 && Manager.Instance.ScaleRatio != 200) dd.value = 8;
+            else if (dd.value == 6 && Manager.Instance.ScaleRatio != 500) dd.value = 8;
+            else if (dd.value == 7 && Manager.Instance.ScaleRatio != 1000) dd.value = 8;
+        }
     }
 
     /// <summary>

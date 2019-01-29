@@ -382,6 +382,7 @@ public class ContexMenu : MonoBehaviour
         // Apply the old properties to the new object.
         _duplicatedObject.transform.localScale = existingScale;
         _duplicatedObject.GetComponent<PRGeo>().PasteAllGeoProperties(vertexHolderColl);
+        DeactivateContexMenu(true);
     }
     #endregion //MenuCallFunctions
 

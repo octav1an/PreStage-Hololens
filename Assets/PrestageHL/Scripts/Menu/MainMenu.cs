@@ -62,7 +62,7 @@ public class MainMenu : MonoBehaviour
 	void Update ()
 	{
 	    OrientCanvasToCamera();
-	    AlignMenuPosition();
+	    //AlignMenuPosition();
 	    PlancingNewObject(InstantiatedObject, ref _isPlacing);
 
         Text paretnText = ParentTextGo.GetComponent<Text>();

@@ -25,14 +25,14 @@ public class SceneScaler : MonoBehaviour
 	void Update ()
 	{
 	    CalculateScaleDynamicaly();
-     //   if (Input.GetKeyDown(KeyCode.L))
-     //   {
-     //       transform.localScale *= 2f;
-     //   }
-	    //if (Input.GetKeyDown(KeyCode.K))
-	    //{
-	    //    transform.localScale *= 0.8f;
-	    //}
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            transform.localScale *= 1.4f;
+        }
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            transform.localScale *= 0.8f;
+        }
     }
 
     void OnEnable()
@@ -52,11 +52,11 @@ public class SceneScaler : MonoBehaviour
     /// <summary>
     /// Calculate and update the scale ratio in Manager.
     /// </summary>
-    private void CalculateScaleDiff()
+    public void CalculateScaleDiff()
     {
         float scaleDiff = transform.localScale.x / SavedScale.x;
         // Update the scale in Manager.
-        float newScale = 1 / scaleDiff * Manager.Instance.ScaleRatio;
+        float newScale = 1 / scaleDiff * oldScale;
         Manager.Instance.ScaleRatio = newScale;
     }
 
@@ -69,6 +69,7 @@ public class SceneScaler : MonoBehaviour
         float scaleDymanic = 1 / scaleDiff * oldScale;
         // Update the text in ScalerCanvas.
         DynamicScaleGO.GetComponent<Text>().text = scaleDymanic.ToString("F0");
+        Manager.Instance.ScaleRatio = scaleDymanic;
     }
 
     public void SetExactScaleFormula(int desiredScale)
@@ -77,5 +78,7 @@ public class SceneScaler : MonoBehaviour
         float factor = Manager.Instance.ScaleRatio / desiredScale;
         transform.localScale *= factor;
         Manager.Instance.ScaleRatio = desiredScale;
+        SavedScale = gameObject.transform.localScale;
+        oldScale = desiredScale;
     }
 }
