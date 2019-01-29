@@ -42,7 +42,7 @@ public class ScalerCanvasPR : MonoBehaviour
     /// Set exact scale from predefined ones.
     /// </summary>
     /// <param name="desiredScale"> Index of the scale from the drop-down menu. </param>
-    public void SetFixedScale(int desiredScale)
+    public void SetExactScale(int desiredScale)
     {
         switch (desiredScale)
         {

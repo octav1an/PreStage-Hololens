@@ -1075,7 +1075,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114376285012428980}
-        m_MethodName: SetFixedScale
+        m_MethodName: SetExactScale
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1714,8 +1714,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -7.57, y: 2.7689996}
-  m_SizeDelta: {x: 7.529, y: 5.405}
+  m_AnchoredPosition: {x: -6.953, y: 2.7689996}
+  m_SizeDelta: {x: 13.697, y: 5.405}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224692725379723646
 RectTransform:

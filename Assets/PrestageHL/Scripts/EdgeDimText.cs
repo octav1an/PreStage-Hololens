@@ -31,7 +31,7 @@ public class EdgeDimText : MonoBehaviour
         Vector3 v0 = ParentGeo.GeoMesh.vertices[EdgeParent.EdgeHolder.V0Index];
         Vector3 v1 = ParentGeo.GeoMesh.vertices[EdgeParent.EdgeHolder.V1Index];
         float distance = (ParentGeo.transform.TransformPoint(v0) - ParentGeo.transform.TransformPoint(v1)).magnitude;
-        TextMeshCO.text = (distance * Manager.Instance.oldScaleR).ToString("F2");
+        TextMeshCO.text = (distance * Manager.Instance.ScaleRatio).ToString("F2");
     }
 
     private void UpdatePosition()

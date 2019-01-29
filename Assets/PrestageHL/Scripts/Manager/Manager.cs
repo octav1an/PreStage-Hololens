@@ -19,10 +19,7 @@ public class Manager : MonoBehaviour
         get { return GetComponent<EventManager>(); }
     }
     public GameObject SpatialMappingGo;
-    public Vector3 DefaultScale = Vector3.one;
-    public float ScaleDiff = 0;
-    public float oldScaleR = 100;
-    public float newScaleR;
+    public float ScaleRatio = 100;
 
     private RaycastHit HIT
     {
@@ -468,12 +465,6 @@ public class Manager : MonoBehaviour
         }
         // TODO: make the rest of the funtion
         
-    }
-
-    private void UpdateScaneRatio()
-    {
-        // 1/scaleDiff * scaleN = new scaleN
-        newScaleR = 1 / ScaleDiff * oldScaleR;
     }
     #endregion //Other
 
