@@ -53,7 +53,14 @@ public class BaseTable : MonoBehaviour
     {
         // Scale base table.
         float boundsScale = GetColliderBounds().extents.magnitude + ScaleOffset;
-        transform.localScale = new Vector3(boundsScale, boundsScale, boundsScale);
+        if (boundsScale < 1)
+        {
+            transform.localScale = new Vector3(boundsScale, boundsScale, boundsScale);
+        }
+        else
+        {
+            transform.localScale = Vector3.one;
+        }
 
         rend.material.SetTextureScale("_MainTex", new Vector2(boundsScale, boundsScale));
         // Position base table.
