@@ -7,8 +7,8 @@ public class OtherGeo : PRGeo
 
     void Awake()
     {
-        CubeMesh = GetComponent<MeshFilter>().mesh;
-        GetComponent<MeshCollider>().sharedMesh = CubeMesh;
+        GeoMesh = GetComponent<MeshFilter>().mesh;
+        GetComponent<MeshCollider>().sharedMesh = GeoMesh;
     }
 
     void Start () {

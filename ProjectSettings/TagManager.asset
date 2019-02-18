@@ -24,6 +24,7 @@ TagManager:
   - GizmoScale
   - GizmoScaleCenter
   - SceneRotator
+  - EdgeDim
   layers:
   - Default
   - TransparentFX
@@ -35,8 +36,8 @@ TagManager:
   - 
   - Gizmo
   - Geometry
-  - 
-  - 
+  - PRGUI
+  - Last
   - 
   - 
   - 

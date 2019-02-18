@@ -142,7 +142,7 @@ namespace RuntimeGizmos
             _startedManipulation = false;
             // Reset manipulation Vector that is responisble for move transformation.
             manipulationVec = Vector3.zero;
-            GetTarget("PREdge", "PRFace");
+            GetTarget("PREdge", "PRFace", "PRVertex");
             // Will run only if this Airtap is not the first one that adds the target.
             if (targetRootsOrdered.Count > 0)
             {
@@ -313,13 +313,18 @@ namespace RuntimeGizmos
             GameObject scaleCube = null;
             Vector3 scaleCubeLoc = Vector3.zero;
             Vector3 scaleCubeScale = Vector3.zero;
-
+            // Edges and Vertices.
+            PRGeo geo = mainTargetRoot.gameObject.GetComponent<PRGeo>();
             if (Manager.Instance.GET_COLLIDER_TAG == "GizmoScale" ||
                 Manager.Instance.GET_COLLIDER_TAG == "GizmoScaleCenter")
             {
                 scaleCube = Manager.Instance.GET_COLLIDER_GO;
                 scaleCubeLoc = scaleCube.transform.position;
                 scaleCubeScale = scaleCube.transform.localScale;
+                // Unparent the edges to avoid deforming the edges whne the geometry is scaled.
+                geo.PR_EDGE_GO.GetComponent<ParentEdge>().UnparentEdges();
+                // Unparent vertices
+                geo.PR_VERTEX_GO.GetComponent<ParentVertex>().UnparentVertices();
             }
             while (!InputUp)
             {
@@ -335,6 +340,11 @@ namespace RuntimeGizmos
                         // Save target position, in worder to add the movement Vector. Translate gives a continuos transformation.
                         Vector3 targetSavedPos = targetRootsOrderedSavedPos[i];
                         target.position = targetSavedPos + translateAxis * moveAmount;
+                        if (target.tag == "PREdge" || target.tag == "PRFace" ||
+                            target.tag == "PRVertex")
+                        {
+                            target.transform.parent.parent.GetComponent<PRGeo>().EdgeDimTempParet.SetActive(true);
+                        }
                     }
                 }
                 else if (transformType == "GizmoPlaneMove")
@@ -351,8 +361,11 @@ namespace RuntimeGizmos
                         target.position = targetSavedPos + projectedOnPlane * MoveMultiplier;
                     }
                 }
-                else if (transformType == "GizmoRotate")
+                else if (transformType == "GizmoRotate" && 
+                         Manager.Instance.SelectedGeoCO.GeoModeActive)
                 {
+                    // Don't allow any rotation if I am not in the GeoMode.
+
                     //Debug.Log("Rotate");
                     // Get the world location of the manipolation in respect to the savedHit location.
                     Vector3 worldManip = savedProjectedOnPlane + manipulationVec;
@@ -373,7 +386,7 @@ namespace RuntimeGizmos
                         else if (space == TransformSpace.Local)
                         {
                             target.localRotation = quaRotation * quaSavedRotation;
-                        }  
+                        }
                     }
                 }
                 else if (transformType == "GizmoScale")
@@ -388,6 +401,8 @@ namespace RuntimeGizmos
                         // Update the Gizmo position for scale cubes and scale rects.
                         scaleCube.transform.position = scaleCubeLoc + (scaleAxisLocal * scaleAmount);
                     }
+                    // Turn ON edge dimentions
+                    geo.EdgeDimTempParet.SetActive(true);
                 }
                 else if (transformType == "GizmoScaleCenter")
                 {
@@ -410,6 +425,8 @@ namespace RuntimeGizmos
                         // Update the Gizmo position for scale cubes and scale rects.
                         scaleCube.transform.localScale = scaleCubeScale + new Vector3(magScale, magScale, magScale) * 2;
                     }
+                    // Turn ON edge dimentions
+                    geo.EdgeDimTempParet.SetActive(true);
                 }
                 // Update the Gizmo location while doing the global rotation.
                 GizmoGo.transform.position = mainTargetRoot.transform.position;
@@ -418,8 +435,18 @@ namespace RuntimeGizmos
             // Reset scale elements.
             if (scaleCube)
             {
+                // Turn ON edge dimentions
+                geo.EdgeDimTempParet.SetActive(false);
+                // Parent the edges and vertices back to the geometry, after the scale is finished.
+                geo.PR_EDGE_GO.GetComponent<ParentEdge>().ParentEdges();
+                geo.PR_VERTEX_GO.GetComponent<ParentVertex>().ParentVertices();
                 scaleCube.transform.position = scaleCubeLoc;
                 scaleCube.transform.localScale = scaleCubeScale;
+            }
+            if (mainTargetRoot.tag == "PREdge" || mainTargetRoot.tag == "PRFace" ||
+                mainTargetRoot.tag == "PRVertex")
+            {
+                mainTargetRoot.transform.parent.parent.GetComponent<PRGeo>().EdgeDimTempParet.SetActive(false);
             }
 
             _isTransforming = false;
@@ -556,7 +583,7 @@ namespace RuntimeGizmos
         /// Modified vertion of GetTarget to work with specific tag1 or object.
         /// </summary>
         /// <param name="tag1">Tag name of the targeted object.</param>
-        void GetTarget(string tag1, string tag2)
+        void GetTarget(string tag1, string tag2, string tag3)
         {
             //if (nearAxis == Axis.None)
             if (Manager.Instance.GET_COLLIDER_LAYER != "Gizmo")
@@ -567,7 +594,8 @@ namespace RuntimeGizmos
                 if (Manager.Instance.IS_HIT)
                 {
                     Transform target = Manager.Instance.GET_COLLIDER_GO.transform;
-                    if (Manager.Instance.GET_COLLIDER_TAG == tag1 || Manager.Instance.GET_COLLIDER_TAG == tag2)
+                    if (Manager.Instance.GET_COLLIDER_TAG == tag1 || Manager.Instance.GET_COLLIDER_TAG == tag2 ||
+                        Manager.Instance.GET_COLLIDER_TAG == tag3)
                     {
                         ClearAndAddTarget(target);
                         return;

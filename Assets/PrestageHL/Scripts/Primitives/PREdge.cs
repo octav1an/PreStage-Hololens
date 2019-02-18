@@ -12,27 +12,31 @@ public class PREdge : MonoBehaviour, IFocusable
     {
         get { return transform.parent.parent.GetComponent<PRGeo>(); }
     }
-    private Mesh CUBE_MESH
+    private Mesh GEO_MESH
     {
-        get { return PARENT_CUBE.CubeMesh; }
+        get { return PARENT_CUBE.GeoMesh; }
     }
-    /// <summary>
-    /// GIZMO used for getting the selected object.
-    /// </summary>
     public PREdgeHolder EdgeHolder;
     private Vector3 _savePos;
     private Vector3[] _meshVertices;
     private Material _savedThisMat;
+    public GameObject DisplayEdgeGO;
 
     public bool Active;
     public bool FocusActive = false;
 
     #region Unity
 
+    protected virtual void Awake()
+    {
+
+    }
+
     protected virtual void Start()
     {
         _savePos = transform.localPosition;
-        _savedThisMat = GetComponent<MeshRenderer>().material;
+        _savedThisMat = DisplayEdgeGO.GetComponent<MeshRenderer>().material;
+
     }
 
     protected virtual void Update()
@@ -86,11 +90,11 @@ public class PREdge : MonoBehaviour, IFocusable
             _savePos = transform.localPosition;
             // Save the edge holder.
             EdgeHolder.savedEH = new PREdgeHolder(EdgeHolder);
-            _meshVertices = CUBE_MESH.vertices;
+            _meshVertices = GEO_MESH.vertices;
         }
         else
         {
-            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            EdgeHolder.UpdateInactiveEdgeInfo(GEO_MESH);
             // Deactivate other edge only when 
             if(Manager.Instance.GET_COLLIDER_TAG == "PREdge" ||
                Manager.Instance.IsGizmoHit()) EdgeMeshDisplay(false);
@@ -108,7 +112,7 @@ public class PREdge : MonoBehaviour, IFocusable
         }
         else
         {
-            EdgeHolder.UpdateInactiveEdgeInfo(CUBE_MESH);
+            if(Manager.Instance.GET_COLLIDER_TAG != "GizmoScale") EdgeHolder.UpdateInactiveEdgeInfo(GEO_MESH);
         }
         UpdateActiveStatus();
         UpdateCollider();
@@ -119,25 +123,17 @@ public class PREdge : MonoBehaviour, IFocusable
     private void HighlightEdge()
     {
         Material highlight = new Material(Manager.Instance.HighlightColliderMat);
-        GetComponent<MeshRenderer>().material = highlight;
+        DisplayEdgeGO.GetComponent<MeshRenderer>().material = highlight;
     }
 
     private void UnhighlightEdge()
     {
-        GetComponent<MeshRenderer>().material = _savedThisMat;
-    }
-
-    protected void DeactivateInactiveEdgesDuringTransformation()
-    {
-        if (!Active)
-        {
-            //DeactivateEdgeMesh
-        }
+        DisplayEdgeGO.GetComponent<MeshRenderer>().material = _savedThisMat;
     }
 
     protected void EdgeMeshDisplay(bool state)
     {
-        GetComponent<MeshRenderer>().enabled = state;
+        DisplayEdgeGO.GetComponent<MeshRenderer>().enabled = state;
         GetComponent<Collider>().enabled = state;
     }
     #endregion //Events
@@ -159,8 +155,8 @@ public class PREdge : MonoBehaviour, IFocusable
             {
                 _meshVertices[EdgeHolder.SameV1Index[i]] = EdgeHolder.V1;
             }
-            CUBE_MESH.vertices = _meshVertices;
-            CUBE_MESH.RecalculateBounds();
+            GEO_MESH.vertices = _meshVertices;
+            GEO_MESH.RecalculateBounds();
         }
     }
 
@@ -214,7 +210,7 @@ public class PREdge : MonoBehaviour, IFocusable
         // Change Edge material to activeMaterial.
         if (Active)
         {
-            GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
+            DisplayEdgeGO.GetComponent<MeshRenderer>().material = Manager.Instance.ActiveColliderMat;
         }
 
         // Unhighlight all edges when they are inactive and Gizmo.nearAxis is not None.
@@ -234,5 +230,16 @@ public class PREdge : MonoBehaviour, IFocusable
             UnhighlightEdge();
         }
     }
+
+    private void ShowDistance()
+    {
+        GameObject textGO = transform.Find("EdgeText").gameObject;
+        TextMesh text = textGO.GetComponent<TextMesh>();
+        text.text = (EdgeHolder.V0 - EdgeHolder.V1).magnitude.ToString();
+    }
+
     #endregion //UpdateElements
+
+    #region Other
+    #endregion // Other
 }

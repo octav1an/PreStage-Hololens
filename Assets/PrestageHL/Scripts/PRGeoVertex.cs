@@ -5,12 +5,13 @@ using UnityEngine;
 public class PRGeoVertex : PRVertex
 {
 
-
-	protected override void Start () {
+    #region Unity
+    protected override void Start () {
 		base.Start();
 	}
 
     protected override void Update () {
 		base.Update();
 	}
+    #endregion // Unity
 }

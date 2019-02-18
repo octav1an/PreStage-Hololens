@@ -1,23 +1,38 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SceneScaler : MonoBehaviour
 {
 
     public GameObject ScalerCanvasPrefab;
     public GameObject ScalerCanvasGo;
+    public GameObject DynamicScaleGO;
+    public Vector3 SavedScale = Vector3.zero;
+    public float oldScale;
 
-
-	void Start () {
-		
-	}
-	
-	void Update () {
-	    if (Input.GetKeyDown(KeyCode.L))
+    #region Unity
+    void Start () {
+	    if (SavedScale == Vector3.zero)
 	    {
-	        Destroy(gameObject);
+	        SavedScale = gameObject.transform.localScale;
 	    }
+        oldScale = Manager.Instance.ScaleRatio;
+        DynamicScaleGO = ScalerCanvasGo.transform.Find("T_Actuale_ScaleNr").gameObject;
+    }
+	
+	void Update ()
+	{
+	    CalculateScaleDynamicaly();
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            transform.localScale *= 1.4f;
+        }
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            transform.localScale *= 0.8f;
+        }
     }
 
     void OnEnable()
@@ -29,8 +44,41 @@ public class SceneScaler : MonoBehaviour
     void OnDestroy()
     {
         ScalerCanvasGo.GetComponent<ScalerCanvasPR>().ScalerTurnOff();
+        CalculateScaleDiff();
         Destroy(ScalerCanvasGo);
     }
+    #endregion // Unity
 
+    /// <summary>
+    /// Calculate and update the scale ratio in Manager.
+    /// </summary>
+    public void CalculateScaleDiff()
+    {
+        float scaleDiff = transform.localScale.x / SavedScale.x;
+        // Update the scale in Manager.
+        float newScale = 1 / scaleDiff * oldScale;
+        Manager.Instance.ScaleRatio = newScale;
+    }
 
+    /// <summary>
+    /// Calculate and display the scale dynamicaly while scaling with two hands.
+    /// </summary>
+    private void CalculateScaleDynamicaly()
+    {
+        float scaleDiff = transform.localScale.x / SavedScale.x;
+        float scaleDymanic = 1 / scaleDiff * oldScale;
+        // Update the text in ScalerCanvas.
+        DynamicScaleGO.GetComponent<Text>().text = scaleDymanic.ToString("F0");
+        Manager.Instance.ScaleRatio = scaleDymanic;
+    }
+
+    public void SetExactScaleFormula(int desiredScale)
+    {
+        // factor = oldScaleR/newScaleR
+        float factor = Manager.Instance.ScaleRatio / desiredScale;
+        transform.localScale *= factor;
+        Manager.Instance.ScaleRatio = desiredScale;
+        SavedScale = gameObject.transform.localScale;
+        oldScale = desiredScale;
+    }
 }

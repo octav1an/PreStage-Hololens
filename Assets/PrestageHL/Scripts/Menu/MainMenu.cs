@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
 using HoloToolkit.Unity.InputModule.Utilities.Interactions;
 using HoloToolkit.Unity.SpatialMapping;
 using UnityEngine;
@@ -7,38 +8,39 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance;
-    public float scaleMagnitude = 0.001f;
+    public float ScaleMagnitude = 0.001f;
+    [Header("Scene Modifiers")]
     public GameObject SceneMoverPrefab;
     public GameObject SceneScalerPrefab;
     public GameObject SceneRotatorPrefab;
     public GameObject SceneCenter;
+    [Header("Primitives to be Instantiated")]
+    public GameObject Prefab0;
+    public GameObject Prefab1;
+    public GameObject Prefab2;
+    public GameObject Prefab3;
+    public GameObject Prefab4;
+    public GameObject Prefab5;
+    public GameObject Prefab6;
+    // TODO: Remove if sceneMove works fine.
+    private bool _spatialActive = true;
 
-    public GameObject prefab0;
-    public GameObject prefab1;
-    public GameObject prefab2;
-    public GameObject prefab3;
-    public GameObject prefab4;
-    public GameObject prefab5;
+    [Header("Other")]
+
+    // TODO: remove when the tool tip at cursor will be done.
+    public GameObject ParentTextGo;
     /// <summary>
-    /// Offset of Main menu on vertical axis.
+    /// GameObject that holds all elements of the Settings panel.
     /// </summary>
-    public float YOffset;
-    private bool SpatialActive = true;
+    public GameObject SettingsPanel;
 
     private GameObject _sceneMoverGo;
     private GameObject _sceneScalerGo;
     private GameObject _sceneRotatorGo;
 
-    public GameObject parentTextGo;
-    /// <summary>
-    /// Scene center.
-    /// </summary>
-    private Vector3 _sceneCenter;
-
-    private Vector3 _sceneCenterOffseted
-    {
-        get { return _sceneCenter - Camera.main.transform.forward.normalized * 0.5f; }
-    }
+    public GameObject InstantiatedObject;
+    public Bounds InstantiatedObjectBounds;
+    private bool _isPlacing;
 
     #region Unity
 
@@ -60,50 +62,111 @@ public class MainMenu : MonoBehaviour
 	void Update ()
 	{
 	    OrientCanvasToCamera();
-	    AlignToCenter(YOffset);
+	    //AlignMenuPosition();
+	    PlancingNewObject(InstantiatedObject, ref _isPlacing);
 
-	    Text paretnText = parentTextGo.GetComponent<Text>();
-
+        Text paretnText = ParentTextGo.GetComponent<Text>();
         if(Manager.Instance.EVENT_MANAGER.EventDataSpeech != null) paretnText.text = "Recognized: " + Manager.Instance.EVENT_MANAGER.EventDataSpeech.RecognizedText;
-	    _sceneCenter = GetColliderBoundsNew().center;
 
         // Scane Main menu in relation to distance from camera.
-        Manager.Instance.ScaleToDistance(gameObject, scaleMagnitude);
+        Manager.Instance.ScaleToDistance(gameObject, ScaleMagnitude);
     }
     #endregion //Unity
 
+
     #region InstanciatePrefabs
-    public void InstanciatePrefab0()
+
+    public void PlancingNewObject(GameObject instaObj, ref bool isPlacing)
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab0, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
+        if (isPlacing)
+        {
+            // Change object opacity while placing.
+            instaObj.GetComponent<PRGeo>().ChangeObjectOpacity(0.5f);
+            // Change Object layer to IgnoreRayCast
+            instaObj.layer = 2;
+            // Do the position updates
+            if (!Manager.Instance.IS_HIT || Manager.Instance.IS_GUI_HIT)
+            {
+                Vector3 dir = Camera.main.transform.forward;
+                instaObj.transform.position = Camera.main.transform.position + (dir * 4);
+            }
+            else
+            {
+                //InstantiatedObject.transform.position = Manager.Instance.GET_HIT_LOCATION;
+                instaObj.transform.position = Manager.Instance.GET_HIT_LOCATION + GetPlacementOffset(instaObj);
+            }
+            // If input down then place
+            if (Manager.Instance.GIZMO.InputDown)
+            {
+                // Place obj.
+                Manager.Instance.CollGeoObjects.Add(instaObj);
+                instaObj.GetComponent<PRGeo>().ChangeObjectOpacity(1f);
+                // Change object layer to Geometry.
+                instaObj.layer = 9;
+                instaObj = null;
+                isPlacing = false;
+            }
+        }
     }
-    public void InstanciatePrefab1()
+
+    /// <summary>
+    /// Calculates the offset vector of a geometry to aboid intersection when placing the geometry.
+    /// </summary>
+    /// <returns></returns>
+    private Vector3 GetPlacementOffset(GameObject instaObj)
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab1, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
+
+        Bounds bounds = instaObj.GetComponent<Collider>().bounds;
+        Vector3 projected = Vector3.Project(bounds.extents, Manager.Instance.GET_HIT_NORMAL);
+        Vector3 offset = Manager.Instance.GET_HIT_NORMAL * projected.magnitude;
+        return offset;
+
     }
-    public void InstanciatePrefab2()
+
+    /// <summary>
+    /// Instantiates a prefab from the given name. See naming in FindPrefabByName method.
+    /// </summary>
+    /// <param name="str"> Prefab name to be created. </param>
+    public void GeneralInstantiatePrefab(string str)
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab2, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
+        GameObject freshObj = (GameObject)Instantiate(FindPrefabByName(str), Vector3.zero, Quaternion.identity);
+        InstantiatedObject = freshObj;
+        //InstantiatedObjectBounds = freshObj.GetComponent<Collider>().bounds;
+        InstantiatedObject.GetComponent<PRGeo>().PrefabName = str;
+        _isPlacing = true;
     }
-    public void InstanciatePrefab3()
+    public void GeneralInstantiatePrefab(ref GameObject instaObj, ref bool isPlacing, string str)
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab3, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
+        GameObject freshObj = (GameObject)Instantiate(FindPrefabByName(str), Vector3.zero, Quaternion.identity);
+        instaObj = freshObj;
+        instaObj.GetComponent<PRGeo>().PrefabName = str;
+        isPlacing = true;
     }
-    public void InstanciatePrefab4()
+
+    private GameObject FindPrefabByName(string prefabName)
     {
-        GameObject freshObj = (GameObject)Instantiate(prefab4, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
-    }
-    public void InstanciatePrefab5()
-    {
-        GameObject freshObj = (GameObject)Instantiate(prefab5, _sceneCenterOffseted, Quaternion.identity);
-        Manager.Instance.CollGeoObjects.Add(freshObj);
+        switch (prefabName.ToLower())
+        {
+            case "prefab0":
+                return Prefab0;
+            case "prefab1":
+                return Prefab1;
+            case "prefab2":
+                return Prefab2;
+            case "prefab3":
+                return Prefab3;
+            case "prefab4":
+                return Prefab4;
+            case "prefab5":
+                return Prefab5;
+            case "prefab6":
+                return Prefab6;
+            default:
+                return null;
+        }
     }
     #endregion //InstanciatePrefabs
+
 
     #region UpdateElements
 
@@ -115,6 +178,11 @@ public class MainMenu : MonoBehaviour
         Vector3 canvasPos = transform.position;
         Vector3 cameraPos = Camera.main.transform.position;
         transform.rotation = Quaternion.LookRotation(canvasPos - cameraPos, Vector3.up);
+    }
+
+    private void AlignMenuPosition()
+    {
+        transform.position = BaseTable.Instance.MENU_POSITION;
     }
 
     /// <summary>
@@ -175,6 +243,7 @@ public class MainMenu : MonoBehaviour
 
     #endregion //UpdateElements
 
+
     #region MenuCallFunctions
 
     public void MoveModelOn()
@@ -202,20 +271,6 @@ public class MainMenu : MonoBehaviour
         }
         Destroy(_sceneMoverGo);
         Manager.Instance.SpatialMappingGo.SetActive(false);
-    }
-
-    public void TurnOffSpacialMapping()
-    {
-        if (SpatialActive)
-        {
-            SpatialActive = false;
-            Manager.Instance.SpatialMappingGo.SetActive(false);
-        }
-        else
-        {
-            SpatialActive = true;
-            Manager.Instance.SpatialMappingGo.SetActive(true);
-        }
     }
 
     public void ScaleModelOn()
@@ -275,6 +330,12 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void ActivateSettingsPanel()
+    {
+        SettingsPanel.GetComponent<MMPSettings>().TogglePanelElements();
+        //SettingsPanel.SetActive(!SettingsPanel.activeInHierarchy);
+    }
+
     #endregion // MenuCallFunctions
 
     /// <summary>
@@ -298,8 +359,10 @@ public class MainMenu : MonoBehaviour
     public void CloseAllSubmenus()
     {
         transform.Find("B_File").transform.Find("SubButtons").gameObject.SetActive(false);
-        transform.Find("B_Settings").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_File").GetComponent<MMFile>().IsActive = false;
+        SettingsPanel.GetComponent<MMPSettings>().DeactivatePanelElements();
         transform.Find("B_Help").transform.Find("SubButtons").gameObject.SetActive(false);
+        transform.Find("B_Help").GetComponent<MMHelp>().IsActive = false;
     }
 
     #endregion // Other

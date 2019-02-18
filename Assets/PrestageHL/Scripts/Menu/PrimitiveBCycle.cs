@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PrimitiveBCycle : MonoBehaviour
 {
-    private Vector3 _centerPos = new Vector3(0, -87.6f, 0);
+    private Vector3 _centerPos = new Vector3(0, 21f, 0);
     private Vector3 _centerScale = new Vector3(20, 20, 10);
 
-    private Vector3 _leftPos = new Vector3(-46.7f, -75.3f, 0);
+    private Vector3 _leftPos = new Vector3(-46.7f, 12.8f, 0);
     private Vector3 _leftScale = new Vector3(18, 18, 10);
 
-    private Vector3 _rightPos = new Vector3(46.7f, -75.3f, 0);
+    private Vector3 _rightPos = new Vector3(46.7f, 12.8f, 0);
     private Vector3 _rightScale = new Vector3(18, 18, 10);
 
     public GameObject[] PrefabCollGo = new GameObject[5];
