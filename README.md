@@ -12,7 +12,7 @@ Additionally, PreStage includes a built-in OBJ exporter, enabling users to easil
 
 ## Motivation
 
-    “Before airplanes, it took mail carriers on horseback months to transport letters across the country. Before washing machines, it took a full day of physical exercise to wash and dry a family’s laundry. And before cranes, it took decades—sometimes centuries—to build large structures such as castles and cathedrals. The point being: Whatever you do, technology probably gives you a better way to do it.” - Anonymous
+_“Before airplanes, it took mail carriers on horseback months to transport letters across the country. Before washing machines, it took a full day of physical exercise to wash and dry a family’s laundry. And before cranes, it took decades—sometimes centuries—to build large structures such as castles and cathedrals. The point being: Whatever you do, technology probably gives you a better way to do it.” - Anonymous_
 
 The inception of an architecture project involves a fundamental examination of shape and size. Ensuring the precise alignment of these aspects is crucial, as no amount of intricate architectural detailing or facade materials can compensate for a building that lacks proportion and fails to harmonize with its surroundings.
 
